@@ -1,7 +1,8 @@
 "use client";
 
 import { format, parseISO } from "date-fns";
-import { PunchCard } from "@/components/ess/punch-card";
+import { AttendanceStrip } from "@/components/ess/attendance-strip";
+import { RoleHero } from "@/components/home/role-hero";
 import { QuickActions } from "@/components/ess/quick-actions";
 import { HomeRightRail } from "@/components/home/right-rail";
 import { KpiStrip, buildHomeKpis } from "@/components/home/kpi-strip";
@@ -124,7 +125,8 @@ export default function HomePage() {
         <KpiStrip items={kpis} />
 
         <AnimatedGroup preset="slide" className="grid gap-4">
-          {me.cadre !== "contract" && <PunchCard />}
+          <RoleHero />
+          {me.cadre !== "contract" && <AttendanceStrip />}
           {ess && (
             <div className="grid gap-4 xl:grid-cols-2">
               <Card className="p-4">
