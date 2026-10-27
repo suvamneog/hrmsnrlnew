@@ -15,6 +15,8 @@ import { requestTone } from "@/lib/status";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import type { Advance, Claim } from "@/lib/types";
 import { Car, FirstAid, Gift, GraduationCap, House, Paperclip, Train, Wallet } from "@phosphor-icons/react";
+import { AnimatedBackground } from "@/components/motion-primitives/animated-background";
+import { spring } from "@/lib/motion";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -133,23 +135,24 @@ export default function ClaimsPage() {
                 }
               }}
             >
-              <div className="flex flex-wrap gap-2">
-                {TYPES.map((t) => (
-                  <button
-                    type="button"
-                    key={t.id}
-                    onClick={() => setType(t.id)}
-                    className={cn(
-                      "relative rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition",
-                      type === t.id ? "text-white" : "bg-[#f3f5fb] text-ink hover:bg-[#e9edf8]",
-                    )}
-                  >
-                    {type === t.id && (
-                      <motion.span layoutId="claim-type" className="absolute inset-0 rounded-full bg-brand" transition={{ type: "spring", stiffness: 400, damping: 32 }} />
-                    )}
-                    <span className="relative">{t.label}</span>
-                  </button>
-                ))}
+              <div className="flex flex-wrap gap-1 rounded-full bg-[#f3f5fb] p-1 sm:w-fit">
+                <AnimatedBackground
+                  defaultValue={type}
+                  onValueChange={(v) => v && setType(v as Claim["type"])}
+                  className="rounded-full bg-white shadow-[0_2px_8px_rgba(27,33,64,0.08)]"
+                  transition={spring}
+                >
+                  {TYPES.map((t) => (
+                    <button
+                      type="button"
+                      key={t.id}
+                      data-id={t.id}
+                      className="rounded-full px-3.5 py-1.5 text-[13px] font-semibold text-muted transition-colors data-[checked=true]:text-ink"
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </AnimatedBackground>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Amount (INR)">

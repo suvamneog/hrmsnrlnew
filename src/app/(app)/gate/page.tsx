@@ -157,14 +157,14 @@ export default function GatePage() {
             {role === "gate_security" && (
             <div className="mt-5 flex gap-3">
               <TactileButton
-                className="flex-1"
+                className="min-w-[140px]"
                 variant="mint"
                 disabled={!!passBlockReason({ worker, contractor, certs })}
                 onClick={() => scan("in")}
               >
                 In
               </TactileButton>
-              <TactileButton className="flex-1" variant="secondary" onClick={() => scan("out")}>
+              <TactileButton className="min-w-[140px]" variant="secondary" onClick={() => scan("out")}>
                 Out
               </TactileButton>
             </div>

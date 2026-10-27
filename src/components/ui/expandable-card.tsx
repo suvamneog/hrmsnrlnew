@@ -2,6 +2,7 @@
 
 import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/cn";
+import { easeOut, spring } from "@/lib/motion";
 import { CaretDown, Check, Flag, Hourglass } from "@phosphor-icons/react";
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
 import { useId, useState, type ReactNode } from "react";
@@ -17,7 +18,6 @@ const PILL: Record<Pill["tone"], string> = {
   brand: "bg-brand-soft text-brand",
 };
 
-const spring = { type: "spring", stiffness: 380, damping: 34, mass: 0.9 } as const;
 
 /*
  * A compact row that grows in place into a checklist, like a task card.
@@ -128,7 +128,7 @@ export function ExpandableCard({
               initial={{ opacity: 0, y: -6, filter: "blur(4px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               exit={{ opacity: 0, y: -6, filter: "blur(4px)", transition: { duration: 0.15 } }}
-              transition={reduce ? { duration: 0 } : { duration: 0.32, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+              transition={reduce ? { duration: 0 } : { duration: 0.32, ease: easeOut, delay: 0.05 }}
               className="px-4 pb-5 sm:px-5"
             >
               <motion.div
@@ -227,7 +227,7 @@ function Progress({ pct, className }: { pct: number; className?: string }) {
         className="block h-full rounded-full bg-[#34c759]"
         initial={{ width: 0 }}
         animate={{ width: `${pct}%` }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.7, ease: easeOut }}
       />
     </span>
   );

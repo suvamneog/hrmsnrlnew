@@ -15,6 +15,8 @@ import { settingOn } from "@/lib/payroll";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import type { Quarter } from "@/lib/types";
 import { HouseLine, Wrench } from "@phosphor-icons/react";
+import { AnimatedBackground } from "@/components/motion-primitives/animated-background";
+import { spring } from "@/lib/motion";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -224,19 +226,23 @@ export default function TownshipPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-lg font-semibold tracking-tight">Quarters</h2>
             <div className="flex gap-1 rounded-full bg-[#f3f5fb] p-1">
-              {(["all", ...TYPES] as const).map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setFilter(t)}
-                  className={cn(
-                    "relative rounded-full px-3 py-1 text-[12px] font-semibold transition",
-                    filter === t ? "text-ink" : "text-muted hover:text-ink",
-                  )}
-                >
-                  {filter === t && <motion.span layoutId="q-filter" className="absolute inset-0 rounded-full bg-white shadow-sm" />}
-                  <span className="relative">{t === "all" ? "All" : `Type ${t}`}</span>
-                </button>
-              ))}
+              <AnimatedBackground
+                defaultValue={filter}
+                onValueChange={(v) => v && setFilter(v as Quarter["type"] | "all")}
+                className="rounded-full bg-white shadow-[0_2px_8px_rgba(27,33,64,0.08)]"
+                transition={spring}
+              >
+                {(["all", ...TYPES] as const).map((t) => (
+                  <button
+                    key={t}
+                    data-id={t}
+                    type="button"
+                    className="rounded-full px-3 py-1 text-[12px] font-semibold text-muted transition-colors data-[checked=true]:text-ink"
+                  >
+                    {t === "all" ? "All" : `Type ${t}`}
+                  </button>
+                ))}
+              </AnimatedBackground>
             </div>
           </div>
           <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-5">

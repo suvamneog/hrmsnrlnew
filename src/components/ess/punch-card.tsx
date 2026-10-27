@@ -53,7 +53,7 @@ export function PunchCard() {
       </div>
       <div className="mt-5">
         <TactileButton
-          className="w-full"
+          className="min-w-[160px]"
           disabled={closed}
           variant={closed ? "secondary" : inside ? "danger" : "mint"}
           onClick={() => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { SpotlightCard } from "@/components/ui/spotlight-card";
+import { GlowingEffect } from "@/components/aceternity/glowing-effect";
 import { ArrowUpRight } from "@phosphor-icons/react";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -22,7 +22,9 @@ export function HeroCard({
   children: ReactNode;
 }) {
   return (
-    <SpotlightCard className="overflow-hidden p-6 sm:p-7">
+    <div className="relative rounded-[22px] bg-white p-6 shadow-[0_1px_2px_rgba(27,33,64,0.04),0_12px_32px_rgba(45,64,180,0.07)] ring-1 ring-[#e9ecf4] sm:p-7">
+      <GlowingEffect spread={42} glow disabled={false} proximity={72} inactiveZone={0.05} borderWidth={2} movementDuration={1.4} />
+      <div className="relative">
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand">{eyebrow}</p>
@@ -40,7 +42,8 @@ export function HeroCard({
         )}
       </div>
       {children}
-    </SpotlightCard>
+      </div>
+    </div>
   );
 }
 

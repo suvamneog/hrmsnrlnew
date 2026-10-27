@@ -2,10 +2,10 @@
 
 import { AnimatedNumber } from "@/components/motion/animated-number";
 import { cn } from "@/lib/cn";
+import { easeOut as ease } from "@/lib/motion";
 import { motion, useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
 
-const ease = [0.22, 1, 0.36, 1] as const;
 
 /* Thin progress ring with the figure set inside, in the style of Apple's activity rings. */
 export function Ring({

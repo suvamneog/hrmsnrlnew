@@ -1,4 +1,5 @@
-import { avatarUrl, initials } from "@/lib/format";
+import { AnimatedTooltip } from "@/components/aceternity/animated-tooltip";
+import { avatarUrl } from "@/lib/format";
 import { cn } from "@/lib/cn";
 
 export function Avatar({
@@ -23,17 +24,10 @@ export function Avatar({
   );
 }
 
-export function AvatarStack({ names }: { names: string[] }) {
+export function AvatarStack({ names, size = 28 }: { names: string[]; size?: number }) {
   return (
-    <div className="flex -space-x-2">
-      {names.slice(0, 4).map((n) => (
-        <Avatar key={n} name={n} size={28} className="ring-2 ring-white" />
-      ))}
-      {names.length > 4 && (
-        <span className="grid h-7 w-7 place-items-center rounded-full bg-brand-soft text-[10px] font-semibold text-brand ring-2 ring-white">
-          {initials(names[4])}
-        </span>
-      )}
+    <div className="flex items-center pr-2">
+      <AnimatedTooltip size={size} items={names.slice(0, 5).map((n, i) => ({ id: i, name: n, image: avatarUrl(n) }))} />
     </div>
   );
 }

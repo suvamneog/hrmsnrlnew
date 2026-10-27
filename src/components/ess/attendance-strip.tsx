@@ -1,5 +1,6 @@
 "use client";
 
+import { BorderTrail } from "@/components/motion-primitives/border-trail";
 import { Card } from "@/components/ui/card";
 import { DEMO_TODAY, openPair, punchesOn } from "@/lib/demo";
 import { formatClock, formatWeekday } from "@/lib/format";
@@ -23,7 +24,14 @@ export function AttendanceStrip() {
   const dot = inside ? "bg-[#0f9f6e]" : out ? "bg-[#98a2b3]" : "bg-[#e0a43d]";
 
   return (
-    <Card className="flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4">
+    <Card className="relative flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4">
+      {inside && (
+        <BorderTrail
+          size={70}
+          className="bg-gradient-to-l from-[#0f9f6e] via-[#34c759] to-transparent"
+          transition={{ repeat: Infinity, duration: 7, ease: "linear" }}
+        />
+      )}
       <div className="flex items-center gap-3">
         <span className="grid h-10 w-10 place-items-center rounded-2xl bg-brand-soft text-brand">
           <Fingerprint size={20} weight="duotone" />
