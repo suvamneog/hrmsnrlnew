@@ -1140,6 +1140,26 @@ function rosterForMonth(): RosterEntry[] {
 
 export const ROSTER: RosterEntry[] = rosterForMonth();
 
+function readerFor(e: Employee) {
+  if (e.locationId === "siliguri") return "BIO-SLG-01";
+  if (e.locationId === "paradip") return "BIO-PRT-01";
+  if (e.locationId === "guwahati") return "BIO-GHY-01";
+  if (e.unitId === "cdu") return "BIO-CDU-WEST";
+  if (e.unitId === "fcc") return "BIO-FCC-01";
+  if (e.unitId === "util") return "BIO-UTIL-01";
+  if (e.unitId === "hse") return "BIO-HSE-01";
+  if (e.unitId === "hr") return "BIO-HR-01";
+  if (e.unitId === "twn") return "BIO-TWN-01";
+  if (e.unitId === "fin") return "BIO-ADMIN-01";
+  return "BIO-ADMIN-01";
+}
+
+function clock(hhmm: string, extra: number) {
+  const [h, m] = hhmm.split(":").map(Number);
+  const t = (((h * 60 + m + extra) % 1440) + 1440) % 1440;
+  return `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`;
+}
+
 function punches(): Punch[] {
   const rows: Punch[] = [];
   let i = 0;
@@ -1148,26 +1168,35 @@ function punches(): Punch[] {
       const date = `2026-10-${String(d).padStart(2, "0")}`;
       const ro = ROSTER.find((r) => r.employeeId === e.id && r.date === date);
       if (!ro || ro.shiftId === "OFF") continue;
-      if (HOLIDAYS.some((h) => h.date === date)) continue;
+      if (HOLIDAYS.some((h) => h.date === date && (!h.locationId || h.locationId === e.locationId))) continue;
       if (date === "2026-10-24" && e.id === "e-ranjit") continue;
-      if (date === TODAY && !e.crew) continue;
-      const shift = SHIFTS.find((s) => s.id === ro.shiftId)!;
-      const jitter = (e.name.length + d) % 7;
-      const reader = e.crew ? (e.unitId === "fcc" ? "BIO-FCC-01" : "BIO-CDU-WEST") : "BIO-ADMIN-01";
+      if (LEAVE_REQUESTS.some((l) => l.employeeId === e.id && l.status === "approved" && l.from <= date && l.to >= date)) {
+        continue;
+      }
+      const shift = SHIFTS.find((s) => s.id === ro.shiftId);
+      if (!shift?.start || !shift.end) continue;
+      const jitter = (e.name.length * 3 + d) % 11;
+      const inJitter = e.cadre === "executive" ? jitter - 8 : jitter - 4;
+      const outJitter = 4 + (e.empNo.length % 9);
+      const reader = readerFor(e);
+      const overnight = shift.end < shift.start;
+      const outDate = overnight ? format(addDays(new Date(`${date}T12:00:00+05:30`), 1), "yyyy-MM-dd") : date;
       rows.push({
         id: `p-${i++}`,
         employeeId: e.id,
         readerId: reader,
-        time: `${date}T${shift.start}:${String(10 + jitter).padStart(2, "0")}+05:30`,
+        time: `${date}T${clock(shift.start, inJitter)}:${String(12 + (d % 40)).padStart(2, "0")}+05:30`,
         kind: "in",
       });
-      rows.push({
-        id: `p-${i++}`,
-        employeeId: e.id,
-        readerId: reader,
-        time: `${date}T${shift.end === "06:00" ? "06" : shift.end.slice(0, 2)}:${String(4 + jitter).padStart(2, "0")}:00+05:30`,
-        kind: "out",
-      });
+      if (!(overnight && date === TODAY)) {
+        rows.push({
+          id: `p-${i++}`,
+          employeeId: e.id,
+          readerId: reader,
+          time: `${outDate}T${clock(shift.end, outJitter)}:${String(8 + (d % 50)).padStart(2, "0")}+05:30`,
+          kind: "out",
+        });
+      }
     }
   }
   return rows;
