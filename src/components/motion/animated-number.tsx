@@ -11,7 +11,7 @@ export function AnimatedNumber({
   format?: (n: number) => string;
 }) {
   const reduce = useReducedMotion();
-  const spring = useSpring(reduce ? value : 0, { stiffness: 80, damping: 20 });
+  const spring = useSpring(value, { stiffness: 80, damping: 20 });
   const display = useTransform(spring, (v) => format(v));
 
   useEffect(() => {

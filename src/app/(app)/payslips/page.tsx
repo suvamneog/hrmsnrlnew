@@ -16,10 +16,10 @@ export default function PayslipsPage() {
 
   return (
     <div>
-      <PageHeader title="Payslips" subtitle="Download the monthly slip or Form 16. October is available after payroll compute." />
+      <PageHeader title="Payslips" />
       {run.stage !== "publish" && !row && (
         <Card className="p-6 text-sm text-muted">
-          October is still in {run.stage.replaceAll("_", " ")}. Compute the run to open a working slip.
+          October payroll is still in {run.stage.replaceAll("_", " ")}.
         </Card>
       )}
       <div className="mt-4 grid gap-3">

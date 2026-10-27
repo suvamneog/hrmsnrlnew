@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, Input, Select } from "@/components/ui/input";
+import { routeAllowed } from "@/lib/access";
 import { formatClock, formatDay } from "@/lib/format";
 import { positionTitle, unitName } from "@/lib/org";
 import { useCurrentUser, useHrms } from "@/lib/store";
@@ -15,6 +16,7 @@ import { toast } from "sonner";
 
 export default function SelfPage() {
   const me = useCurrentUser();
+  const role = useHrms((s) => s.actingRole);
   const consentsAll = useHrms((s) => s.consents);
   const punchesAll = useHrms((s) => s.punches);
   const run = useHrms((s) => s.payrollRuns[0]);
@@ -50,6 +52,7 @@ export default function SelfPage() {
         </div>
       </Card>
 
+      {routeAllowed("/payslips", role) && (
       <Card className="p-5">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-semibold">Documents</h2>
@@ -65,6 +68,7 @@ export default function SelfPage() {
           <span className="text-sm font-semibold tabular-nums text-brand">{slip ? "Open" : "View"}</span>
         </Link>
       </Card>
+      )}
 
       <Card className="p-5">
         <h2 className="mb-3 font-semibold">Change a personal detail</h2>

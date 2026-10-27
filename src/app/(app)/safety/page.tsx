@@ -27,7 +27,6 @@ export default function SafetyPage() {
     <div>
       <PageHeader
         title="Safety training"
-        subtitle="OISD-STD-154. An expired mandatory certificate blocks the gate pass and work-permit eligibility."
         actions={
           <Button
             variant="secondary"

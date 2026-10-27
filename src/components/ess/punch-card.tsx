@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { DEMO_TODAY, openPair, punchesOn } from "@/lib/demo";
 import { formatClock, formatWeekday } from "@/lib/format";
 import { useCurrentUser, useHrms } from "@/lib/store";
@@ -19,11 +20,12 @@ export function PunchCard() {
 
   const today = punchesOn(punches, me.id);
   const { inn, out, inside } = openPair(today);
+  const closed = Boolean(inn && out && !inside);
   const shift = roster.find((r) => r.employeeId === me.id && r.date === DEMO_TODAY);
   const shiftLabel = shifts.find((s) => s.id === shift?.shiftId)?.label ?? "General";
 
   return (
-    <div className="overflow-hidden rounded-[22px] bg-white p-5 shadow-[0_10px_30px_rgba(45,64,180,0.07)] sm:p-6">
+    <SpotlightCard className="p-5 sm:p-6">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold tracking-tight">Attendance</h2>
@@ -60,6 +62,7 @@ export function PunchCard() {
       >
         <Button
           className="h-12 w-full rounded-2xl text-base"
+          disabled={closed}
           onClick={() => {
             const res = clockPunch();
             if (!res.ok) toast.error(res.reason ?? "Could not punch");
@@ -67,12 +70,9 @@ export function PunchCard() {
           }}
         >
           {inside ? <SignOut size={18} weight="bold" /> : <SignIn size={18} weight="bold" />}
-          {inside ? "Check out" : "Check in"}
+          {closed ? "Day closed" : inside ? "Check out" : "Check in"}
         </Button>
       </motion.div>
-      <p className="mt-3 text-xs text-muted">
-        Staff punch from this screen. Shift crew use the BIO reader at the unit.
-      </p>
-    </div>
+    </SpotlightCard>
   );
 }

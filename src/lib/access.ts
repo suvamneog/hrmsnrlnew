@@ -1,8 +1,13 @@
-import { NAV } from "./nav";
+import { NAV, ON_ROLL } from "./nav";
 import type { Employee, Role } from "./types";
+
+export function isOnRoll(role: Role | null) {
+  return !!role && ON_ROLL.includes(role);
+}
 
 export function routeAllowed(path: string, role: Role | null): boolean {
   if (!role) return false;
+  if (role === "gate_security") return path === "/gate" || path.startsWith("/gate/");
   const item = NAV.filter((n) => path === n.href || path.startsWith(`${n.href}/`)).sort(
     (a, b) => b.href.length - a.href.length,
   )[0];
@@ -45,6 +50,22 @@ export function canAdvancePayroll(role: Role | null, stage: string): boolean {
 
 export function claimApproverRole(amount: number): Role[] {
   if (amount >= 25000) return ["finance_approver"];
-  if (amount >= 10000) return ["hr_admin", "finance_approver"];
-  return ["line_manager", "hr_admin", "finance_approver"];
+  if (amount >= 10000) return ["hr_admin"];
+  return ["line_manager", "hr_admin"];
+}
+
+export function canSeePerson(role: Role | null, viewer: Employee | null, subject: Employee | null) {
+  if (!role || !viewer || !subject) return false;
+  if (viewer.id === subject.id) return true;
+  if (role === "line_manager") return subject.managerId === viewer.id;
+  if (
+    role === "hr_admin" ||
+    role === "payroll_officer" ||
+    role === "finance_approver" ||
+    role === "auditor" ||
+    role === "recruiter"
+  ) {
+    return true;
+  }
+  return false;
 }

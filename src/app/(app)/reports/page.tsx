@@ -13,7 +13,6 @@ import { toast } from "sonner";
 const COPY = {
   en: {
     title: "Government reports",
-    sub: "Manpower, reservation, PwBD. Exports are written to the audit trail.",
     exec: "Executives",
     work: "Workmen",
     train: "Trainees",
@@ -22,7 +21,6 @@ const COPY = {
   },
   hi: {
     title: "सरकारी विवरण",
-    sub: "मानव बल, आरक्षण, दिव्यांगजन। निर्यात ऑडिट में दर्ज होता है।",
     exec: "कार्यपालक",
     work: "कर्मकार",
     train: "प्रशिक्षु",
@@ -31,7 +29,6 @@ const COPY = {
   },
   as: {
     title: "চৰকাৰী প্ৰতিবেদন",
-    sub: "জনবল, সংৰক্ষণ, দিব্যাংগজন। ৰপ্তানি অডিটত লিখা হয়।",
     exec: "কাৰ্যবাহী",
     work: "শ্ৰমিক",
     train: "প্ৰশিক্ষাৰ্থী",
@@ -65,7 +62,6 @@ export default function ReportsPage() {
     <div>
       <PageHeader
         title={t.title}
-        subtitle={t.sub}
         actions={
           <div className="flex gap-2">
             {(["en", "hi", "as"] as const).map((l) => (

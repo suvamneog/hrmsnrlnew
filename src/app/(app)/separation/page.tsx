@@ -17,7 +17,7 @@ export default function SeparationPage() {
 
   return (
     <div>
-      <PageHeader title="Separation" subtitle="Each department records clearance under their name. Final settlement runs only when the list is complete." />
+      <PageHeader title="Separation" />
       {rows.map((s) => {
         const e = employees.find((x) => x.id === s.employeeId);
         const open = s.clearances.some((c) => !c.done);

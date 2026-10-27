@@ -18,12 +18,13 @@ export default function TaxPage() {
   const [regime, setRegime] = useState<"new" | "old">("new");
   const [section80C, setSection80C] = useState("150000");
   const [rent, setRent] = useState("0");
+  const [proofs, setProofs] = useState(0);
   if (!me) return null;
   const mine = tax.filter((t) => t.employeeId === me.id);
 
   return (
     <div>
-      <PageHeader title="Tax declaration" subtitle="Regime, 80C and rent. Proofs are stored on the declaration. Payroll uses this for TDS on the next compute." />
+      <PageHeader title="Tax declaration" />
       <div className="grid gap-5 lg:grid-cols-2">
         <Card className="p-5">
           <form
@@ -36,7 +37,7 @@ export default function TaxPage() {
                 regime,
                 section80C: Number(section80C),
                 rent: Number(rent),
-                proofs: 1,
+                proofs,
               });
               toast.success("Declaration sent to payroll");
             }}
@@ -52,6 +53,14 @@ export default function TaxPage() {
             </Field>
             <Field label="Rent paid (HRA)">
               <Input type="number" value={rent} onChange={(e) => setRent(e.target.value)} />
+            </Field>
+            <Field label="Proofs">
+              <Input
+                type="file"
+                multiple
+                onChange={(e) => setProofs(e.target.files?.length ?? 0)}
+              />
+              {proofs > 0 && <p className="mt-1 text-xs text-muted">{proofs} file{proofs === 1 ? "" : "s"} attached</p>}
             </Field>
             <Button type="submit">Submit FY 2026-27</Button>
           </form>

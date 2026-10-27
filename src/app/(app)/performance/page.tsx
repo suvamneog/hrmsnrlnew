@@ -60,7 +60,6 @@ export default function PerformancePage() {
     <div>
       <PageHeader
         title="Appraisal 2026-27"
-        subtitle="KRA, then a 1–5 rating. Reporting and reviewing officers rate in turn. PRP uses the reviewing rating × MoU score."
       />
       <Card className="mb-4 p-5">
         <p className="text-sm text-muted">Your stage</p>

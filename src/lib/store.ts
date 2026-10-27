@@ -76,6 +76,7 @@ import type {
   NotificationItem,
   NrlInterface,
   NrlInterfaceId,
+  Opening,
   PayrollRun,
   PayrollStage,
   PolicySetting,
@@ -315,6 +316,7 @@ export interface HrmsState {
   enrollTraining: (sessionId: string, personId: string) => void;
   sitInduction: (workerId: string, score: number) => void;
   issueCertificate: (personId: string, personKind: "employee" | "contract", courseId: string) => void;
+  addOpening: (input: Omit<Opening, "id" | "status">) => void;
   moveCandidate: (id: string, stage: CandidateStage) => void;
   tickOnboarding: (id: string, item: string) => void;
   joinCandidate: (id: string) => { ok: boolean; reason?: string };
@@ -540,7 +542,13 @@ export const useHrms = create<HrmsState>()(
         if (ytd + input.amount > cap) return { ok: false, reason: `${e.grade} ${input.type} limit is ₹${cap.toLocaleString("en-IN")} this year.` };
         set({
           claims: [{ ...input, id: uid("cl"), status: "pending", submittedAt: stamp() }, ...s.claims],
-          notifications: notify(s.notifications, e.managerId, "Claim pending", `${input.type} ₹${input.amount}`, "/approvals"),
+          notifications: notify(
+            s.notifications,
+            input.amount >= 25000 ? "e-rajib" : e.managerId,
+            "Claim pending",
+            `${input.type} ₹${input.amount}`,
+            "/approvals",
+          ),
         });
         return { ok: true };
       },
@@ -750,7 +758,8 @@ export const useHrms = create<HrmsState>()(
         const s = get();
         const id = s.currentUserId;
         if (!id) return { ok: false, reason: "Not signed in" };
-        const { inside } = openPair(punchesOn(s.punches, id));
+        const { inn, out, inside } = openPair(punchesOn(s.punches, id));
+        if (inn && out && !inside) return { ok: false, reason: "Day already closed. Regularise if you need another pair." };
         const kind: Punch["kind"] = inside ? "out" : "in";
         const now = new Date();
         const hh = String(now.getHours()).padStart(2, "0");
@@ -1099,6 +1108,11 @@ export const useHrms = create<HrmsState>()(
             passes: syncPasses(s.workers, s.contractors, certificates, s.passes),
           };
         }),
+      addOpening: (input) =>
+        set((s) => ({
+          openings: [{ ...input, id: uid("op"), status: "open" }, ...s.openings],
+          audit: log(s.audit, s.currentUserId ?? "system", "add_opening", input.post, "rec"),
+        })),
       moveCandidate: (id, stage) =>
         set((s) => ({
           candidates: s.candidates.map((c) => (c.id === id ? { ...c, stage } : c)),
@@ -1308,7 +1322,24 @@ export const useHrms = create<HrmsState>()(
           ...current,
           ...p,
           employees: mergeHeadcount(core, EMPLOYEES),
-          interfaces: p.interfaces ?? current.interfaces,
+          positions: current.positions,
+          claims: (() => {
+            const have = new Set((p.claims ?? current.claims).map((c) => c.id));
+            return [...(p.claims ?? current.claims), ...CLAIMS.filter((c) => !have.has(c.id))];
+          })(),
+          interfaces: (p.interfaces ?? current.interfaces).map((row) => {
+            const cat = NRL_INTERFACES.find((x) => x.id === row.id);
+            return cat
+              ? {
+                  ...row,
+                  name: cat.name,
+                  system: cat.system,
+                  purpose: cat.purpose,
+                  channel: cat.channel,
+                  note: cat.note,
+                }
+              : row;
+          }),
           settings: (p.settings ?? current.settings).map((row) => ({
             ...row,
             versions: row.versions ?? SETTINGS.find((x) => x.id === row.id)?.versions,

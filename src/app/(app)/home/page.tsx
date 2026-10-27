@@ -2,10 +2,14 @@
 
 import { PunchCard } from "@/components/ess/punch-card";
 import { QuickActions } from "@/components/ess/quick-actions";
+import { AnimatedGroup } from "@/components/motion/animated-group";
+import { AnimatedNumber } from "@/components/motion/animated-number";
+import { InView } from "@/components/motion/in-view";
+import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { canDecideFor } from "@/lib/access";
+import { canDecideFor, claimApproverRole, routeAllowed } from "@/lib/access";
 import { liveCensus } from "@/lib/census";
 import { DEMO_TODAY } from "@/lib/demo";
 import { formatDay, inr } from "@/lib/format";
@@ -39,9 +43,12 @@ export default function HomePage() {
   const canDecide = (empId: string) => canDecideFor(role, me.id, empId, teamIds);
 
   const pendingLeave = leaves.filter((l) => l.status === "pending" && canDecide(l.employeeId));
-  const claimInbox = claims.filter(
-    (c) => c.status === "pending" && canDecide(c.employeeId) && (role === "hr_admin" || role === "line_manager" || role === "finance_approver"),
-  );
+  const claimInbox = claims.filter((c) => {
+    if (c.status !== "pending" || c.employeeId === me.id) return false;
+    if (role === "finance_approver") return c.amount >= 25000;
+    if (!role || !claimApproverRole(c.amount).includes(role)) return false;
+    return canDecide(c.employeeId);
+  });
   const pendingSwaps = swaps.filter((s) => s.status === "pending" && canDecide(s.fromId));
   const pendingRegs = regs.filter((r) => r.status === "pending" && canDecide(r.employeeId));
   const myOpen = [
@@ -59,25 +66,51 @@ export default function HomePage() {
       }),
   );
 
-  const showOps =
-    role === "hr_admin" ||
-    role === "payroll_officer" ||
-    role === "finance_approver" ||
-    role === "auditor" ||
-    role === "line_manager" ||
-    role === "contract_labour_cell";
+  const ess = routeAllowed("/leave", role);
+  const canApprove = role === "line_manager" || role === "hr_admin" || role === "finance_approver";
 
   const census = liveCensus(employees);
   const kpis = [
-    { label: "On roll", value: census.onRoll.toLocaleString("en-IN"), hint: `${census.executives} exec · ${census.workmen} workmen`, bg: "bg-[#e7f8ef]", c: "text-[#0f9f6e]", href: "/people", text: true },
-    { label: "Waiting on you", value: todoCount, hint: "Leave, claims, swaps", bg: "bg-[#fff1e6]", c: "text-[#e07a3d]", href: "/approvals" },
-    { label: "Contract in plant", value: inside.size, hint: "Live gate count", bg: "bg-[#eeeaff]", c: "text-[#5b5bd6]", href: role === "hr_admin" || role === "contract_labour_cell" || role === "safety_officer" || role === "auditor" ? "/contractors" : "/home" },
-    { label: "Payroll", value: run.stage.replace("_", " "), hint: "October 2026", bg: "bg-[#fdeef4]", c: "text-[#d4537e]", href: "/payroll", text: true },
-  ];
+    (role === "hr_admin" || role === "payroll_officer" || role === "auditor") && {
+      label: "On roll",
+      value: census.onRoll,
+      hint: `${census.executives} exec · ${census.workmen} workmen`,
+      bg: "bg-[#e7f8ef]",
+      c: "text-[#0f9f6e]",
+      href: "/people",
+      count: true as const,
+    },
+    canApprove && {
+      label: "Waiting on you",
+      value: todoCount,
+      hint: "Leave, claims, swaps",
+      bg: "bg-[#fff1e6]",
+      c: "text-[#e07a3d]",
+      href: "/approvals",
+      count: true as const,
+    },
+    (role === "hr_admin" || role === "contract_labour_cell" || role === "safety_officer" || role === "auditor") && {
+      label: "Contract in plant",
+      value: inside.size,
+      hint: "Live gate count",
+      bg: "bg-[#eeeaff]",
+      c: "text-[#5b5bd6]",
+      href: "/contractors",
+      count: true as const,
+    },
+    routeAllowed("/payroll", role) && {
+      label: "Payroll",
+      value: run.stage.replace("_", " "),
+      hint: "October 2026",
+      bg: "bg-[#fdeef4]",
+      c: "text-[#d4537e]",
+      href: "/payroll",
+    },
+  ].filter((k): k is Exclude<typeof k, false> => Boolean(k));
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+      <InView delay={0} className="flex flex-wrap items-end justify-between gap-3" viewOptions={{ amount: 0.01, margin: "0px" }}>
         <div>
           <h1 className="text-[28px] font-semibold tracking-tight sm:text-[32px]">
             {hello}, {me.preferredName}
@@ -86,15 +119,16 @@ export default function HomePage() {
             {positionTitle(me.positionId)} · {unitName(me.unitId)}
           </p>
         </div>
-        {todoCount > 0 && (
+        {canApprove && todoCount > 0 && (
           <Link href="/approvals" className="text-sm font-semibold text-brand">
             {todoCount} in inbox
           </Link>
         )}
-      </div>
+      </InView>
 
-      <div className="grid gap-4 lg:grid-cols-[1.15fr_1fr]">
-        <PunchCard />
+      <AnimatedGroup preset="slide" className="grid gap-4 lg:grid-cols-[1.15fr_1fr]">
+        {me.cadre !== "contract" && <PunchCard />}
+        {ess && (
         <div className="space-y-4">
           <Card className="p-4">
             <QuickActions />
@@ -119,29 +153,31 @@ export default function HomePage() {
             </div>
           </Card>
         </div>
-      </div>
+        )}
+      </AnimatedGroup>
 
-      {showOps && (
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      {kpis.length > 0 && (
+        <AnimatedGroup preset="slide" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {kpis.map((k) => (
             <Link key={k.label} href={k.href}>
               <div className={`rounded-[22px] p-4 ${k.bg}`}>
                 <p className="text-xs font-medium text-muted">{k.label}</p>
                 <p className={`mt-2 text-2xl font-semibold tracking-tight ${k.c}`}>
-                  {"text" in k && k.text ? (
-                    <span className="text-lg capitalize">{String(k.value)}</span>
+                  {"count" in k && k.count ? (
+                    <AnimatedNumber value={Number(k.value)} />
                   ) : (
-                    k.value
+                    <span className="text-lg capitalize">{String(k.value)}</span>
                   )}
                 </p>
                 <p className="mt-1 text-xs text-muted">{k.hint}</p>
               </div>
             </Link>
           ))}
-        </div>
+        </AnimatedGroup>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      {ess && (
+      <ScrollReveal className={canApprove ? "grid gap-4 lg:grid-cols-2" : undefined}>
         <Card className="p-5">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-semibold">My requests</h2>
@@ -176,6 +212,7 @@ export default function HomePage() {
             </ul>
           )}
         </Card>
+        {canApprove && (
         <Card className="p-5">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-semibold">Waiting on you</h2>
@@ -240,9 +277,11 @@ export default function HomePage() {
             </div>
           )}
         </Card>
-      </div>
+        )}
+      </ScrollReveal>
+      )}
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <ScrollReveal className="grid gap-4 lg:grid-cols-2">
         <Card className="p-5">
           <h2 className="mb-3 font-semibold">Upcoming holidays</h2>
           <ul className="space-y-2.5">
@@ -257,18 +296,25 @@ export default function HomePage() {
               ))}
           </ul>
         </Card>
+        {(team.length > 0 || routeAllowed("/people", role)) && (
         <Card className="p-5">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-semibold">{team.length ? "Your crew" : "People around you"}</h2>
-            <Link href="/people" className="text-sm font-semibold text-brand">
-              Directory
-            </Link>
+            {routeAllowed("/people", role) && (
+              <Link href="/people" className="text-sm font-semibold text-brand">
+                Directory
+              </Link>
+            )}
           </div>
           <div className="grid grid-cols-3 gap-2">
             {(team.length ? team : employees.filter((e) => e.locationId === me.locationId && e.id !== me.id))
               .slice(0, 6)
               .map((e) => (
-                <Link key={e.id} href={`/people/${e.id}`} className="rounded-2xl bg-[#f6f8fd] p-3 transition hover:bg-brand-soft">
+                <Link
+                  key={e.id}
+                  href={routeAllowed("/people", role) ? `/people/${e.id}` : "/home"}
+                  className="rounded-2xl bg-[#f6f8fd] p-3 transition hover:bg-brand-soft"
+                >
                   <Avatar name={e.name} size={40} />
                   <p className="mt-2 truncate text-sm font-semibold">{e.preferredName}</p>
                   <Badge tone={cadreTone(e.cadre)}>{e.grade}</Badge>
@@ -276,7 +322,8 @@ export default function HomePage() {
               ))}
           </div>
         </Card>
-      </div>
+        )}
+      </ScrollReveal>
     </div>
   );
 }

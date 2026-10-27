@@ -140,7 +140,6 @@ export default function ApprovalsPage() {
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-[28px] font-semibold tracking-tight">Inbox</h1>
-          <p className="mt-1 text-sm text-muted">One list. Leave, punches, swaps, claims. You never approve your own.</p>
         </div>
       </div>
 

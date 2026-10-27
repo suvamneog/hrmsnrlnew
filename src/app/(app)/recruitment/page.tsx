@@ -4,10 +4,12 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Field, Input, Select } from "@/components/ui/input";
 import { downloadText } from "@/lib/files";
 import { useHrms } from "@/lib/store";
-import type { CandidateStage } from "@/lib/types";
+import type { Cadre, CandidateStage } from "@/lib/types";
 import { toast } from "sonner";
+import { useState } from "react";
 
 const FLOW: CandidateStage[] = ["applied", "shortlist", "interview", "medical", "offer", "joined"];
 
@@ -22,16 +24,61 @@ export default function RecruitmentPage() {
   const openings = useHrms((s) => s.openings);
   const candidates = useHrms((s) => s.candidates);
   const points = useHrms((s) => s.rosterPoints);
+  const role = useHrms((s) => s.actingRole);
+  const addOpening = useHrms((s) => s.addOpening);
   const moveCandidate = useHrms((s) => s.moveCandidate);
   const tickOnboarding = useHrms((s) => s.tickOnboarding);
   const joinCandidate = useHrms((s) => s.joinCandidate);
+  const [post, setPost] = useState("Engineer trainee (Chemical)");
+  const [grade, setGrade] = useState("ET");
+  const [cadre, setCadre] = useState<Cadre>("trainee");
+  const [vacancies, setVacancies] = useState("8");
+  const canEdit = role === "recruiter" || role === "hr_admin";
 
   return (
     <div>
       <PageHeader
         title="Recruitment"
-        subtitle="Reservation roster per opening. Each stage is a recorded decision. Joining writes the employee record."
       />
+      {canEdit && (
+        <Card className="mb-5 p-5">
+          <form
+            className="grid gap-3 sm:grid-cols-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const n = Number(vacancies);
+              addOpening({
+                post,
+                grade,
+                cadre,
+                vacancies: n,
+                split: { UR: Math.ceil(n * 0.4), OBC: Math.ceil(n * 0.27), SC: Math.ceil(n * 0.15), ST: Math.ceil(n * 0.075), EWS: Math.max(0, n - Math.ceil(n * 0.4) - Math.ceil(n * 0.27) - Math.ceil(n * 0.15) - Math.ceil(n * 0.075)), PwBD: 0 },
+              });
+              toast.success(`Opening posted: ${post}`);
+            }}
+          >
+            <Field label="Post">
+              <Input value={post} onChange={(e) => setPost(e.target.value)} required />
+            </Field>
+            <Field label="Grade">
+              <Input value={grade} onChange={(e) => setGrade(e.target.value)} required />
+            </Field>
+            <Field label="Cadre">
+              <Select value={cadre} onChange={(e) => setCadre(e.target.value as Cadre)}>
+                <option value="trainee">Trainee</option>
+                <option value="executive">Executive</option>
+                <option value="workman">Workman</option>
+              </Select>
+            </Field>
+            <Field label="Vacancies">
+              <Input type="number" min={1} value={vacancies} onChange={(e) => setVacancies(e.target.value)} required />
+            </Field>
+            <div className="sm:col-span-4">
+              <Button type="submit">Post opening</Button>
+            </div>
+          </form>
+        </Card>
+      )}
       <div className="grid gap-4">
         {openings.map((o) => (
           <Card key={o.id} className="p-5">
@@ -70,7 +117,7 @@ export default function RecruitmentPage() {
                         </span>
                         <span className="flex items-center gap-2">
                           <span className="capitalize text-muted">{c.stage}</span>
-                          {action && next && (
+                          {canEdit && action && next && (
                             <Button
                               variant="secondary"
                               onClick={() => {
@@ -81,7 +128,7 @@ export default function RecruitmentPage() {
                               {action}
                             </Button>
                           )}
-                          {c.stage === "offer" && (
+                          {canEdit && c.stage === "offer" && (
                             <Button
                               onClick={() => {
                                 const r = joinCandidate(c.id);
@@ -104,11 +151,12 @@ export default function RecruitmentPage() {
                             ) : (
                               <button
                                 key={item.item}
+                                disabled={!canEdit}
                                 onClick={() => {
                                   tickOnboarding(c.id, item.item);
                                   toast.success(`${item.item} marked for ${c.name}.`);
                                 }}
-                                className="rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-muted"
+                                className="rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-muted disabled:opacity-40"
                               >
                                 Mark {item.item}
                               </button>

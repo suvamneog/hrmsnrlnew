@@ -1,14 +1,22 @@
 "use client";
 
+import { ATT_DOT, StatusMonth } from "@/components/calendar/status-month";
 import { PageHeader } from "@/components/layout/page-header";
+import { AnimatedGroup } from "@/components/motion/animated-group";
+import { InView } from "@/components/motion/in-view";
+import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Calendar } from "@/components/ui/calendar";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Field, Input, Select, Textarea } from "@/components/ui/input";
+import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { formatDay } from "@/lib/format";
-import { countLeaveDays } from "@/lib/leave";
+import { countLeaveDays, eachDate } from "@/lib/leave";
 import { requestTone } from "@/lib/status";
 import { useCurrentUser, useHrms } from "@/lib/store";
+import { format, parseISO } from "date-fns";
+import type { DateRange } from "react-day-picker";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
 
@@ -46,16 +54,35 @@ export default function LeavePage() {
         : 0,
     [from, to, me, holidays, roster, half],
   );
+  const mine = useMemo(() => requests.filter((r) => r.employeeId === me?.id), [requests, me]);
+  const marks = useMemo(() => {
+    const map = new Map<string, { dot: string }>();
+    if (!me) return map;
+    for (const h of holidays) {
+      if (!h.locationId || h.locationId === me.locationId) map.set(h.date, { dot: ATT_DOT.holiday });
+    }
+    for (const r of roster) {
+      if (r.employeeId === me.id && r.shiftId === "OFF") map.set(r.date, { dot: ATT_DOT.weekly_off });
+    }
+    for (const r of mine) {
+      if (r.status === "withdrawn" || r.status === "rejected") continue;
+      for (const d of eachDate(r.from, r.to)) {
+        map.set(d, { dot: r.status === "approved" ? ATT_DOT.leave : ATT_DOT.od });
+      }
+    }
+    return map;
+  }, [holidays, roster, mine, me]);
   if (!me) return null;
-  const mine = requests.filter((r) => r.employeeId === me.id);
   const type = types.find((t) => t.id === typeId);
   const bal = balances.find((b) => b.employeeId === me.id && b.typeId === typeId)?.balance ?? 0;
+  const range: DateRange = { from: parseISO(from), to: parseISO(to) };
 
   return (
     <div>
-      <PageHeader title="Leave" subtitle="Working days only. Weekly offs and location holidays are excluded. Half-day is 0.5 against the type." />
-      <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
-        <Card className="p-5">
+      <PageHeader title="Leave" />
+      <div className="grid gap-5 lg:grid-cols-[1.15fr_320px]">
+        <InView>
+        <SpotlightCard className="p-5">
           <h2 className="mb-4 font-semibold">Apply</h2>
           <form
             className="grid gap-3 sm:grid-cols-2"
@@ -78,13 +105,7 @@ export default function LeavePage() {
                 ))}
               </Select>
             </Field>
-            <Field label="From">
-              <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
-            </Field>
-            <Field label="To">
-              <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
-            </Field>
-            {type?.halfDay && (
+            {type?.halfDay ? (
               <Field label="Half day">
                 <Select value={half} onChange={(e) => setHalf(e.target.value as typeof half)}>
                   <option value="">Full days</option>
@@ -92,13 +113,41 @@ export default function LeavePage() {
                   <option value="pm">Second half</option>
                 </Select>
               </Field>
+            ) : (
+              <div />
             )}
+            <Field label="From">
+              <DatePicker value={from} onChange={(iso) => {
+                setFrom(iso);
+                if (iso > to) setTo(iso);
+              }} />
+            </Field>
+            <Field label="To">
+              <DatePicker value={to} onChange={(iso) => {
+                setTo(iso);
+                if (iso < from) setFrom(iso);
+              }} />
+            </Field>
+            <div className="sm:col-span-2 rounded-[18px] border border-line bg-[#f8f9fd] p-3">
+              <Calendar
+                mode="range"
+                selected={range}
+                defaultMonth={parseISO(from)}
+                numberOfMonths={1}
+                onSelect={(next) => {
+                  if (!next?.from) return;
+                  setFrom(format(next.from, "yyyy-MM-dd"));
+                  setTo(format((next.to ?? next.from), "yyyy-MM-dd"));
+                }}
+                className="mx-auto"
+              />
+            </div>
             <Field label="Reason">
               <Textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={2} required />
             </Field>
-            <div className="sm:col-span-2 flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3 self-end">
               <Button type="submit">Submit {days} day{days === 1 ? "" : "s"}</Button>
-              <p className="text-xs text-muted">Balance {bal}. Weekly offs and holidays are skipped.</p>
+              <p className="text-xs text-muted">Balance {bal}</p>
             </div>
           </form>
           <div className="mt-8">
@@ -123,19 +172,36 @@ export default function LeavePage() {
               ))}
             </ul>
           </div>
-        </Card>
-        <div className="space-y-3">
+        </SpotlightCard>
+        </InView>
+        <AnimatedGroup preset="slide" className="space-y-3">
           {balances
             .filter((b) => b.employeeId === me.id)
             .map((b) => (
-              <Card key={b.typeId} className="p-4">
+              <SpotlightCard key={b.typeId} className="p-4">
                 <p className="text-xs text-muted">{types.find((t) => t.id === b.typeId)?.name}</p>
                 <p className="text-2xl font-semibold">{b.balance}</p>
-              </Card>
+              </SpotlightCard>
             ))}
+          <ScrollReveal>
+          <SpotlightCard className="p-4">
+            <p className="mb-2 text-sm font-semibold">Plant calendar</p>
+            <StatusMonth selected={from} onSelect={(iso) => {
+              setFrom(iso);
+              if (iso > to) setTo(iso);
+            }} marks={marks} month={parseISO(from)} />
+            <ul className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted">
+              <li className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${ATT_DOT.leave}`} />Approved</li>
+              <li className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${ATT_DOT.od}`} />Pending</li>
+              <li className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${ATT_DOT.holiday}`} />Holiday</li>
+              <li className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${ATT_DOT.weekly_off}`} />Weekly off</li>
+            </ul>
+          </SpotlightCard>
+          </ScrollReveal>
           <p className="text-xs text-muted">Approver: {employees.find((e) => e.id === me.managerId)?.name ?? "HR"}</p>
           {role === "hr_admin" && (
-            <Card className="p-4">
+            <InView>
+            <SpotlightCard className="p-4">
               <p className="mb-2 text-sm font-semibold">Add leave type</p>
               <Input className="mb-2" value={newType} onChange={(e) => setNewType(e.target.value)} />
               <Input className="mb-2" value={newCode} onChange={(e) => setNewCode(e.target.value)} />
@@ -148,9 +214,10 @@ export default function LeavePage() {
               >
                 Save type
               </Button>
-            </Card>
+            </SpotlightCard>
+            </InView>
           )}
-        </div>
+        </AnimatedGroup>
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { liveCensus } from "@/lib/census";
 import { locationName, positionTitle, unitName } from "@/lib/org";
 import { cadreTone, empStatus } from "@/lib/status";
-import { useHrms } from "@/lib/store";
+import { useCurrentUser, useHrms } from "@/lib/store";
 import type { Cadre } from "@/lib/types";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -22,18 +22,25 @@ const filters: { id: "all" | Cadre; label: string }[] = [
 export default function PeoplePage() {
   const employees = useHrms((s) => s.employees);
   const role = useHrms((s) => s.actingRole);
+  const me = useCurrentUser();
   const [q, setQ] = useState("");
   const [f, setF] = useState<(typeof filters)[number]["id"]>("all");
   const [page, setPage] = useState(0);
-  const census = liveCensus(employees);
+  const scoped = useMemo(() => {
+    if (role === "line_manager" && me) {
+      return employees.filter((e) => e.id === me.id || e.managerId === me.id);
+    }
+    return employees;
+  }, [employees, role, me]);
+  const census = liveCensus(role === "line_manager" ? scoped : employees);
   const rows = useMemo(() => {
-    const hit = employees.filter((e) => {
+    const hit = scoped.filter((e) => {
       const title = positionTitle(e.positionId);
       const match = `${e.name} ${e.empNo} ${e.grade} ${title}`.toLowerCase().includes(q.toLowerCase());
       return match && (f === "all" || e.cadre === f);
     });
     return [...hit].sort((a, b) => Number(a.id.startsWith("g-")) - Number(b.id.startsWith("g-")));
-  }, [employees, q, f]);
+  }, [scoped, q, f]);
   const PAGE = 48;
   const pages = Math.max(1, Math.ceil(rows.length / PAGE));
   const slice = rows.slice(page * PAGE, page * PAGE + PAGE);
@@ -41,8 +48,11 @@ export default function PeoplePage() {
   return (
     <div>
       <PageHeader
-        title={`People (${census.onRoll.toLocaleString("en-IN")} on roll)`}
-        subtitle="Directory of NRL. Cadre, grade and location are effective-dated. Joining is recorded in Recruitment."
+        title={
+          role === "line_manager"
+            ? `Your crew (${rows.length})`
+            : `People (${census.onRoll.toLocaleString("en-IN")} on roll)`
+        }
         actions={
           role === "hr_admin" || role === "recruiter" ? (
             <Link href="/recruitment" className="text-sm font-semibold text-brand">

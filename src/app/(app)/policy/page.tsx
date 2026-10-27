@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { formatDay } from "@/lib/format";
 import { SETTINGS } from "@/lib/seed";
@@ -31,7 +32,6 @@ export default function PolicyPage() {
     <div>
       <PageHeader
         title="Rules engine"
-        subtitle="DPE IDA, NRL wage settlement and township fees. Every rate is dated. A backdated change pays arrears on the next compute."
       />
       <div className="grid gap-3">
         {settings.map((s) => {
@@ -63,11 +63,10 @@ export default function PolicyPage() {
                     onChange={(e) => setDrafts((d) => ({ ...d, [s.id]: e.target.value }))}
                     disabled={role === "auditor"}
                   />
-                  <Input
-                    className="h-10 w-36"
-                    type="date"
+                  <DatePicker
+                    className="h-10 w-44"
                     value={from[s.id] ?? s.validFrom}
-                    onChange={(e) => setFrom((d) => ({ ...d, [s.id]: e.target.value }))}
+                    onChange={(iso) => setFrom((d) => ({ ...d, [s.id]: iso }))}
                     disabled={role === "auditor"}
                   />
                   {role === "hr_admin" && (

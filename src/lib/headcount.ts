@@ -149,6 +149,23 @@ export function generatedEmployees(named: Employee[]): Employee[] {
 
 export function mergeHeadcount(core: Employee[], namedSeed: Employee[]): Employee[] {
   const extra = generatedEmployees(namedSeed);
-  const seen = new Set(core.map((e) => e.id));
-  return [...core.filter((e) => !e.id.startsWith("g-")), ...extra.filter((e) => !seen.has(e.id))];
+  const seedById = new Map(namedSeed.map((e) => [e.id, e]));
+  const named = core
+    .filter((e) => !e.id.startsWith("g-"))
+    .map((e) => {
+      const seed = seedById.get(e.id);
+      if (!seed) return e;
+      return {
+        ...e,
+        positionId: seed.positionId,
+        unitId: seed.unitId,
+        locationId: seed.locationId,
+        managerId: seed.managerId,
+        crew: seed.crew,
+        grade: seed.grade,
+        cadre: seed.cadre,
+      };
+    });
+  const seen = new Set(named.map((e) => e.id));
+  return [...named, ...extra.filter((e) => !seen.has(e.id))];
 }

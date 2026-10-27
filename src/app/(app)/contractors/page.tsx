@@ -5,6 +5,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Field, Input, Select } from "@/components/ui/input";
 import { downloadText, oshReturn } from "@/lib/files";
 import { maskAadhaar } from "@/lib/format";
@@ -41,7 +42,7 @@ export default function ContractorsPage() {
 
   return (
     <div>
-      <PageHeader title="Contract labour" subtitle="Licence tracking, worker register, wage proofs. A pass is issued only when every mandatory check is valid." />
+      <PageHeader title="Contract labour" />
       <div className="grid gap-4">
         {contractors.map((c) => {
           const crew = workers.filter((w) => w.contractorId === c.id);
@@ -159,7 +160,7 @@ export default function ContractorsPage() {
             <Input value={esic} onChange={(e) => setEsic(e.target.value.replace(/\D/g, "").slice(0, 10))} inputMode="numeric" placeholder="10 digits" />
           </Field>
           <Field label="Medical fitness valid to">
-            <Input type="date" value={medical} onChange={(e) => setMedical(e.target.value)} />
+            <DatePicker value={medical} onChange={setMedical} placeholder="Valid to" />
           </Field>
           <label className="flex items-center gap-2 self-end pb-2 text-sm">
             <input type="checkbox" checked={police} onChange={(e) => setPolice(e.target.checked)} />

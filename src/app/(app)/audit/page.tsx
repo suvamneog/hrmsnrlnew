@@ -22,13 +22,7 @@ export default function AuditPage() {
 
   return (
     <div>
-      <PageHeader
-        title="Audit trail"
-        subtitle="Append-only. Who, what, when, before and after. Logs stay in India."
-      />
-      <p className="mb-4 text-xs text-muted">
-        Hosting: India region. Encryption: TLS in transit, AES-256 at rest. MFA at sign-in for payroll, finance and HR.
-      </p>
+      <PageHeader title="Audit trail" />
       <Card className="overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-[#f6f8fd] text-left text-xs text-muted">

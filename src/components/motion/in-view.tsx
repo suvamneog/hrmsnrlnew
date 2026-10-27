@@ -2,13 +2,12 @@
 
 import {
   motion,
-  useInView,
   useReducedMotion,
   type Transition,
   type UseInViewOptions,
   type Variant,
 } from "motion/react";
-import { type ReactNode, useRef, useState } from "react";
+import type { ReactNode } from "react";
 
 export type InViewProps = {
   children: ReactNode;
@@ -21,14 +20,14 @@ export type InViewProps = {
   delay?: number;
 };
 
-const defaultVariants = {
-  hidden: { opacity: 0, y: 18, filter: "blur(6px)" },
-  visible: { opacity: 1, y: 0, filter: "blur(0px)" },
+export const blurSlide = {
+  hidden: { y: 16 },
+  visible: { y: 0 },
 };
 
 export function InView({
   children,
-  variants = defaultVariants,
+  variants = blurSlide,
   transition,
   viewOptions,
   as = "div",
@@ -36,9 +35,6 @@ export function InView({
   className,
   delay = 0,
 }: InViewProps) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, viewOptions ?? { amount: 0.2 });
-  const [isViewed, setIsViewed] = useState(false);
   const reduce = useReducedMotion();
   const MotionComponent = motion.create(as as "div");
 
@@ -48,17 +44,18 @@ export function InView({
 
   return (
     <MotionComponent
-      ref={ref}
       className={className}
       initial="hidden"
-      onAnimationComplete={() => {
-        if (once) setIsViewed(true);
+      whileInView="visible"
+      viewport={{
+        once,
+        amount: viewOptions?.amount ?? 0.15,
+        margin: viewOptions?.margin ?? "0px 0px -40px 0px",
       }}
-      animate={isInView || isViewed ? "visible" : "hidden"}
       variants={variants}
       transition={
         transition ?? {
-          duration: 0.55,
+          duration: 0.5,
           delay,
           ease: [0.16, 1, 0.3, 1],
         }
@@ -81,10 +78,11 @@ export function Stagger({
     <motion.div
       className={className}
       initial={reduce ? false : "hidden"}
-      animate="visible"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.15 }}
       variants={{
         hidden: {},
-        visible: { transition: { staggerChildren: 0.06 } },
+        visible: { transition: { staggerChildren: 0.08 } },
       }}
     >
       {children}
@@ -103,11 +101,10 @@ export function Item({
     <motion.div
       className={className}
       variants={{
-        hidden: { opacity: 0, y: 14 },
+        hidden: { y: 12 },
         visible: {
-          opacity: 1,
           y: 0,
-          transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
+          transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
         },
       }}
     >

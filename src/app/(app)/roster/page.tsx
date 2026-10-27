@@ -1,10 +1,16 @@
 "use client";
 
+import { SHIFT_TONE, StatusMonth } from "@/components/calendar/status-month";
 import { PageHeader } from "@/components/layout/page-header";
+import { AnimatedGroup } from "@/components/motion/animated-group";
+import { InView } from "@/components/motion/in-view";
+import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Select } from "@/components/ui/input";
+import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { useCurrentUser, useHrms } from "@/lib/store";
+import { parseISO } from "date-fns";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
 
@@ -34,6 +40,15 @@ export default function RosterPage() {
       cells: days.map((d) => roster.find((r) => r.employeeId === e.id && r.date === d)?.shiftId ?? "—"),
     }));
   }, [crew, roster, days]);
+  const marks = useMemo(() => {
+    const map = new Map<string, { stamp: string; stampClass: string }>();
+    if (!me) return map;
+    for (const r of roster) {
+      if (r.employeeId !== me.id) continue;
+      map.set(r.date, { stamp: r.shiftId, stampClass: SHIFT_TONE[r.shiftId] ?? "bg-[#f6f8fd] text-muted" });
+    }
+    return map;
+  }, [roster, me]);
 
   if (!me) return null;
   const color: Record<string, string> = {
@@ -48,7 +63,6 @@ export default function RosterPage() {
     <div>
       <PageHeader
         title="Roster"
-        subtitle="Four-crew rotation. Swaps need the shift-in-charge and a minimum rest check."
         actions={
           role === "line_manager" || role === "hr_admin" ? (
             <Button
@@ -82,7 +96,8 @@ export default function RosterPage() {
           ))}
         </div>
       )}
-      <Card className="overflow-x-auto p-4">
+      <ScrollReveal>
+      <SpotlightCard className="overflow-x-auto p-4">
         <table className="min-w-max text-xs">
           <thead>
             <tr>
@@ -107,32 +122,43 @@ export default function RosterPage() {
             ))}
           </tbody>
         </table>
-      </Card>
-      <Card className="mt-4 flex flex-wrap items-end gap-3 p-4">
-        <label className="text-sm">
-          Swap with
-          <Select className="mt-1" value={toId} onChange={(e) => setToId(e.target.value)}>
-            {crew.filter((e) => e.id !== me.id).map((e) => (
-              <option key={e.id} value={e.id}>
-                {e.name}
-              </option>
-            ))}
-          </Select>
-        </label>
-        <label className="text-sm">
-          Date
-          <input className="mt-1 h-11 rounded-xl border border-line px-3" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-        </label>
-        <Button
-          onClick={() => {
-            const r = applySwap({ fromId: me.id, toId, date, approverId: me.managerId ?? me.id });
-            if (!r.ok) toast.error(r.reason);
-            else toast.success("Swap sent to shift-in-charge");
-          }}
-        >
-          Request swap
-        </Button>
-      </Card>
+      </SpotlightCard>
+      </ScrollReveal>
+      <AnimatedGroup preset="slide" className="mt-4 grid gap-4 lg:grid-cols-[1fr_1.1fr]">
+        <InView>
+        <SpotlightCard className="p-4">
+          <h2 className="mb-3 font-semibold">My shifts</h2>
+          <StatusMonth selected={date} onSelect={setDate} marks={marks} month={parseISO("2026-10-01")} />
+        </SpotlightCard>
+        </InView>
+        <SpotlightCard className="flex flex-wrap items-end gap-3 p-4">
+          <label className="min-w-[180px] flex-1 text-sm">
+            Swap with
+            <Select className="mt-1" value={toId} onChange={(e) => setToId(e.target.value)}>
+              {crew.filter((e) => e.id !== me.id).map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.name}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <label className="min-w-[180px] flex-1 text-sm">
+            Date
+            <div className="mt-1">
+              <DatePicker value={date} onChange={setDate} />
+            </div>
+          </label>
+          <Button
+            onClick={() => {
+              const r = applySwap({ fromId: me.id, toId, date, approverId: me.managerId ?? me.id });
+              if (!r.ok) toast.error(r.reason);
+              else toast.success("Swap sent to shift-in-charge");
+            }}
+          >
+            Request swap
+          </Button>
+        </SpotlightCard>
+      </AnimatedGroup>
     </div>
   );
 }

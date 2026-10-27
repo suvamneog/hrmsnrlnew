@@ -27,7 +27,7 @@ export default function ClaimsPage() {
 
   return (
     <div>
-      <PageHeader title="Claims & advances" subtitle="Medical, LTC and cafeteria items sit against grade limits. Recoveries go to the next payroll." />
+      <PageHeader title="Claims & advances" />
       <div className="grid gap-5 lg:grid-cols-2">
         <Card className="p-5">
           <form

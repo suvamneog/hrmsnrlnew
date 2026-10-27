@@ -48,6 +48,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   if (role === "gate_security") {
+    if (path !== "/gate") {
+      return (
+        <div className="grid min-h-[100dvh] place-items-center bg-bg text-muted">
+          Opening gate
+        </div>
+      );
+    }
     return (
       <div className="min-h-[100dvh] bg-[#e8edf8]">
         <div className="flex items-center justify-end px-4 py-3">
@@ -62,12 +69,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-[100dvh] bg-bg">
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar />
+        <div className="sticky top-0 z-30 bg-bg">
+          <Topbar />
+        </div>
         <main className="flex-1 px-4 pb-24 md:px-7 md:pb-8">
           <Guard>{children}</Guard>
         </main>
         <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-line bg-white/95 px-2 py-2 backdrop-blur md:hidden">
-          {ESS_TABS.map((item) => {
+          {ESS_TABS.filter((item) => routeAllowed(item.href, role)).map((item) => {
             const active = path === item.href || path.startsWith(`${item.href}/`);
             return (
               <Link

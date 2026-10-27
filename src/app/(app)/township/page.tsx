@@ -24,7 +24,6 @@ export default function TownshipPage() {
     <div>
       <PageHeader
         title="Township housing"
-        subtitle="Licence fee goes to payroll. HRA stops while a quarter is held."
         actions={
           me && (
             <Button

@@ -1,5 +1,7 @@
 "use client";
 
+import { routeAllowed } from "@/lib/access";
+import { useHrms } from "@/lib/store";
 import { Calculator, CalendarBlank, ClockCounterClockwise, FileText, Receipt } from "@phosphor-icons/react";
 import Link from "next/link";
 
@@ -12,9 +14,13 @@ const ACTIONS = [
 ] as const;
 
 export function QuickActions() {
+  const role = useHrms((s) => s.actingRole);
+  const actions = ACTIONS.filter((a) => routeAllowed(a.href, role));
+  if (actions.length === 0) return null;
+
   return (
     <div className="grid grid-cols-5 gap-2">
-      {ACTIONS.map(({ href, label, Icon, bg, ink }) => (
+      {actions.map(({ href, label, Icon, bg, ink }) => (
         <Link
           key={href}
           href={href}

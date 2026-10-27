@@ -44,7 +44,6 @@ export default function PayrollPage() {
     <div>
       <PageHeader
         title="October 2026 payroll"
-        subtitle="Lock attendance, then compute. Each later stage locks the one before. Finance, not payroll, releases the bank file."
         actions={
           <div className="flex gap-2">
             {!run.lockedAttendance && (
@@ -135,8 +134,8 @@ export default function PayrollPage() {
       {run.results.length === 0 && (
         <Card className="p-8 text-center text-sm text-muted">
           {run.lockedAttendance
-            ? "Attendance is locked. Compute reads DA, HRA, DPE caps and the wage-share test from dated settings."
-            : "Lock attendance before compute. The engine will not run on an open month."}
+            ? "Attendance locked. Compute the October run."
+            : "Lock attendance before compute."}
         </Card>
       )}
 

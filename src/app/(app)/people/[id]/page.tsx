@@ -5,6 +5,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Field, Input, Select } from "@/components/ui/input";
 import { canSeePii } from "@/lib/access";
 import { formatDay, maskAadhaar, maskBank, maskPan } from "@/lib/format";
@@ -133,7 +134,7 @@ export default function PersonPage() {
                 </Select>
               </Field>
               <Field label="Effective">
-                <Input type="date" value={from} onChange={(ev) => setFrom(ev.target.value)} />
+                <DatePicker value={from} onChange={setFrom} />
               </Field>
               <Field label="New grade">
                 <Input value={grade || e.grade} onChange={(ev) => setGrade(ev.target.value)} />

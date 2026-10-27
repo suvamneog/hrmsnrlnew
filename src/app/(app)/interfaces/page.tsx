@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { downloadText } from "@/lib/files";
 import { formatStamp } from "@/lib/format";
+import { NRL_INTERFACES } from "@/lib/interfaces";
 import { nrlExtractCsv, sapMismatch } from "@/lib/sap";
 import { useHrms } from "@/lib/store";
 import type { NrlInterfaceStatus } from "@/lib/types";
@@ -36,24 +37,24 @@ export default function InterfacesPage() {
     <div>
       <PageHeader
         title="Interfaces"
-        subtitle="NRL connections to SAP HR, SBI CMP, EPFO, TRACES and the plant directory. Files leave this system. Nothing here is a live link."
       />
       <div className="grid gap-3">
         {interfaces.map((row) => {
+          const cat = NRL_INTERFACES.find((x) => x.id === row.id) ?? row;
           const st = STATUS[row.status];
           return (
             <Card key={row.id} className="p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="font-semibold">{row.name}</h2>
+                    <h2 className="font-semibold">{cat.name}</h2>
                     <Badge tone={st.tone}>{st.label}</Badge>
                   </div>
-                  <p className="mt-1 text-sm text-muted">{row.system}</p>
+                  <p className="mt-1 text-sm text-muted">{cat.system}</p>
                 </div>
               </div>
-              <p className="mt-3 text-sm">{row.purpose}</p>
-              <p className="mt-1 text-xs text-muted">{row.channel}</p>
+              <p className="mt-3 text-sm">{cat.purpose}</p>
+              <p className="mt-1 text-xs text-muted">{cat.channel}</p>
               <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
                 <div>
                   <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted">Last file</dt>
@@ -68,7 +69,6 @@ export default function InterfacesPage() {
                   <dd className="mt-1 font-medium">{row.lastRun ? formatStamp(row.lastRun) : "—"}</dd>
                 </div>
               </dl>
-              <p className="mt-3 text-xs text-muted">{row.note}</p>
 
               {row.id === "sap_hr" && canHr && (
                 <div className="mt-4 border-t border-line pt-4">
