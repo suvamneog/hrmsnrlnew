@@ -4,7 +4,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { canAdvancePayroll } from "./access";
 import { DEMO_TODAY, openPair, punchesOn } from "./demo";
-import { claimLimit, computeFf } from "./ff";
+import { ADVANCE_RULES, claimLimit, computeFf } from "./ff";
 import { bankFile, claimsBankFile, ecrFile, form24q, npsFile, ptFiles, sapFiFile } from "./files";
 import { passBlockReason } from "./gate";
 import { countLeaveDays, validateLeave } from "./leave";
@@ -78,6 +78,7 @@ import type {
   NrlInterface,
   NrlInterfaceId,
   Opening,
+  Advance,
   PayrollRun,
   PayrollStage,
   PolicySetting,
@@ -342,6 +343,9 @@ export interface HrmsState {
   addRetention: (object: string, reason: string, until: string) => void;
   exportReport: (name: string, content: string) => void;
   addWaiting: (employeeId: string, type: "II" | "III" | "IV" | "V") => void;
+  applyAdvance: (type: Advance["type"], principal: number, instalments: number) => { ok: boolean; reason?: string };
+  decideAdvance: (id: string, status: "approved" | "rejected") => void;
+  vacateQuarter: (quarterId: string) => { ok: boolean; reason?: string };
 }
 
 // August and September are already paid, so employees have payslip history before October runs.
@@ -793,12 +797,23 @@ export const useHrms = create<HrmsState>()(
         set({ gateEvents: [event, ...s.gateEvents] });
         return { ok: true };
       },
-      setGateOffline: (offline) => set({ gateOffline: offline }),
+      setGateOffline: (offline) =>
+        set((s) => ({
+          gateOffline: offline,
+          interfaces: s.interfaces.map((row) =>
+            row.id === "saral" ? { ...row, status: offline ? ("queued" as const) : ("online" as const) } : row,
+          ),
+        })),
       flushGateQueue: () =>
         set((s) => ({
           gateEvents: [...s.gateQueue, ...s.gateEvents],
           gateQueue: [],
           gateOffline: false,
+          interfaces: s.interfaces.map((row) =>
+            row.id === "saral"
+              ? { ...row, status: "online" as const, lastRun: stamp(), lastAck: `Gate 2 synced · ${s.gateQueue.length} queued events sent` }
+              : row,
+          ),
           audit: log(s.audit, s.currentUserId ?? "system", "sync_gate", `${s.gateQueue.length} events`, "gate"),
         })),
       clockPunch: () => {
@@ -1366,13 +1381,66 @@ export const useHrms = create<HrmsState>()(
         void content;
       },
       addWaiting: (employeeId, type) =>
-        set((s) => ({
-          waiting: [{ id: uid("wl"), employeeId, type, applied: DEMO_TODAY }, ...s.waiting],
-        })),
+        set((s) =>
+          s.waiting.some((w) => w.employeeId === employeeId)
+            ? {}
+            : { waiting: [...s.waiting, { id: uid("wl"), employeeId, type, applied: DEMO_TODAY }] },
+        ),
+      applyAdvance: (type, principal, instalments) => {
+        const s = get();
+        const me = s.employees.find((e) => e.id === s.currentUserId);
+        if (!me) return { ok: false, reason: "Not signed in" };
+        const rule = ADVANCE_RULES[type];
+        if (!(principal > 0)) return { ok: false, reason: "Enter an amount." };
+        if (principal > rule.max(me.grade)) return { ok: false, reason: `${rule.label} advance is capped at ₹${rule.max(me.grade).toLocaleString("en-IN")} for ${me.grade}.` };
+        if (instalments < 1 || instalments > rule.instalments) return { ok: false, reason: `Recover over 1 to ${rule.instalments} instalments.` };
+        if (s.advances.some((a) => a.employeeId === me.id && a.type === type && a.status !== "rejected" && a.outstanding > 0)) {
+          return { ok: false, reason: `You already have a ${rule.label.toLowerCase()} advance running.` };
+        }
+        set({
+          advances: [
+            {
+              id: uid("ad"),
+              employeeId: me.id,
+              type,
+              principal,
+              outstanding: principal,
+              monthlyRecovery: Math.ceil(principal / instalments),
+              instalments,
+              status: "pending",
+              appliedAt: stamp(),
+            },
+            ...s.advances,
+          ],
+          audit: log(s.audit, me.id, "apply_advance", type, "claims", String(principal)),
+        });
+        return { ok: true };
+      },
+      decideAdvance: (id, status) =>
+        set((s) => {
+          const row = s.advances.find((a) => a.id === id);
+          if (!row || row.status !== "pending" || s.actingRole !== "hr_admin" || row.employeeId === s.currentUserId) return {};
+          return {
+            advances: s.advances.map((a) => (a.id === id ? { ...a, status } : a)),
+            audit: log(s.audit, s.currentUserId ?? "system", "decide_advance", id, "claims", status),
+          };
+        }),
+      vacateQuarter: (quarterId) => {
+        const s = get();
+        const q = s.quarters.find((x) => x.id === quarterId);
+        if (!q?.employeeId) return { ok: false, reason: "Quarter is not occupied." };
+        if (q.employeeId !== s.currentUserId && s.actingRole !== "hr_admin") return { ok: false, reason: "Only the resident or HR can vacate." };
+        set({
+          quarters: s.quarters.map((x) => (x.id === quarterId ? { ...x, status: "maintenance" as const, employeeId: undefined } : x)),
+          employees: s.employees.map((e) => (e.id === q.employeeId ? { ...e, quarterId: undefined } : e)),
+          audit: log(s.audit, s.currentUserId ?? "system", "vacate_quarter", quarterId, "twn", q.employeeId),
+        });
+        return { ok: true };
+      },
     }),
     {
       name: "nrl-people",
-      version: 9,
+      version: 11,
       migrate: () => ({ ...initial }),
       partialize: (s) => {
         const slice = { ...initial };

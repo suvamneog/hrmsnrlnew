@@ -181,8 +181,8 @@ export function computeEmployeePay(args: {
   const pt = professionalTax(e.locationId, gross);
   const tds = estimateTds(gross * 12);
   const recovery = advances
-    .filter((a) => a.employeeId === e.id)
-    .reduce((s, a) => s + a.monthlyRecovery, 0);
+    .filter((a) => a.employeeId === e.id && (a.status ?? "approved") === "approved" && a.outstanding > 0)
+    .reduce((s, a) => s + Math.min(a.monthlyRecovery, a.outstanding), 0);
   const licence = e.quarterId ? settingOn(settings, `licence.${e.quarterId}`, onDate) : 0;
 
   if (pfEmp) lines.push({ code: "PF", label: "Provident fund", type: "deduction", amount: pfEmp });

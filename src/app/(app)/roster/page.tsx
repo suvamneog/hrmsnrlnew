@@ -10,7 +10,12 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Select } from "@/components/ui/input";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { useCurrentUser, useHrms } from "@/lib/store";
-import { parseISO } from "date-fns";
+import { Bars } from "@/components/home/viz";
+import { HeroCard } from "@/components/ui/hero-card";
+import { DEMO_TODAY } from "@/lib/demo";
+import { settingOn } from "@/lib/payroll";
+import { addDays, format, parseISO } from "date-fns";
+import { motion } from "motion/react";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
 
@@ -25,6 +30,8 @@ export default function RosterPage() {
   const editShift = useHrms((s) => s.editShift);
   const shifts = useHrms((s) => s.shifts);
   const role = useHrms((s) => s.actingRole);
+  const settings = useHrms((s) => s.settings);
+  const swaps = useHrms((s) => s.swaps);
   const crew = employees.filter((e) => e.crew && (me?.crew ? e.crew === me.crew || e.managerId === me.id || e.id === me.id : true)).slice(0, 10);
   const [toId, setToId] = useState(crew[0]?.id ?? "");
   const [date, setDate] = useState("2026-11-02");
@@ -51,6 +58,14 @@ export default function RosterPage() {
   }, [roster, me]);
 
   if (!me) return null;
+  const todayCode = roster.find((r) => r.employeeId === me.id && r.date === DEMO_TODAY)?.shiftId;
+  const todayShift = todayCode && todayCode !== "OFF" ? shifts.find((x) => x.id === todayCode) : undefined;
+  const next7 = Array.from({ length: 7 }, (_, i) => format(addDays(parseISO(DEMO_TODAY), i + 1), "yyyy-MM-dd")).map((d) => ({
+    date: d,
+    code: roster.find((r) => r.employeeId === me.id && r.date === d)?.shiftId ?? "—",
+  }));
+  const minRest = settingOn(settings, "min.rest", DEMO_TODAY, undefined, 11);
+  const pendingSwaps = swaps.filter((x) => x.status === "pending" && (x.fromId === me.id || x.approverId === me.id)).length;
   const color: Record<string, string> = {
     M: "bg-[#e7f8ef] text-[#0f9f6e]",
     A: "bg-[#fff1e6] text-[#e07a3d]",
@@ -96,6 +111,57 @@ export default function RosterPage() {
           ))}
         </div>
       )}
+      <InView className="mb-5">
+        <HeroCard
+          eyebrow={`Crew ${me.crew ?? "—"} · four-crew rotation`}
+          title={`Today ${todayShift ? `you are on ${todayShift.label.toLowerCase()}` : "you are off"}`}
+          action={<span className="rounded-full bg-[#f3f5fb] px-3 py-1.5 text-[12px] font-semibold">Min rest {minRest} h</span>}
+        >
+          <div className="grid gap-8 md:grid-cols-[1fr_1.2fr]">
+            <div>
+              <p className="mb-3 text-[12px] font-semibold text-muted">On shift today, this crew view</p>
+              <Bars
+                rows={shifts
+                  .filter((x) => x.code !== "OFF" && x.code !== "G")
+                  .map((x) => ({
+                    label: `${x.label} · ${x.start}–${x.end}`,
+                    value: grid.filter((g) => g.cells[days.indexOf(DEMO_TODAY)] === x.id).length,
+                    tone: x.code === "M" ? "#0f9f6e" : x.code === "A" ? "#e07a3d" : "#5b5bd6",
+                  }))}
+              />
+              <p className="mt-3 text-[12px] text-muted">
+                Off today {grid.filter((g) => g.cells[days.indexOf(DEMO_TODAY)] === "OFF").length} · swaps waiting {pendingSwaps}
+              </p>
+            </div>
+            <div>
+              <p className="mb-3 text-[12px] font-semibold text-muted">Your next 7 days</p>
+              <div className="grid grid-cols-7 gap-1.5">
+                {next7.map((d, i) => (
+                  <motion.div
+                    key={d.date}
+                    initial={{ opacity: 0, y: 8 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.04 * i, duration: 0.4 }}
+                    className={`flex flex-col items-center rounded-2xl px-1 py-2.5 ${color[d.code] ?? "bg-[#f6f8fd] text-muted"}`}
+                  >
+                    <span className="text-[10px] font-semibold uppercase opacity-70">{format(parseISO(d.date), "EEE")}</span>
+                    <span className="text-[15px] font-semibold tabular-nums">{d.date.slice(8)}</span>
+                    <span className="mt-1 text-[11px] font-bold">{d.code}</span>
+                  </motion.div>
+                ))}
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {shifts.filter((x) => x.code !== "OFF").map((x) => (
+                  <span key={x.id} className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${color[x.code]}`}>
+                    {x.code} {x.start}–{x.end}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </HeroCard>
+      </InView>
       <ScrollReveal>
       <SpotlightCard className="overflow-x-auto p-4">
         <table className="min-w-max text-xs">
@@ -103,7 +169,8 @@ export default function RosterPage() {
             <tr>
               <th className="sticky left-0 bg-white px-2 py-2 text-left">Crew</th>
               {days.map((d) => (
-                <th key={d} className="px-1 py-2 font-medium text-muted">
+                <th key={d} className={`px-1 py-2 font-medium ${d === DEMO_TODAY ? "text-brand" : "text-muted"}`}>
+                  <span className="block text-[9px] uppercase">{format(parseISO(d), "EEEEE")}</span>
                   {d.slice(8)}
                 </th>
               ))}
@@ -114,8 +181,14 @@ export default function RosterPage() {
               <tr key={row.e.id}>
                 <td className="sticky left-0 bg-white px-2 py-1 font-semibold">{row.e.preferredName}</td>
                 {row.cells.map((c, i) => (
-                  <td key={i} className="px-1 py-1">
-                    <span className={`grid h-8 w-10 place-items-center rounded-lg font-semibold ${color[c] ?? "bg-white"}`}>{c}</span>
+                  <td key={i} className={`px-1 py-1 ${days[i] === DEMO_TODAY ? "bg-brand-soft/60" : ""}`}>
+                    <span
+                      className={`grid h-8 w-10 place-items-center rounded-lg font-semibold ${color[c] ?? "bg-white"} ${
+                        row.e.id === me.id ? "ring-1 ring-brand/40" : ""
+                      }`}
+                    >
+                      {c}
+                    </span>
                   </td>
                 ))}
               </tr>

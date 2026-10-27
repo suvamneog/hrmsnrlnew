@@ -3,7 +3,9 @@
 import { ATT_DOT, StatusMonth } from "@/components/calendar/status-month";
 import { PunchCard } from "@/components/ess/punch-card";
 import type { Punch } from "@/lib/types";
+import { Columns, Fact, Ring } from "@/components/home/viz";
 import { PageHeader } from "@/components/layout/page-header";
+import { HeroCard } from "@/components/ui/hero-card";
 import { AnimatedGroup } from "@/components/motion/animated-group";
 import { InView } from "@/components/motion/in-view";
 import { ScrollReveal } from "@/components/motion/scroll-reveal";
@@ -45,6 +47,36 @@ export default function TimePage() {
     () => mine.filter((a) => a.date.startsWith("2026-10")).slice(-14),
     [mine],
   );
+  const run = useHrms((s) => s.payrollRuns[0]);
+  const locked = Boolean(run?.lockedAttendance);
+  const month = useMemo(() => {
+    const days = mine.filter((a) => a.date.startsWith("2026-10"));
+    let late = 0;
+    let hours = 0;
+    let ot = 0;
+    const weekly = [0, 0, 0, 0, 0];
+    for (const a of days) {
+      const f = shiftFlags({ punches, date: a.date, shift: shifts.find((x) => x.id === a.shiftId), employeeId: me?.id ?? "" });
+      if (f.lateMinutes) late += 1;
+      const h = a.hours || f.hours || 0;
+      hours += h;
+      ot += f.overtime || a.overtime || 0;
+      weekly[Math.min(4, Math.floor((Number(a.date.slice(8)) - 1) / 7))] += h;
+    }
+    const count = (st: string) => days.filter((a) => a.status === st).length;
+    return {
+      present: count("present"),
+      leave: count("leave"),
+      off: count("weekly_off"),
+      holidays: count("holiday"),
+      missing: count("missing_punch"),
+      working: days.filter((a) => a.status !== "weekly_off" && a.status !== "holiday").length,
+      late,
+      hours,
+      ot,
+      weeks: weekly.slice(0, Math.floor((Number(DEMO_TODAY.slice(8)) - 1) / 7) + 1).map((v, i) => ({ label: `W${i + 1}`, value: v })),
+    };
+  }, [mine, punches, shifts, me]);
   const marks = useMemo(() => {
     const map = new Map<string, { dot: string }>();
     for (const a of mine) {
@@ -104,10 +136,55 @@ export default function TimePage() {
 
   return (
     <div>
-      <PageHeader title="Attendance" />
-      <InView delay={0.04} className="mb-5 max-w-xl">
-        <PunchCard />
-      </InView>
+      <PageHeader title="Attendance" subtitle="Biometric punches, matched to your roster" />
+      <div className="mb-5 grid gap-5 *:min-w-0 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,1fr)]">
+        <InView>
+          <HeroCard
+            eyebrow="October 2026"
+            title={`${month.present} of ${month.working} working days present`}
+            action={
+              <span
+                className={`rounded-full px-3 py-1.5 text-[12px] font-semibold ${
+                  locked ? "bg-[#eef1f6] text-muted" : "bg-[#e7f8ef] text-[#0f9f6e]"
+                }`}
+              >
+                {locked ? "Locked for payroll" : "Open for corrections"}
+              </span>
+            }
+          >
+            <div className="grid gap-8 md:grid-cols-[auto_1fr]">
+              <div className="flex items-center gap-6">
+                <Ring value={month.present} max={Math.max(1, month.working)} color="#0f9f6e">
+                  <div>
+                    <p className="text-[28px] font-semibold tabular-nums tracking-tight">
+                      {Math.round((month.present / Math.max(1, month.working)) * 100)}%
+                    </p>
+                    <p className="text-[11px] text-muted">attendance</p>
+                  </div>
+                </Ring>
+                <div className="min-w-[160px]">
+                  <Fact label="Hours worked" value={month.hours.toFixed(1)} />
+                  <Fact label="Late arrivals" value={month.late} tone={month.late ? "warn" : "ok"} />
+                  <Fact label="Missing punches" value={month.missing} tone={month.missing ? "danger" : "ok"} />
+                  <Fact label="Overtime" value={`${month.ot.toFixed(1)} h`} />
+                </div>
+              </div>
+              <div>
+                <p className="mb-1 text-[12px] font-semibold text-muted">Hours by week</p>
+                <Columns data={month.weeks} height={92} format={(n) => n.toFixed(0)} />
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted">
+                  <span>Leave {month.leave}</span>
+                  <span>Weekly off {month.off}</span>
+                  <span>Holidays {month.holidays}</span>
+                </div>
+              </div>
+            </div>
+          </HeroCard>
+        </InView>
+        <InView delay={0.06}>
+          <PunchCard />
+        </InView>
+      </div>
       <Tabs defaultValue="month">
         <TabsList>
           <TabsTrigger value="month">Calendar</TabsTrigger>

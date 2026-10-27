@@ -160,9 +160,11 @@ export interface PolicySetting {
   versions?: PolicyVersion[];
 }
 
-export type NrlInterfaceId = "sap_hr" | "sbi" | "epfo" | "traces" | "ad";
+export type NrlInterfaceId = "sap_hr" | "aarohan" | "eureka" | "saral" | "sbi" | "epfo" | "traces" | "ad" | "smtp" | "sms";
 
-export type NrlInterfaceStatus = "acked" | "file_ready" | "awaiting_ack" | "idle";
+export type NrlInterfaceGroup = "record" | "field" | "statutory" | "identity";
+
+export type NrlInterfaceStatus = "acked" | "file_ready" | "awaiting_ack" | "idle" | "online" | "queued" | "phase0";
 
 export interface NrlInterface {
   id: NrlInterfaceId;
@@ -175,6 +177,7 @@ export interface NrlInterface {
   lastRun?: string;
   status: NrlInterfaceStatus;
   note: string;
+  group: NrlInterfaceGroup;
 }
 
 export interface PayLine {
@@ -345,6 +348,9 @@ export interface Advance {
   principal: number;
   outstanding: number;
   monthlyRecovery: number;
+  status?: RequestStatus;
+  instalments?: number;
+  appliedAt?: string;
 }
 
 export interface Contractor {

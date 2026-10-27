@@ -43,6 +43,13 @@ export const CLAIM_LIMITS: Record<string, Record<string, number>> = {
   W2: { medical: 15000, ltc: 20000, cea: 27000, tour: 6000, cafeteria: 4000 },
 };
 
+// Advance schemes: the largest sum a grade band may draw and the most instalments it is recovered over.
+export const ADVANCE_RULES: Record<"festival" | "vehicle" | "hba", { label: string; max: (grade: string) => number; instalments: number }> = {
+  festival: { label: "Festival", max: () => 25000, instalments: 10 },
+  vehicle: { label: "Vehicle", max: (g) => (g.startsWith("E") && g !== "ET" ? 600000 : 180000), instalments: 60 },
+  hba: { label: "House building", max: (g) => (g.startsWith("E") && g !== "ET" ? 2500000 : 1200000), instalments: 180 },
+};
+
 export function claimLimit(grade: string, type: string) {
   return CLAIM_LIMITS[grade]?.[type] ?? 15000;
 }

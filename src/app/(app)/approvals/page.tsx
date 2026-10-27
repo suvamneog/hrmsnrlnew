@@ -42,6 +42,8 @@ export default function ApprovalsPage() {
   const withdraw = useHrms((s) => s.withdrawLeave);
   const changes = useHrms((s) => s.changes);
   const decideChange = useHrms((s) => s.decideChange);
+  const advances = useHrms((s) => s.advances);
+  const decideAdvance = useHrms((s) => s.decideAdvance);
   const role = useHrms((s) => s.actingRole);
   const [picked, setPicked] = useState<Scope | null>(null);
   const [kind, setKind] = useState<Kind>("all");
@@ -134,6 +136,22 @@ export default function ApprovalsPage() {
       own,
       approve: own || !checker ? undefined : () => { decideChange(ch.id, "approved"); toast.success("Applied"); },
       reject: own || !checker ? undefined : () => { decideChange(ch.id, "rejected"); toast("Rejected"); },
+    });
+  }
+
+  for (const a of advances.filter((x) => x.status === "pending")) {
+    const own = a.employeeId === me.id;
+    const checker = role === "hr_admin";
+    if (!own && !checker) continue;
+    rows.push({
+      id: a.id,
+      kind: "claim",
+      title: `${a.type === "hba" ? "House building" : a.type === "vehicle" ? "Vehicle" : "Festival"} advance · ${inr(a.principal)}`,
+      sub: `Recover ${inr(a.monthlyRecovery)} a month over ${a.instalments ?? "—"} instalments`,
+      who: nameOf(a.employeeId),
+      own,
+      approve: own || !checker ? undefined : () => { decideAdvance(a.id, "approved"); toast.success("Advance approved. Recovery starts next payroll."); },
+      reject: own || !checker ? undefined : () => { decideAdvance(a.id, "rejected"); toast("Rejected"); },
     });
   }
 

@@ -8,7 +8,9 @@ import { FileDownload, FileDownloadList } from "@/components/ui/file-download";
 import { HoldToConfirm } from "@/components/ui/hold-to-confirm";
 import { Field, Input, Select } from "@/components/ui/input";
 import { downloadText, prettySize } from "@/lib/files";
-import { useHrms } from "@/lib/store";
+import { ExpandableCard } from "@/components/ui/expandable-card";
+import { IdentificationBadge } from "@phosphor-icons/react";
+import { useCurrentUser, useHrms } from "@/lib/store";
 import type { Cadre, CandidateStage } from "@/lib/types";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -35,6 +37,7 @@ export default function RecruitmentPage() {
   const [grade, setGrade] = useState("ET");
   const [cadre, setCadre] = useState<Cadre>("trainee");
   const [vacancies, setVacancies] = useState("8");
+  const me = useCurrentUser();
   const canEdit = role === "recruiter" || role === "hr_admin";
 
   return (
@@ -81,9 +84,9 @@ export default function RecruitmentPage() {
           </form>
         </Card>
       )}
-      <div className="grid gap-4">
+      <div className="grid min-w-0 gap-4">
         {openings.map((o) => (
-          <Card key={o.id} className="p-5">
+          <Card key={o.id} className="min-w-0 p-5">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h2 className="font-semibold">{o.post}</h2>
@@ -144,26 +147,29 @@ export default function RecruitmentPage() {
                         </span>
                       </div>
                       {(c.stage === "offer" || c.stage === "joined") && (
-                        <div className="mt-2 flex flex-wrap gap-2">
-                          {c.checklist.map((item) =>
-                            item.done ? (
-                              <span key={item.item} className="rounded-full bg-[#e7f8ef] px-2 py-0.5 text-[11px] font-semibold text-[#0f9f6e]">
-                                {item.item} · done
-                              </span>
-                            ) : (
-                              <button
-                                key={item.item}
-                                disabled={!canEdit}
-                                onClick={() => {
-                                  tickOnboarding(c.id, item.item);
-                                  toast.success(`${item.item} marked for ${c.name}.`);
-                                }}
-                                className="rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-muted disabled:opacity-40"
-                              >
-                                Mark {item.item}
-                              </button>
-                            ),
-                          )}
+                        <div className="mt-3">
+                          <ExpandableCard
+                            icon={<IdentificationBadge size={20} weight="duotone" />}
+                            title={`Onboarding · ${c.name}`}
+                            subtitle={`${o.post} · ${o.grade}`}
+                            items={c.checklist.map((item) => ({
+                              label: item.item,
+                              done: item.done,
+                              onToggle:
+                                canEdit && !item.done
+                                  ? () => {
+                                      tickOnboarding(c.id, item.item);
+                                      toast.success(`${item.item} done for ${c.name}.`);
+                                    }
+                                  : undefined,
+                            }))}
+                            priority={{ label: "Joining this month", tone: "danger" }}
+                            status={{
+                              label: c.stage === "joined" ? "Joined" : c.checklist.every((x) => x.done) ? "Ready to join" : "In progress",
+                              tone: c.stage === "joined" ? "ok" : c.checklist.every((x) => x.done) ? "brand" : "warn",
+                            }}
+                            people={[c.name, me?.name].filter((n): n is string => !!n)}
+                          />
                         </div>
                       )}
                     </li>

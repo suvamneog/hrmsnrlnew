@@ -1,5 +1,6 @@
 "use client";
 
+import { ExpandableCard } from "@/components/ui/expandable-card";
 import { canDecideFor, claimApproverRole } from "@/lib/access";
 import { Card } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
@@ -9,15 +10,8 @@ import { daysToLicence } from "@/lib/gate";
 import { formatDay } from "@/lib/format";
 import { positionTitle } from "@/lib/org";
 import { useCurrentUser, useHrms } from "@/lib/store";
-import { IdentificationBadge, FirstAidKit, ShieldCheck, Ticket } from "@phosphor-icons/react";
+import { HardHat } from "@phosphor-icons/react";
 import Link from "next/link";
-
-const STEPS = [
-  { key: "police", label: "Police", Icon: IdentificationBadge },
-  { key: "medical", label: "Medical", Icon: FirstAidKit },
-  { key: "induction", label: "Induction", Icon: ShieldCheck },
-  { key: "pass", label: "Pass", Icon: Ticket },
-] as const;
 
 export function WorkBoard() {
   const me = useCurrentUser();
@@ -29,6 +23,8 @@ export function WorkBoard() {
   const leaves = useHrms((s) => s.leaveRequests);
   const types = useHrms((s) => s.leaveTypes);
   const claims = useHrms((s) => s.claims);
+  const swaps = useHrms((s) => s.swaps);
+  const regs = useHrms((s) => s.regularisations);
   if (!me || !role) return null;
 
   const showClearance =
@@ -59,6 +55,20 @@ export function WorkBoard() {
   const team = employees.filter((e) => e.managerId === me.id);
   const teamIds = new Set(team.map((e) => e.id));
   const leaveInbox = leaves.filter((l) => l.status === "pending" && (l.approverId === me.id || teamIds.has(l.employeeId))).slice(0, 4);
+  const crewItems = [
+    ...leaveInbox.map((l) => ({
+      id: l.id,
+      who: l.employeeId,
+      what: `${types.find((t) => t.id === l.typeId)?.name} · ${formatDay(l.from)}`,
+      kind: "leave",
+    })),
+    ...swaps
+      .filter((x) => x.status === "pending" && canDecideFor(role, me.id, x.fromId, teamIds))
+      .map((x) => ({ id: x.id, who: x.fromId, what: `Shift swap · ${formatDay(x.date)}`, kind: "swap" })),
+    ...regs
+      .filter((x) => x.status === "pending" && canDecideFor(role, me.id, x.employeeId, teamIds))
+      .map((x) => ({ id: x.id, who: x.employeeId, what: `Missed punch · ${formatDay(x.date)}`, kind: "punch" })),
+  ];
   // Same routing as the Inbox: by amount, and only for people this approver may decide for.
   const claimInbox = claims
     .filter((c) => {
@@ -95,34 +105,20 @@ export function WorkBoard() {
               };
               return (
                 <li key={w.id}>
-                  <Link href="/contractors" className="flex items-start gap-3 rounded-2xl px-1 py-1 hover:bg-[#f6f8fd]">
-                    <Avatar name={w.name} size={36} />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="truncate text-sm font-semibold">{w.name}</p>
-                        <span className="text-[11px] font-semibold text-muted">{Object.values(done).filter(Boolean).length}/4</span>
-                      </div>
-                      <p className="truncate text-[12px] text-muted">
-                        {w.skill}
-                        {contractor ? ` · ${contractor.name.split(" ")[0]}` : ""}
-                      </p>
-                      <div className="mt-2 flex items-center gap-1.5">
-                        {STEPS.map(({ key, label, Icon }, i) => (
-                          <span key={key} className="flex items-center gap-1.5">
-                            <span
-                              title={label}
-                              className={`grid h-7 w-7 place-items-center rounded-full ${
-                                done[key] ? "bg-[#e7f8ef] text-[#0f9f6e]" : "bg-[#f3f5fb] text-muted"
-                              }`}
-                            >
-                              <Icon size={13} weight={done[key] ? "fill" : "regular"} />
-                            </span>
-                            {i < STEPS.length - 1 && <span className={`h-px w-3 ${done[key] ? "bg-[#bfe8d2]" : "bg-line"}`} />}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </Link>
+                  <ExpandableCard
+                    icon={<HardHat size={20} weight="duotone" />}
+                    title={w.name}
+                    subtitle={`${w.skill}${contractor ? ` · ${contractor.name.split(" ")[0]}` : ""}`}
+                    items={[
+                      { label: "Police verification", done: done.police },
+                      { label: "Medical fitness", done: done.medical, hint: done.medical ? undefined : `expired ${formatDay(w.medicalFitnessExpiry)}` },
+                      { label: "Safety induction", done: done.induction },
+                      { label: "Gate pass live", done: done.pass, hint: pass?.blockReason },
+                    ]}
+                    priority={{ label: done.medical ? "Before next entry" : "Blocked at gate", tone: done.medical ? "warn" : "danger" }}
+                    status={{ label: pass?.blocked ? "Pass blocked" : "Clear", tone: pass?.blocked ? "danger" : "ok" }}
+                    people={[w.name, contractor?.supervisorName].filter((n): n is string => !!n)}
+                  />
                 </li>
               );
             })}
@@ -172,23 +168,21 @@ export function WorkBoard() {
               Inbox
             </Link>
           </div>
-          {leaveInbox.length === 0 ? (
+          {crewItems.length === 0 ? (
             <p className="py-4 text-center text-sm text-muted">Nothing in your inbox.</p>
           ) : (
             <ul className="space-y-2">
-              {leaveInbox.map((l) => {
-                const who = employees.find((e) => e.id === l.employeeId);
+              {crewItems.map((item) => {
+                const who = employees.find((e) => e.id === item.who);
                 return (
-                  <li key={l.id}>
+                  <li key={item.id}>
                     <Link href="/approvals" className="flex items-center gap-3 rounded-2xl bg-[#f6f8fd] px-3 py-2.5">
                       <Avatar name={who?.name ?? ""} size={36} />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold">{who?.name}</p>
-                        <p className="text-[12px] text-muted">
-                          {types.find((t) => t.id === l.typeId)?.name} · {formatDay(l.from)}
-                        </p>
+                        <p className="text-[12px] text-muted">{item.what}</p>
                       </div>
-                      <Badge tone="warn">leave</Badge>
+                      <Badge tone="warn">{item.kind}</Badge>
                     </Link>
                   </li>
                 );

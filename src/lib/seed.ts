@@ -1375,6 +1375,20 @@ export const QUARTERS: Quarter[] = [
   { id: "q-iii-14", type: "III", number: "III-14", status: "vacant", licenceFee: 1600 },
   { id: "q-iii-19", type: "III", number: "III-19", status: "maintenance", licenceFee: 1600 },
   { id: "q-ii-04", type: "II", number: "II-04", status: "vacant", licenceFee: 900 },
+  // Quarters held by staff outside the demo cast.
+  ...([
+    ["V", 4, 4200], ["V", 7, 4200], ["IV", 3, 2800], ["IV", 11, 2800], ["IV", 15, 2800], ["IV", 26, 2800],
+    ["III", 2, 1600], ["III", 5, 1600], ["III", 8, 1600], ["III", 22, 1600], ["III", 27, 1600],
+    ["II", 1, 900], ["II", 9, 900], ["II", 12, 900], ["II", 17, 900], ["II", 21, 900],
+  ] as const).map(([type, n, fee]) => ({
+    id: `q-${type.toLowerCase()}-x${n}`,
+    type,
+    number: `${type}-${String(n).padStart(2, "0")}`,
+    status: "occupied" as const,
+    licenceFee: fee,
+  })),
+  { id: "q-iv-30", type: "IV", number: "IV-30", status: "vacant", licenceFee: 2800 },
+  { id: "q-ii-25", type: "II", number: "II-25", status: "maintenance", licenceFee: 900 },
 ];
 
 export const MAINT: MaintenanceRequest[] = [
@@ -1460,6 +1474,9 @@ export const WAGE_PROOFS: WageProof[] = [
 export const WAITING: WaitingListEntry[] = [
   { id: "wl-1", employeeId: "e-pallabi", type: "III", applied: "2026-06-12" },
   { id: "wl-2", employeeId: "e-hiren", type: "IV", applied: "2025-11-03" },
+  { id: "wl-3", employeeId: "e-ritu", type: "IV", applied: "2026-02-18" },
+  { id: "wl-4", employeeId: "e-juri", type: "II", applied: "2026-04-02" },
+  { id: "wl-5", employeeId: "e-nivedita", type: "III", applied: "2026-08-21" },
 ];
 
 export const ROSTER_POINTS: ReservationPoint[] = [

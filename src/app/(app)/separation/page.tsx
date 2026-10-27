@@ -1,13 +1,15 @@
 "use client";
 
 import { PageHeader } from "@/components/layout/page-header";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { FileDownload, FileDownloadList } from "@/components/ui/file-download";
 import { downloadText, prettySize } from "@/lib/files";
-import { formatStamp, inr } from "@/lib/format";
+import { formatDay, formatStamp, inr } from "@/lib/format";
 import { useHrms } from "@/lib/store";
+import { ExpandableCard } from "@/components/ui/expandable-card";
+import { DEMO_TODAY } from "@/lib/demo";
+import { SignOut } from "@phosphor-icons/react";
+import { differenceInCalendarDays, parseISO } from "date-fns";
 import { toast } from "sonner";
 
 export default function SeparationPage() {
@@ -20,54 +22,40 @@ export default function SeparationPage() {
 
   return (
     <div>
-      <PageHeader title="Separation" />
+      <PageHeader title="Separation" subtitle="Clearance across departments, then gratuity, leave encashment and final settlement" />
       {rows.map((s) => {
         const e = employees.find((x) => x.id === s.employeeId);
         const open = s.clearances.some((c) => !c.done);
         return (
-          <Card key={s.id} className="mb-4 p-5">
-            <div className="flex justify-between">
-              <div>
-                <p className="font-semibold">{e?.name}</p>
-                <p className="text-sm text-muted">
-                  {s.kind} · last day {s.lastDay}
-                </p>
-              </div>
-              <Badge tone={s.status === "settled" ? "ok" : "warn"}>{s.status}</Badge>
-            </div>
-            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-              {s.clearances.map((c) => {
-                const who = c.byId ? employees.find((x) => x.id === c.byId)?.preferredName : null;
-                return (
-                  <li key={c.dept} className="rounded-xl bg-[#f6f8fd] px-3 py-2 text-sm">
-                    <div className="flex items-center justify-between gap-2">
-                      <span>{c.dept}</span>
-                      {c.done ? (
-                        <span className="text-[#0f9f6e]">Cleared</span>
-                      ) : role !== "hr_admin" || s.employeeId === meId ? (
-                        <span className="text-muted">Pending</span>
-                      ) : (
-                        <Button
-                          variant="secondary"
-                          onClick={() => {
-                            tickClearance(s.id, c.dept);
-                            toast.success(`${c.dept} clearance recorded.`);
-                          }}
-                        >
-                          Record clearance
-                        </Button>
-                      )}
-                    </div>
-                    {c.done && (who || c.at) && (
-                      <p className="mt-1 text-xs text-muted">
-                        {who ?? "Recorded"}
-                        {c.at ? ` · ${formatStamp(c.at)}` : ""}
-                      </p>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
+          <div key={s.id} className="mb-4 max-w-xl">
+            <ExpandableCard
+              defaultOpen={open}
+              icon={<SignOut size={20} weight="duotone" />}
+              title={e?.name ?? s.employeeId}
+              subtitle={`${s.kind === "superannuation" ? "Superannuation" : s.kind === "vrs" ? "Voluntary retirement" : s.kind === "death" ? "Death in service" : "Resignation"} · last day ${formatDay(s.lastDay)}`}
+              items={s.clearances.map((c) => ({
+                label: c.dept,
+                done: c.done,
+                hint: c.done ? [c.byId ? employees.find((x) => x.id === c.byId)?.preferredName : null, c.at ? formatStamp(c.at) : null].filter(Boolean).join(" · ") : undefined,
+                onToggle:
+                  role === "hr_admin" && s.employeeId !== meId && !c.done
+                    ? () => {
+                        tickClearance(s.id, c.dept);
+                        toast.success(`${c.dept} clearance recorded.`);
+                      }
+                    : undefined,
+              }))}
+              priority={{
+                label: differenceInCalendarDays(parseISO(s.lastDay), parseISO(DEMO_TODAY)) <= 30 ? "Due this month" : "Planned",
+                tone: differenceInCalendarDays(parseISO(s.lastDay), parseISO(DEMO_TODAY)) <= 30 ? "danger" : "muted",
+              }}
+              status={{
+                label: s.status === "settled" ? "Settled" : open ? "Clearance" : "Ready for F&F",
+                tone: s.status === "settled" ? "ok" : open ? "warn" : "brand",
+              }}
+              people={[e?.name, ...s.clearances.filter((c) => c.byId).map((c) => employees.find((x) => x.id === c.byId)?.name)].filter((n, i, all): n is string => !!n && all.indexOf(n) === i)}
+              footer={
+                <div>
             {s.netFf !== undefined && (
               <div className="mt-4 grid gap-2 text-sm sm:grid-cols-4">
                 <p>Gratuity {inr(s.gratuity ?? 0)}</p>
@@ -107,7 +95,10 @@ export default function SeparationPage() {
                 />
               </FileDownloadList>
             )}
-          </Card>
+                </div>
+              }
+            />
+          </div>
         );
       })}
     </div>
