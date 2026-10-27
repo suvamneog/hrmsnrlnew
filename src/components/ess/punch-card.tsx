@@ -71,7 +71,7 @@ export function PunchCard() {
         </Button>
       </motion.div>
       <p className="mt-3 text-xs text-muted">
-        Web punch for staff. Crew still hits the BIO reader at the unit — this logs the same day.
+        Staff punch from this screen. Shift crew use the BIO reader at the unit.
       </p>
     </div>
   );

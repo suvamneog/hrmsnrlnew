@@ -5,7 +5,7 @@ import { persist } from "zustand/middleware";
 import { canAdvancePayroll } from "./access";
 import { DEMO_TODAY, openPair, punchesOn } from "./demo";
 import { claimLimit, computeFf } from "./ff";
-import { bankFile, claimsBankFile, ecrFile, form24q, npsFile, ptFile, sapFiFile } from "./files";
+import { bankFile, claimsBankFile, ecrFile, form24q, npsFile, ptFiles, sapFiFile } from "./files";
 import { passBlockReason } from "./gate";
 import { countLeaveDays, validateLeave } from "./leave";
 import { mergeHeadcount } from "./headcount";
@@ -173,7 +173,7 @@ function rebuildAttendance(args: {
         return { employeeId: r.employeeId, date: r.date, status: "leave" as const, hours: 0, overtime: 0, shiftId: r.shiftId };
       }
       const shift = args.shifts.find((s) => s.id === r.shiftId);
-      const flags = shiftFlags({ punches: args.punches, date: r.date, shift });
+      const flags = shiftFlags({ punches: args.punches, date: r.date, shift, employeeId: r.employeeId });
       if (!flags.hours) {
         return {
           employeeId: r.employeeId,
@@ -298,8 +298,8 @@ export interface HrmsState {
   requestChange: (input: Omit<ChangeRequest, "id" | "status">) => void;
   decideChange: (id: string, status: "approved" | "rejected") => void;
   hireEmployee: (input: { name: string; cadre: Employee["cadre"]; grade: string; unitId: string; positionId: string; category: Employee["category"]; gender: Employee["gender"]; basic: number }) => { ok: boolean; id?: string; reason?: string };
-  transferEmployee: (id: string, positionId: string, unitId: string, validFrom: string) => void;
-  promoteEmployee: (id: string, grade: string, positionId: string, basic: number, validFrom: string) => void;
+  transferEmployee: (id: string, positionId: string, unitId: string, validFrom: string) => { ok: boolean; reason?: string };
+  promoteEmployee: (id: string, grade: string, positionId: string, basic: number, validFrom: string) => { ok: boolean; reason?: string };
   startSeparation: (employeeId: string, kind: "resignation" | "superannuation" | "vrs" | "death", lastDay: string) => void;
   acceptSap: (empNo: string) => void;
   registerWorker: (input: Omit<ContractWorker, "id" | "blacklisted" | "inductionPassed"> & { inductionPassed?: boolean }) => void;
@@ -840,7 +840,8 @@ export const useHrms = create<HrmsState>()(
         });
         return { ok: true, id };
       },
-      transferEmployee: (id, positionId, unitId, validFrom) =>
+      transferEmployee: (id, positionId, unitId, validFrom) => {
+        if (id === get().currentUserId) return { ok: false, reason: "You cannot change your own assignment." };
         set((s) => ({
           employees: s.employees.map((e) =>
             e.id === id
@@ -865,8 +866,11 @@ export const useHrms = create<HrmsState>()(
           ),
           positions: s.positions.map((p) => (p.id === positionId ? { ...p, vacant: false } : p)),
           audit: log(s.audit, s.currentUserId ?? "system", "transfer", id, "hr", `${positionId} from ${validFrom}`),
-        })),
-      promoteEmployee: (id, grade, positionId, basic, validFrom) =>
+        }));
+        return { ok: true };
+      },
+      promoteEmployee: (id, grade, positionId, basic, validFrom) => {
+        if (id === get().currentUserId) return { ok: false, reason: "You cannot change your own pay record." };
         set((s) => ({
           employees: s.employees.map((e) =>
             e.id === id
@@ -891,7 +895,9 @@ export const useHrms = create<HrmsState>()(
               : e,
           ),
           audit: log(s.audit, s.currentUserId ?? "system", "promote", id, "hr", grade, s.employees.find((e) => e.id === id)?.grade),
-        })),
+        }));
+        return { ok: true };
+      },
       startSeparation: (employeeId, kind, lastDay) =>
         set((s) => ({
           employees: s.employees.map((e) => (e.id === employeeId ? { ...e, status: "notice" as const } : e)),
@@ -1192,8 +1198,8 @@ export const useHrms = create<HrmsState>()(
         })),
     }),
     {
-      name: "nrl-people-demo",
-      version: 4,
+      name: "nrl-people",
+      version: 6,
       migrate: () => ({ ...initial }),
       partialize: (s) => {
         const slice = { ...initial };
@@ -1250,7 +1256,7 @@ function getFiles(s: { payrollRuns: PayrollRun[]; employees: Employee[]; claims:
     ecrFile(run.month, run.results, s.employees),
     npsFile(run.month, run.results, s.employees),
     form24q(run.month, run.results, s.employees),
-    ptFile(run.month, run.results, s.employees),
+    ...ptFiles(run.month, run.results, s.employees),
     sapFiFile(run.month, run.results),
     claimsBankFile(run.month, claims),
   ];

@@ -214,7 +214,7 @@ export interface StatutoryFile {
 
 export interface ShiftPattern {
   id: string;
-  code: "M" | "A" | "N" | "OFF";
+  code: "M" | "A" | "N" | "G" | "OFF";
   label: string;
   start: string;
   end: string;

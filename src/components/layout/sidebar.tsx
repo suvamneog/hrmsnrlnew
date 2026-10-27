@@ -20,9 +20,8 @@ export function Sidebar() {
           <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white/15 text-lg font-bold tracking-tight">
             N
           </span>
-          <span className="whitespace-nowrap opacity-0 transition-opacity duration-150 group-hover/nav:opacity-100">
-            <span className="block text-sm font-semibold">NRL People</span>
-            <span className="block text-[10px] font-medium text-white/60">Prototype</span>
+          <span className="whitespace-nowrap text-sm font-semibold opacity-0 transition-opacity duration-150 group-hover/nav:opacity-100">
+            NRL People
           </span>
         </Link>
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto overflow-x-hidden px-2 pb-4">

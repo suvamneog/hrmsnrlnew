@@ -55,5 +55,6 @@ export const NAV: NavItem[] = [
 
 export function visibleNav(role: Role | null) {
   if (!role) return NAV.filter((n) => n.roles === "all");
+  if (role === "gate_security") return NAV.filter((n) => n.href === "/gate");
   return NAV.filter((n) => n.roles === "all" || n.roles.includes(role));
 }

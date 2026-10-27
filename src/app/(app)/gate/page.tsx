@@ -7,6 +7,7 @@ import { maskAadhaar } from "@/lib/format";
 import { passBlockReason } from "@/lib/gate";
 import { useHrms } from "@/lib/store";
 import { motion } from "motion/react";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -23,6 +24,8 @@ export default function GatePage() {
   const flushGateQueue = useHrms((s) => s.flushGateQueue);
   const role = useHrms((s) => s.actingRole);
   const me = useHrms((s) => s.employees.find((e) => e.id === s.currentUserId));
+  const logout = useHrms((s) => s.logout);
+  const router = useRouter();
   const [q, setQ] = useState("");
   const [flash, setFlash] = useState<"ok" | "no" | null>(null);
   const [picked, setPicked] = useState(passes[0]?.id ?? "");
@@ -67,12 +70,23 @@ export default function GatePage() {
               else setGateOffline(true);
             }}
           >
-            {offline ? `Sync ${queue.length}` : "Go offline"}
+            {offline ? `Sync ${queue.length}` : "Work offline"}
           </button>
           <div className="rounded-2xl bg-white px-4 py-3 text-right shadow-[0_10px_30px_rgba(45,64,180,0.07)]">
             <p className="text-xs text-muted">Headcount inside</p>
             <p className="text-2xl font-semibold">{inside}</p>
           </div>
+          {role === "gate_security" && (
+            <button
+              className="rounded-full bg-white px-3 py-2 text-xs font-semibold"
+              onClick={() => {
+                logout();
+                router.push("/");
+              }}
+            >
+              Sign out
+            </button>
+          )}
         </div>
       </div>
       <motion.div
@@ -98,6 +112,7 @@ export default function GatePage() {
               const w = workers.find((x) => x.id === p.workerId);
               return !q || w?.name.toLowerCase().includes(q.toLowerCase()) || p.id.includes(q);
             })
+            .slice(0, q ? 24 : 12)
             .map((p) => {
               const w = workers.find((x) => x.id === p.workerId)!;
               return (

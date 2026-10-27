@@ -2,10 +2,10 @@
 
 import { PunchCard } from "@/components/ess/punch-card";
 import { QuickActions } from "@/components/ess/quick-actions";
-import { DemoNotice } from "@/components/layout/demo-notice";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { canDecideFor } from "@/lib/access";
 import { liveCensus } from "@/lib/census";
 import { DEMO_TODAY } from "@/lib/demo";
 import { formatDay, inr } from "@/lib/format";
@@ -36,8 +36,7 @@ export default function HomePage() {
   const myBal = balances.filter((b) => b.employeeId === me.id);
   const team = employees.filter((e) => e.managerId === me.id);
   const teamIds = new Set(team.map((e) => e.id));
-  const canDecide = (empId: string) =>
-    empId !== me.id && (teamIds.has(empId) || role === "hr_admin" || role === "finance_approver" || role === "payroll_officer");
+  const canDecide = (empId: string) => canDecideFor(role, me.id, empId, teamIds);
 
   const pendingLeave = leaves.filter((l) => l.status === "pending" && canDecide(l.employeeId));
   const claimInbox = claims.filter(
@@ -72,13 +71,12 @@ export default function HomePage() {
   const kpis = [
     { label: "On roll", value: census.onRoll.toLocaleString("en-IN"), hint: `${census.executives} exec · ${census.workmen} workmen`, bg: "bg-[#e7f8ef]", c: "text-[#0f9f6e]", href: "/people", text: true },
     { label: "Waiting on you", value: todoCount, hint: "Leave, claims, swaps", bg: "bg-[#fff1e6]", c: "text-[#e07a3d]", href: "/approvals" },
-    { label: "Contract in plant", value: inside.size, hint: "Live gate count", bg: "bg-[#eeeaff]", c: "text-[#5b5bd6]", href: "/gate" },
+    { label: "Contract in plant", value: inside.size, hint: "Live gate count", bg: "bg-[#eeeaff]", c: "text-[#5b5bd6]", href: role === "hr_admin" || role === "contract_labour_cell" || role === "safety_officer" || role === "auditor" ? "/contractors" : "/home" },
     { label: "Payroll", value: run.stage.replace("_", " "), hint: "October 2026", bg: "bg-[#fdeef4]", c: "text-[#d4537e]", href: "/payroll", text: true },
   ];
 
   return (
     <div className="space-y-5">
-      <DemoNotice />
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-[28px] font-semibold tracking-tight sm:text-[32px]">

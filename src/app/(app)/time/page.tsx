@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, Input, Textarea } from "@/components/ui/input";
+import { formatDay } from "@/lib/format";
 import { attTone } from "@/lib/status";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import { shiftFlags } from "@/lib/time-rules";
@@ -51,10 +52,11 @@ export default function TimePage() {
                   punches,
                   date: a.date,
                   shift: shifts.find((s) => s.id === a.shiftId),
+                  employeeId: me.id,
                 });
                 return (
                   <tr key={a.date} className="border-t border-line">
-                    <td className="px-4 py-2.5">{a.date}</td>
+                    <td className="px-4 py-2.5">{formatDay(a.date)}</td>
                     <td>{a.shiftId}</td>
                     <td>{flags.hours || a.hours}</td>
                     <td>{flags.overtime || a.overtime || "—"}</td>

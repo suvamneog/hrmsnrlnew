@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, Input, Select } from "@/components/ui/input";
-import { UNITS, unitName } from "@/lib/org";
+import { UNITS } from "@/lib/org";
 import { useHrms } from "@/lib/store";
 import type { Cadre } from "@/lib/types";
 import { useMemo, useState } from "react";
@@ -16,7 +16,7 @@ export default function OrgPage() {
   const positions = useHrms((s) => s.positions);
   const role = useHrms((s) => s.actingRole);
   const createVacancy = useHrms((s) => s.createVacancy);
-  const [title, setTitle] = useState("Engineer (Projects)");
+  const [title, setTitle] = useState("");
   const [unitId, setUnitId] = useState("tech");
   const [grade, setGrade] = useState("E2");
   const roots = UNITS.filter((u) => u.kind === "location");
@@ -50,12 +50,12 @@ export default function OrgPage() {
     <div>
       <PageHeader
         title="Organisation"
-        subtitle={`${onRoll.length.toLocaleString("en-IN")} on roll across locations. Positions can be vacant; bulk posts show headcount, not one name.`}
+        subtitle={`${onRoll.length.toLocaleString("en-IN")} on roll across Numaligarh, Siliguri, Paradip and Guwahati.`}
       />
       {role === "hr_admin" && (
         <Card className="mb-5 grid gap-3 p-4 md:grid-cols-4">
           <Field label="New post">
-            <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Post title" />
           </Field>
           <Field label="Unit">
             <Select value={unitId} onChange={(e) => setUnitId(e.target.value)}>
@@ -72,8 +72,13 @@ export default function OrgPage() {
           <div className="flex items-end">
             <Button
               onClick={() => {
-                createVacancy(title, unitId, grade, "executive" as Cadre);
+                if (!title.trim()) {
+                  toast.error("Enter a post title.");
+                  return;
+                }
+                createVacancy(title.trim(), unitId, grade, "executive" as Cadre);
                 toast.success("Vacancy opened");
+                setTitle("");
               }}
             >
               Create vacancy
@@ -96,7 +101,7 @@ export default function OrgPage() {
                 {(depts.length ? depts : [loc]).map((d) => {
                   const units = UNITS.filter((u) => u.parentId === d.id);
                   const ids = [d.id, ...units.map((u) => u.id)];
-                  const posts = positions.filter((p) => ids.includes(p.unitId));
+                  const posts = positions.filter((p) => ids.includes(p.unitId) && !p.id.startsWith("p-str-"));
                   const count = rollIn(ids);
                   const mix = ids.reduce(
                     (acc, id) => {
@@ -130,9 +135,6 @@ export default function OrgPage() {
                             </li>
                           );
                         })}
-                        {posts.length === 0 && count > 0 && (
-                          <li className="text-xs text-muted">{unitName(d.id)} strength only — no unique post list</li>
-                        )}
                       </ul>
                     </div>
                   );

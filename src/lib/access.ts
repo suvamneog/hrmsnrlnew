@@ -10,14 +10,20 @@ export function routeAllowed(path: string, role: Role | null): boolean {
   return item.roles === "all" || item.roles.includes(role);
 }
 
-export function canSeePayslip(role: Role | null, viewer: Employee | null, subjectId: string): boolean {
-  if (!role || !viewer) return false;
-  if (viewer.id === subjectId) return true;
+export function canSeePayslip(role: Role | null, viewer: Employee | null, subject: Employee | null): boolean {
+  if (!role || !viewer || !subject) return false;
+  if (viewer.id === subject.id) return true;
   if (role === "payroll_officer" || role === "finance_approver" || role === "hr_admin" || role === "auditor") {
     return true;
   }
-  if (role === "line_manager") return true;
+  if (role === "line_manager") return subject.managerId === viewer.id;
   return false;
+}
+
+export function canDecideFor(role: Role | null, viewerId: string, subjectId: string, teamIds: Set<string>) {
+  if (subjectId === viewerId) return false;
+  if (teamIds.has(subjectId)) return true;
+  return role === "hr_admin";
 }
 
 export function canSeePii(role: Role | null): boolean {

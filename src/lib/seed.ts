@@ -1,4 +1,5 @@
 import { addDays, format, startOfMonth } from "date-fns";
+import { expandCerts, expandGateEvents, expandPasses, mergeCrew } from "./crew";
 import type {
   Advance,
   Appraisal,
@@ -1014,6 +1015,7 @@ export const SHIFTS: ShiftPattern[] = [
   { id: "M", code: "M", label: "Morning", start: "06:00", end: "14:00" },
   { id: "A", code: "A", label: "Afternoon", start: "14:00", end: "22:00" },
   { id: "N", code: "N", label: "Night", start: "22:00", end: "06:00" },
+  { id: "G", code: "G", label: "General", start: "09:00", end: "17:30" },
   { id: "OFF", code: "OFF", label: "Weekly off", start: "", end: "" },
 ];
 
@@ -1076,6 +1078,14 @@ function rosterForMonth(): RosterEntry[] {
       rows.push({ id: `ro-${i++}`, employeeId: e.id, date, shiftId: cycle });
     }
   }
+  for (const e of EMPLOYEES.filter((x) => !x.crew && x.cadre !== "contract")) {
+    for (let d = 0; d < 31; d++) {
+      const dt = addDays(start, d);
+      const date = format(dt, "yyyy-MM-dd");
+      const dow = dt.getDay();
+      rows.push({ id: `ro-${i++}`, employeeId: e.id, date, shiftId: dow === 0 ? "OFF" : "G" });
+    }
+  }
   return rows;
 }
 
@@ -1084,26 +1094,28 @@ export const ROSTER: RosterEntry[] = rosterForMonth();
 function punches(): Punch[] {
   const rows: Punch[] = [];
   let i = 0;
-  for (const e of EMPLOYEES.filter((x) => x.crew)) {
+  for (const e of EMPLOYEES.filter((x) => x.cadre !== "contract")) {
     for (let d = 1; d <= 27; d++) {
       const date = `2026-10-${String(d).padStart(2, "0")}`;
       const ro = ROSTER.find((r) => r.employeeId === e.id && r.date === date);
       if (!ro || ro.shiftId === "OFF") continue;
       if (HOLIDAYS.some((h) => h.date === date)) continue;
       if (date === "2026-10-24" && e.id === "e-ranjit") continue;
+      if (date === TODAY && !e.crew) continue;
       const shift = SHIFTS.find((s) => s.id === ro.shiftId)!;
       const jitter = (e.name.length + d) % 7;
+      const reader = e.crew ? (e.unitId === "fcc" ? "BIO-FCC-01" : "BIO-CDU-WEST") : "BIO-ADMIN-01";
       rows.push({
         id: `p-${i++}`,
         employeeId: e.id,
-        readerId: e.unitId === "fcc" ? "BIO-FCC-01" : "BIO-CDU-WEST",
+        readerId: reader,
         time: `${date}T${shift.start}:${String(10 + jitter).padStart(2, "0")}+05:30`,
         kind: "in",
       });
       rows.push({
         id: `p-${i++}`,
         employeeId: e.id,
-        readerId: e.unitId === "fcc" ? "BIO-FCC-01" : "BIO-CDU-WEST",
+        readerId: reader,
         time: `${date}T${shift.end === "06:00" ? "06" : shift.end.slice(0, 2)}:${String(4 + jitter).padStart(2, "0")}:00+05:30`,
         kind: "out",
       });
@@ -1149,7 +1161,7 @@ export const CONTRACTORS: Contractor[] = [
   { id: "c-sis", name: "SIS (India) Ltd", workOrder: "NRL/WO/SEC/2024/019", workOrderEnd: "2027-03-31", licenceNo: "AS/CL/2024/0901", licenceExpiry: "2029-01-31", pfCode: "AS/GHY/0008812", esiCode: "40005544330000222", area: "Gates 1-4", supervisorName: "Tej Bahadur Chetri" },
 ];
 
-export const WORKERS: ContractWorker[] = [
+const NAMED_WORKERS: ContractWorker[] = [
   { id: "w-1", contractorId: "c-lt", name: "Sanjay Yadav", skill: "Rigger", aadhaar: "445512339876", uan: "101445512339", esic: "2211456789", policeVerification: true, medicalFitnessExpiry: "2027-01-12", photoSeed: "SanjayYadav", blacklisted: false, inductionPassed: true },
   { id: "w-2", contractorId: "c-lt", name: "Nurul Islam", skill: "Welder-6G", aadhaar: "998877221100", uan: "101998877221", esic: "2211988772", policeVerification: true, medicalFitnessExpiry: "2026-12-02", photoSeed: "NurulIslam", blacklisted: false, inductionPassed: true },
   { id: "w-3", contractorId: "c-lt", name: "Lakshmi Kisku", skill: "Scaffolder", aadhaar: "667788990123", uan: "101667788990", esic: "2211677889", policeVerification: true, medicalFitnessExpiry: "2027-04-08", photoSeed: "LakshmiKisku", blacklisted: false, inductionPassed: true },
@@ -1158,6 +1170,8 @@ export const WORKERS: ContractWorker[] = [
   { id: "w-6", contractorId: "c-sis", name: "Dhan Bahadur Rai", skill: "Security guard", aadhaar: "778811223344", uan: "101778811223", esic: "2211778811", policeVerification: true, medicalFitnessExpiry: "2027-06-01", photoSeed: "DhanBahadur", blacklisted: false, inductionPassed: true },
   { id: "w-7", contractorId: "c-lt", name: "Ramesh Paswan", skill: "Grinder", aadhaar: "556677889944", uan: "101556677889", esic: "2211556677", policeVerification: true, medicalFitnessExpiry: "2025-09-12", photoSeed: "RameshPaswan", blacklisted: false, inductionPassed: true },
 ];
+
+export const WORKERS: ContractWorker[] = mergeCrew(NAMED_WORKERS);
 
 export const COURSES: Course[] = [
   { id: "ind", name: "Plant safety induction", validityMonths: 12, mandatoryFor: ["contract", "employee"] },
@@ -1168,7 +1182,7 @@ export const COURSES: Course[] = [
   { id: "first", name: "First aid", validityMonths: 24, mandatoryFor: ["hse", "fire"] },
 ];
 
-export const CERTS: Certificate[] = [
+const NAMED_CERTS: Certificate[] = [
   { id: "ct-1", personId: "w-1", personKind: "contract", courseId: "ind", issued: "2026-02-11", expires: "2027-02-11" },
   { id: "ct-2", personId: "w-1", personKind: "contract", courseId: "height", issued: "2026-02-12", expires: "2027-02-12" },
   { id: "ct-3", personId: "w-2", personKind: "contract", courseId: "ind", issued: "2026-01-08", expires: "2027-01-08" },
@@ -1183,48 +1197,15 @@ export const CERTS: Certificate[] = [
   { id: "ct-12", personId: "e-bikash", personKind: "employee", courseId: "h2s", issued: "2025-12-01", expires: "2026-12-01" },
 ];
 
-function passValid(workerId: string) {
-  const w = WORKERS.find((x) => x.id === workerId)!;
-  const c = CONTRACTORS.find((x) => x.id === w.contractorId)!;
-  const reason = (() => {
-    if (w.blacklisted) return "x";
-    if (!w.policeVerification) return "x";
-    if (w.medicalFitnessExpiry < TODAY) return "x";
-    if (!w.inductionPassed) return "x";
-    if (c.licenceExpiry < TODAY) return "x";
-    const ind = CERTS.find((ct) => ct.personId === workerId && ct.courseId === "ind");
-    if (!ind || ind.expires < TODAY) return "x";
-    return undefined;
-  })();
-  return !reason;
-}
-
-export const PASSES: GatePass[] = WORKERS.map((w, i) => {
-  const ok = passValid(w.id);
-  const c = CONTRACTORS.find((x) => x.id === w.contractorId)!;
-  return {
-    id: `gp-${i + 1}`,
-    workerId: w.id,
-    validFrom: "2026-08-01",
-    validTo: c.workOrderEnd,
-    blocked: !ok,
-    blockReason: !ok
-      ? !w.policeVerification
-        ? "Police verification pending"
-        : w.medicalFitnessExpiry < TODAY
-          ? "Medical fitness expired"
-          : "Mandatory certificate expired"
-      : undefined,
-  };
-});
-
-export const GATE_EVENTS: GateEvent[] = [
+export const CERTS: Certificate[] = expandCerts(WORKERS, NAMED_CERTS);
+export const PASSES: GatePass[] = expandPasses(WORKERS, CONTRACTORS, CERTS);
+export const GATE_EVENTS: GateEvent[] = expandGateEvents(PASSES, [
   { id: "ge-1", passId: "gp-1", gate: "Gate 2", direction: "in", time: "2026-10-27T06:42:00+05:30" },
   { id: "ge-2", passId: "gp-2", gate: "Gate 2", direction: "in", time: "2026-10-27T06:48:00+05:30" },
   { id: "ge-3", passId: "gp-3", gate: "Gate 3", direction: "in", time: "2026-10-27T07:05:00+05:30" },
   { id: "ge-4", passId: "gp-6", gate: "Gate 1", direction: "in", time: "2026-10-27T05:50:00+05:30" },
   { id: "ge-5", passId: "gp-1", gate: "Gate 2", direction: "out", time: "2026-10-26T18:12:00+05:30" },
-];
+]);
 
 export const OPENINGS: Opening[] = [
   { id: "op-1", post: "Engineer trainee (Mechanical)", grade: "ET", cadre: "trainee", vacancies: 12, split: { UR: 5, OBC: 3, SC: 2, ST: 1, EWS: 1, PwBD: 1 }, status: "shortlist" },

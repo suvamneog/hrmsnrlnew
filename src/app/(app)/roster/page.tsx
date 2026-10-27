@@ -40,6 +40,7 @@ export default function RosterPage() {
     M: "bg-[#e7f8ef] text-[#0f9f6e]",
     A: "bg-[#fff1e6] text-[#e07a3d]",
     N: "bg-[#eeeaff] text-[#5b5bd6]",
+    G: "bg-[#e8eefc] text-brand",
     OFF: "bg-[#eef1f6] text-muted",
   };
 

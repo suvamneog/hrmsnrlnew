@@ -1,5 +1,13 @@
-import { avatarUrl, initials } from "@/lib/format";
+import { initials } from "@/lib/format";
 import { cn } from "@/lib/cn";
+
+const TONES = ["#2f49d1", "#185fa5", "#0f6b5c", "#8a4b12", "#9a2942", "#3d3f8f"];
+
+function tone(name: string) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 33 + name.charCodeAt(i)) >>> 0;
+  return TONES[h % TONES.length];
+}
 
 export function Avatar({
   name,
@@ -11,15 +19,13 @@ export function Avatar({
   className?: string;
 }) {
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={avatarUrl(name)}
-      alt={name}
-      width={size}
-      height={size}
-      className={cn("rounded-full object-cover bg-[#efe9ff]", className)}
-      style={{ width: size, height: size }}
-    />
+    <span
+      aria-hidden
+      className={cn("grid shrink-0 place-items-center rounded-full font-semibold text-white", className)}
+      style={{ width: size, height: size, background: tone(name), fontSize: Math.max(11, Math.round(size * 0.36)) }}
+    >
+      {initials(name)}
+    </span>
   );
 }
 

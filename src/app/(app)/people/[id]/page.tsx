@@ -146,8 +146,9 @@ export default function PersonPage() {
                   variant="secondary"
                   onClick={() => {
                     const pos = positions.find((p) => p.id === (positionId || e.positionId));
-                    transferEmployee(e.id, pos?.id ?? e.positionId, pos?.unitId ?? e.unitId, from);
-                    toast.success("Transfer dated");
+                    const r = transferEmployee(e.id, pos?.id ?? e.positionId, pos?.unitId ?? e.unitId, from);
+                    if (!r.ok) toast.error(r.reason);
+                    else toast.success("Transfer dated");
                   }}
                 >
                   Transfer
@@ -155,8 +156,9 @@ export default function PersonPage() {
                 <Button
                   onClick={() => {
                     const pos = positions.find((p) => p.id === (positionId || e.positionId));
-                    promoteEmployee(e.id, grade || e.grade, pos?.id ?? e.positionId, Number(basic || e.basic), from);
-                    toast.success("Promotion dated");
+                    const r = promoteEmployee(e.id, grade || e.grade, pos?.id ?? e.positionId, Number(basic || e.basic), from);
+                    if (!r.ok) toast.error(r.reason);
+                    else toast.success("Promotion dated");
                   }}
                 >
                   Promote

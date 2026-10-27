@@ -11,8 +11,10 @@ function punchMinutes(iso: string) {
   return minutes(t);
 }
 
-export function workedMinutes(punches: Punch[], date: string) {
-  const day = punches.filter((p) => p.time.startsWith(date)).sort((a, b) => a.time.localeCompare(b.time));
+export function workedMinutes(punches: Punch[], date: string, employeeId?: string) {
+  const day = punches
+    .filter((p) => p.time.startsWith(date) && (!employeeId || p.employeeId === employeeId))
+    .sort((a, b) => a.time.localeCompare(b.time));
   let inn: Punch | undefined;
   let total = 0;
   for (const p of day) {
@@ -30,16 +32,19 @@ export function shiftFlags(args: {
   punches: Punch[];
   date: string;
   shift: ShiftPattern | undefined;
+  employeeId?: string;
 }) {
   if (!args.shift || args.shift.code === "OFF" || !args.shift.start) {
     return { lateMinutes: 0, earlyMinutes: 0, overtime: 0, hours: 0 };
   }
-  const { minutes: worked, inn, out } = workedMinutes(args.punches, args.date);
+  const { minutes: worked, inn, out } = workedMinutes(args.punches, args.date, args.employeeId);
   const start = minutes(args.shift.start);
   const lateMinutes = inn ? Math.max(0, punchMinutes(inn.time) - start - 10) : 0;
   const end = minutes(args.shift.end || args.shift.start);
   const earlyMinutes = out && args.shift.end && args.shift.end !== "06:00" ? Math.max(0, end - 10 - punchMinutes(out.time)) : 0;
-  const overtime = Math.max(0, Math.round((worked / 60 - 8) * 10) / 10);
+  let expected = end - start;
+  if (expected <= 0) expected += 24 * 60;
+  const overtime = Math.max(0, Math.round(((worked - expected) / 60) * 10) / 10);
   return { lateMinutes, earlyMinutes, overtime, hours: Math.round((worked / 60) * 10) / 10 };
 }
 

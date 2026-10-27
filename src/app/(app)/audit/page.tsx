@@ -17,17 +17,17 @@ export default function AuditPage() {
   const retention = useHrms((s) => s.retention);
   const logBreach = useHrms((s) => s.logBreach);
   const addRetention = useHrms((s) => s.addRetention);
-  const [title, setTitle] = useState("Lost USB with gate-pass export");
-  const [hold, setHold] = useState("APAR 2020-26");
+  const [title, setTitle] = useState("");
+  const [hold, setHold] = useState("");
 
   return (
     <div>
       <PageHeader
         title="Audit trail"
-        subtitle="Append-only. Who, what, when, before and after. Prototype data lives in this browser; production logs stay in India, encrypted at rest."
+        subtitle="Append-only. Who, what, when, before and after. Logs stay in India."
       />
       <p className="mb-4 text-xs text-muted">
-        Hosting: India region (prototype: local device). Encryption: TLS in transit, AES-256 at rest in production. MFA at sign-in.
+        Hosting: India region. Encryption: TLS in transit, AES-256 at rest. MFA at sign-in for payroll, finance and HR.
       </p>
       <Card className="overflow-hidden">
         <table className="w-full text-sm">
@@ -61,13 +61,18 @@ export default function AuditPage() {
           <Card className="p-4">
             <p className="mb-3 font-semibold">DPDP breach</p>
             <Field label="Incident">
-              <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+              <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Incident summary" />
             </Field>
             <Button
               className="mt-3"
               onClick={() => {
-                logBreach(title);
+                if (!title.trim()) {
+                  toast.error("Describe the incident.");
+                  return;
+                }
+                logBreach(title.trim());
                 toast.success("Logged. Board and DPDP clock started.");
+                setTitle("");
               }}
             >
               Notify board
@@ -81,14 +86,19 @@ export default function AuditPage() {
           <Card className="p-4">
             <p className="mb-3 font-semibold">Retention hold</p>
             <Field label="Object">
-              <Input value={hold} onChange={(e) => setHold(e.target.value)} />
+              <Input value={hold} onChange={(e) => setHold(e.target.value)} placeholder="Record or file reference" />
             </Field>
             <Button
               className="mt-3"
               variant="secondary"
               onClick={() => {
-                addRetention(hold, "Legal hold", "2032-03-31");
+                if (!hold.trim()) {
+                  toast.error("Enter the record to hold.");
+                  return;
+                }
+                addRetention(hold.trim(), "Legal hold", "2032-03-31");
                 toast.success("Hold placed. Cannot erase until 2032.");
+                setHold("");
               }}
             >
               Place hold

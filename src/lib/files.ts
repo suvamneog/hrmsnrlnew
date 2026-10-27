@@ -10,6 +10,39 @@ export function downloadText(name: string, content: string, mime = "text/plain")
   URL.revokeObjectURL(url);
 }
 
+function pdfEscape(s: string) {
+  return s.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)").replace(/₹/g, "Rs ");
+}
+
+export function downloadPdf(name: string, lines: string[]) {
+  const leading = lines.map((l) => pdfEscape(l.slice(0, 96)));
+  const cmds = ["BT", "/F1 11 Tf", "16 TL", "48 800 Td", ...leading.flatMap((l, i) => (i === 0 ? [`(${l}) Tj`] : [`T* (${l}) Tj`])), "ET"].join("\n");
+  const objects = [
+    "<< /Type /Catalog /Pages 2 0 R >>",
+    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>",
+    `<< /Length ${cmds.length} >>\nstream\n${cmds}\nendstream`,
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+  ];
+  let body = "%PDF-1.4\n";
+  const offs = [0];
+  objects.forEach((obj, i) => {
+    offs.push(body.length);
+    body += `${i + 1} 0 obj\n${obj}\nendobj\n`;
+  });
+  const start = body.length;
+  body += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  for (let i = 1; i < offs.length; i++) body += `${String(offs[i]).padStart(10, "0")} 00000 n \n`;
+  body += `trailer << /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`;
+  const blob = new Blob([body], { type: "application/pdf" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name.endsWith(".pdf") ? name : `${name}.pdf`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export function fileMime(kind: StatutoryFile["kind"]) {
   return kind === "ecr" ? "text/plain" : "text/csv";
 }
@@ -208,28 +241,37 @@ export function form24q(month: string, results: PayResult[], employees: Employee
   return { kind: "tds24q", name: `TRACES_24Q_${fy}_Q${q}_${yyyymm(month)}.csv`, content: rows.join("\n"), at: new Date().toISOString() };
 }
 
-export function ptFile(month: string, results: PayResult[], employees: Employee[]): StatutoryFile {
+const PT_STATE: Record<string, { code: string; file: string }> = {
+  numaligarh: { code: "AS", file: "ASSAM_PT" },
+  guwahati: { code: "AS", file: "ASSAM_PT" },
+  siliguri: { code: "WB", file: "WB_PT" },
+  paradip: { code: "OD", file: "ODISHA_PT" },
+};
+
+export function ptFiles(month: string, results: PayResult[], employees: Employee[]): StatutoryFile[] {
   const map = byId(employees);
-  const byLoc = new Map<string, { n: number; gross: number; pt: number }>();
-  const detail = results.flatMap((r) => {
+  const groups = new Map<string, string[]>();
+  for (const r of results) {
     const e = map.get(r.employeeId);
-    if (!e) return [];
-    const pt = round2(line(r, "PT"));
-    const loc = byLoc.get(e.locationId) ?? { n: 0, gross: 0, pt: 0 };
-    loc.n += 1;
-    loc.gross += r.gross;
-    loc.pt += pt;
-    byLoc.set(e.locationId, loc);
-    return [csv([e.empNo, e.name.toUpperCase(), e.pan, e.locationId.toUpperCase(), r.gross.toFixed(2), pt.toFixed(2)])];
-  });
-  const summary = [
-    csv(["LOCATION", "HEADCOUNT", "GROSS", "PT"]),
-    ...[...byLoc.entries()].map(([loc, v]) => csv([loc.toUpperCase(), v.n, v.gross.toFixed(2), v.pt.toFixed(2)])),
-  ];
-  return {
+    if (!e) continue;
+    const st = PT_STATE[e.locationId] ?? PT_STATE.numaligarh;
+    const rows = groups.get(st.file) ?? [csv(["EMPNO", "NAME", "PAN", "STATE", "GROSS", "PT"])];
+    rows.push(csv([e.empNo, e.name.toUpperCase(), e.pan, st.code, r.gross.toFixed(2), round2(line(r, "PT")).toFixed(2)]));
+    groups.set(st.file, rows);
+  }
+  return [...groups.entries()].map(([file, rows]) => ({
+    kind: "pt" as const,
+    name: `${file}_${yyyymm(month)}.csv`,
+    content: rows.join("\n"),
+    at: new Date().toISOString(),
+  }));
+}
+
+export function ptFile(month: string, results: PayResult[], employees: Employee[]): StatutoryFile {
+  return ptFiles(month, results, employees)[0] ?? {
     kind: "pt",
     name: `ASSAM_PT_${yyyymm(month)}.csv`,
-    content: [csv(["EMPNO", "NAME", "PAN", "LOCATION", "GROSS", "PT"]), ...detail, "", ...summary].join("\n"),
+    content: csv(["EMPNO", "NAME", "PAN", "STATE", "GROSS", "PT"]),
     at: new Date().toISOString(),
   };
 }
@@ -320,18 +362,18 @@ export function payslipText(e: Employee, r: PayResult): string {
 export function form16Text(e: Employee, r: PayResult): string {
   const tds = line(r, "TDS") * 12;
   return [
-    "FORM 16  (Part B — prototype)",
+    "FORM 16  Part B",
     "Assessment year 2027-28",
-    `${e.name}  PAN ${e.pan}`,
+    "Numaligarh Refinery Limited  TAN SHLN00000E",
+    `${e.name}  PAN ${e.pan}  ${e.empNo}`,
     `Gross salary (annualised)  ${(r.gross * 12).toFixed(2)}`,
     `Tax deducted at source     ${tds.toFixed(2)}`,
-    "This is a working prototype extract, not a TRACES file.",
   ].join("\n");
 }
 
 export function oshReturn(month: string, contractor: { name: string; licenceNo: string }, workers: number, inside: number): string {
   return [
-    "OSH Code 2020 — contract labour return (prototype)",
+    "OSH Code 2020 — contract labour return",
     `Month ${month}`,
     `Contractor ${contractor.name}`,
     `Licence ${contractor.licenceNo}`,

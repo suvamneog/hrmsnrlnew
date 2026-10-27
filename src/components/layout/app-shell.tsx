@@ -25,19 +25,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const hydrated = useHrms((s) => s.hydrated);
   const router = useRouter();
   const path = usePathname();
-  const mobile =
-    role === "gate_security"
-      ? ESS_TABS.map((t) => (t.href === "/time" ? { ...t, href: "/gate", label: "Gate", icon: "gate" as const } : t))
-      : ESS_TABS;
 
   useEffect(() => {
     if (hydrated && !userId) router.replace("/");
   }, [hydrated, userId, router]);
 
+  useEffect(() => {
+    if (role === "gate_security" && path !== "/gate") router.replace("/gate");
+  }, [role, path, router]);
+
   if (!hydrated || !userId) {
     return (
       <div className="grid min-h-[100dvh] place-items-center bg-bg text-muted">
         Loading NRL People
+      </div>
+    );
+  }
+
+  if (role === "gate_security") {
+    return (
+      <div className="min-h-[100dvh] bg-[#e8edf8]">
+        <Guard>{children}</Guard>
       </div>
     );
   }
@@ -51,7 +59,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Guard>{children}</Guard>
         </main>
         <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-line bg-white/95 px-2 py-2 backdrop-blur md:hidden">
-          {mobile.map((item) => {
+          {ESS_TABS.map((item) => {
             const active = path === item.href || path.startsWith(`${item.href}/`);
             return (
               <Link

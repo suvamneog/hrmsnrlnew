@@ -4,7 +4,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { claimApproverRole } from "@/lib/access";
+import { canDecideFor, claimApproverRole } from "@/lib/access";
 import { formatDay, inr } from "@/lib/format";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import { useMemo, useState } from "react";
@@ -48,8 +48,7 @@ export default function ApprovalsPage() {
     () => new Set(employees.filter((e) => e.managerId === me.id).map((e) => e.id)),
     [employees, me.id],
   );
-  const can = (empId: string) =>
-    empId !== me.id && (teamIds.has(empId) || role === "hr_admin" || role === "finance_approver" || role === "payroll_officer");
+  const can = (empId: string) => canDecideFor(role, me.id, empId, teamIds);
 
   const nameOf = (id: string) => employees.find((e) => e.id === id)?.name ?? id;
 
@@ -101,7 +100,8 @@ export default function ApprovalsPage() {
   for (const c of claims.filter((x) => x.status === "pending")) {
     const own = c.employeeId === me.id;
     const claimDecide = role ? claimApproverRole(c.amount).includes(role) : false;
-    if (!own && !(can(c.employeeId) && claimDecide)) continue;
+    if (!own && !claimDecide) continue;
+    if (!own && !can(c.employeeId) && role !== "finance_approver") continue;
     rows.push({
       id: c.id,
       kind: "claim",

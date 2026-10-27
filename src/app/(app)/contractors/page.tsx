@@ -27,7 +27,7 @@ export default function ContractorsPage() {
   const blacklistWorker = useHrms((s) => s.blacklistWorker);
   const uploadWageProof = useHrms((s) => s.uploadWageProof);
   const [name, setName] = useState("");
-  const [skill, setSkill] = useState("Rigger");
+  const [skill, setSkill] = useState("");
   const contractors =
     role === "contractor_supervisor"
       ? contractorsAll.filter((c) => c.supervisorId === me?.id || c.id === me?.contractorId)
@@ -132,15 +132,19 @@ export default function ContractorsPage() {
             <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" />
           </Field>
           <Field label="Skill">
-            <Input value={skill} onChange={(e) => setSkill(e.target.value)} />
+            <Input value={skill} onChange={(e) => setSkill(e.target.value)} placeholder="Skill" />
           </Field>
           <div className="flex items-end">
             <Button
               onClick={() => {
+                if (!name.trim() || !skill.trim()) {
+                  toast.error("Name and skill are required.");
+                  return;
+                }
                 registerWorker({
                   contractorId: contractors[0].id,
-                  name,
-                  skill,
+                  name: name.trim(),
+                  skill: skill.trim(),
                   aadhaar: "000000000000",
                   uan: "101000000000",
                   esic: "2211000000",
@@ -151,6 +155,7 @@ export default function ContractorsPage() {
                 });
                 toast.success("Worker on register. Induction still required.");
                 setName("");
+                setSkill("");
               }}
             >
               Register

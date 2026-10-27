@@ -1,4 +1,4 @@
-import type { LocationId, OrgUnit, Position } from "./types";
+import type { Cadre, LocationId, OrgUnit, Position } from "./types";
 
 export const LOCATIONS: { id: LocationId; name: string; cityClass: "X" | "Y" | "Z" }[] = [
   { id: "numaligarh", name: "Numaligarh refinery & township", cityClass: "Z" },
@@ -24,7 +24,50 @@ export const UNITS: OrgUnit[] = [
   { id: "twn", name: "Township", parentId: "num", kind: "department", locationId: "numaligarh" },
   { id: "mkt-slg", name: "Marketing terminal", parentId: "slg", kind: "department", locationId: "siliguri" },
   { id: "crd-prt", name: "Crude terminal", parentId: "prt", kind: "department", locationId: "paradip" },
+  { id: "corp-ghy", name: "Corporate office", parentId: "ghy", kind: "department", locationId: "guwahati" },
 ];
+
+const STRENGTH_UNITS = [
+  { id: "cdu", cadre: "executive" as const, grades: ["E2", "E3", "E4"] },
+  { id: "cdu", cadre: "workman" as const, grades: ["W2", "W4", "W5"] },
+  { id: "util", cadre: "executive" as const, grades: ["E2", "E3"] },
+  { id: "util", cadre: "workman" as const, grades: ["W4"] },
+  { id: "tech", cadre: "executive" as const, grades: ["E2", "E3", "E4", "E5", "E6"] },
+  { id: "tech", cadre: "workman" as const, grades: ["W3"] },
+  { id: "tech", cadre: "trainee" as const, grades: ["ET"] },
+  { id: "hse", cadre: "executive" as const, grades: ["E3", "E4", "E5"] },
+  { id: "hse", cadre: "workman" as const, grades: ["W5"] },
+  { id: "hr", cadre: "executive" as const, grades: ["E2", "E3", "E4", "E5", "E6"] },
+  { id: "fin", cadre: "executive" as const, grades: ["E2", "E3", "E4", "E5", "E6"] },
+  { id: "twn", cadre: "executive" as const, grades: ["E2", "E3", "E4"] },
+  { id: "ops", cadre: "trainee" as const, grades: ["ET"] },
+  { id: "fcc", cadre: "workman" as const, grades: ["W4", "W6"] },
+  { id: "mkt-slg", cadre: "executive" as const, grades: ["E2", "E3", "E4"] },
+  { id: "crd-prt", cadre: "executive" as const, grades: ["E2", "E3", "E4", "E5"] },
+  { id: "corp-ghy", cadre: "executive" as const, grades: ["E2", "E3", "E4"] },
+];
+
+function strengthTitle(unitId: string, grade: string, cadre: Cadre) {
+  const area = UNITS.find((u) => u.id === unitId)?.name ?? unitId;
+  if (cadre === "trainee") return `Engineer trainee · ${area}`;
+  if (cadre === "workman") return `${grade} · ${area}`;
+  return `${grade} officer · ${area}`;
+}
+
+export function strengthPositionId(unitId: string, grade: string) {
+  return `p-str-${unitId}-${grade}`;
+}
+
+export const STRENGTH_POSITIONS: Position[] = STRENGTH_UNITS.flatMap((u) =>
+  u.grades.map((grade) => ({
+    id: strengthPositionId(u.id, grade),
+    title: strengthTitle(u.id, grade, u.cadre),
+    unitId: u.id,
+    grade,
+    cadre: u.cadre,
+    vacant: false,
+  })),
+);
 
 export const POSITIONS: Position[] = [
   { id: "p-cgm-tech", title: "CGM (Technical)", unitId: "tech", grade: "E6", cadre: "executive", vacant: false },
@@ -49,6 +92,7 @@ export const POSITIONS: Position[] = [
   { id: "p-et-chem", title: "Engineer trainee (Chemical)", unitId: "ops", grade: "ET", cadre: "trainee", vacant: false },
   { id: "p-vac-e3", title: "Dy Manager (Projects)", unitId: "tech", grade: "E3", cadre: "executive", vacant: true },
   { id: "p-sup-lt", title: "Contractor supervisor, L&T", unitId: "cdu", grade: "CS", cadre: "contract", vacant: false },
+  ...STRENGTH_POSITIONS,
 ];
 
 export function unitName(id: string) {

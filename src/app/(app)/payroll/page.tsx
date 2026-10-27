@@ -182,7 +182,7 @@ export default function PayrollPage() {
           </table>
           <div className="flex items-center justify-between border-t border-line px-4 py-3 text-xs text-muted">
             <p>
-              {page * PAGE + 1}–{Math.min((page + 1) * PAGE, ordered.length)} of {ordered.length.toLocaleString("en-IN")} · named first
+              {page * PAGE + 1}–{Math.min((page + 1) * PAGE, ordered.length)} of {ordered.length.toLocaleString("en-IN")}
             </p>
             <div className="flex gap-2">
               <button disabled={page === 0} className="font-semibold disabled:opacity-40" onClick={() => setPage((p) => p - 1)}>

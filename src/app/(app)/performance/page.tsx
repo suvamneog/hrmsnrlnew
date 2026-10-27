@@ -31,11 +31,11 @@ export default function PerformancePage() {
         )}
         <div className="mt-3 flex flex-wrap gap-2">
           <Button variant="secondary" onClick={() => rateAppraisal(me.id, "selfRating", 4)}>
-            Self 4
+            Submit self-appraisal
           </Button>
           {role === "line_manager" && team.map((a) => (
             <Button key={a.employeeId} variant="secondary" onClick={() => rateAppraisal(a.employeeId, "reportingRating", 4)}>
-              Rate {employees.find((e) => e.id === a.employeeId)?.preferredName}
+              Reporting officer · {employees.find((e) => e.id === a.employeeId)?.preferredName}
             </Button>
           ))}
           {role === "hr_admin" && mine && (

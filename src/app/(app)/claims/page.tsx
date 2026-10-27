@@ -20,7 +20,7 @@ export default function ClaimsPage() {
   const withdrawClaim = useHrms((s) => s.withdrawClaim);
   const advances = useHrms((s) => s.advances);
   const [type, setType] = useState<Claim["type"]>("medical");
-  const [amount, setAmount] = useState("3500");
+  const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [billName, setBillName] = useState("");
   if (!me) return null;
@@ -57,7 +57,7 @@ export default function ClaimsPage() {
               </Select>
             </Field>
             <Field label="Amount (INR)">
-              <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
+              <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" />
             </Field>
             <Field label="Description">
               <Textarea value={description} onChange={(e) => setDescription(e.target.value)} required />
@@ -69,7 +69,7 @@ export default function ClaimsPage() {
                 onChange={(e) => setBillName(e.target.files?.[0]?.name ?? "")}
               />
             </Field>
-            {billName && <p className="text-xs text-muted">Attached {billName}. OCR is mocked in this prototype.</p>}
+            {billName && <p className="text-xs text-muted">Attached {billName}.</p>}
             <p className="text-xs text-muted">{me.grade} annual {type} limit {inr(claimLimit(me.grade, type))}. Amount ≥ ₹25,000 goes to finance.</p>
             <Button type="submit">Submit claim</Button>
           </form>

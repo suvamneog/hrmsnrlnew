@@ -92,7 +92,7 @@ export default function PeoplePage() {
           </Field>
           <Field label="Position">
             <Select value={positionId} onChange={(e) => setPositionId(e.target.value)}>
-              {positions.map((p) => (
+              {positions.filter((p) => !p.id.startsWith("p-str-")).map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.title}
                   {p.vacant ? " (vacant)" : ""}
@@ -214,7 +214,7 @@ export default function PeoplePage() {
       </div>
       <div className="mt-4 flex items-center justify-between text-xs text-muted">
         <p>
-          {page * PAGE + 1}–{Math.min((page + 1) * PAGE, rows.length)} of {rows.length.toLocaleString("en-IN")} · named first
+          {page * PAGE + 1}–{Math.min((page + 1) * PAGE, rows.length)} of {rows.length.toLocaleString("en-IN")}
         </p>
         <div className="flex gap-2">
           <button disabled={page === 0} className="font-semibold disabled:opacity-40" onClick={() => setPage((p) => p - 1)}>

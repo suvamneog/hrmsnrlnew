@@ -1,4 +1,5 @@
 import { CENSUS } from "./census";
+import { strengthPositionId } from "./org";
 import type { Cadre, Category, Employee, LocationId } from "./types";
 
 const FIRST_M = [
@@ -42,6 +43,7 @@ const EXEC_SLOTS: Slot[] = [
   { id: "twn", locationId: "numaligarh", positionId: "p-mgr-twn" },
   { id: "mkt-slg", locationId: "siliguri", positionId: "p-mgr-mkt" },
   { id: "crd-prt", locationId: "paradip", positionId: "p-eng-prt" },
+  { id: "corp-ghy", locationId: "guwahati", positionId: "p-str-corp-ghy-E3" },
 ];
 const WORK_SLOTS: Slot[] = [
   { id: "cdu", locationId: "numaligarh", positionId: "p-op-cdu" },
@@ -145,7 +147,7 @@ export function generatedEmployees(named: Employee[]): Employee[] {
       hardshipAllowance: cadre === "workman" && i % 7 === 0 ? 1800 : 0,
       locationId: loc.locationId,
       unitId: loc.id,
-      positionId: loc.positionId,
+      positionId: strengthPositionId(loc.id, g.grade),
       status: cadre === "trainee" ? "probation" : "active",
       bankAccount: String(2000000000 + i),
       ifsc: IFSC[loc.locationId],
@@ -155,7 +157,7 @@ export function generatedEmployees(named: Employee[]): Employee[] {
       npsPran: cadre === "workman" ? undefined : String(110100000000 + i),
       assignmentHistory: [
         {
-          positionId: loc.positionId,
+          positionId: strengthPositionId(loc.id, g.grade),
           unitId: loc.id,
           locationId: loc.locationId,
           grade: g.grade,

@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { downloadText, form16Text, payslipText } from "@/lib/files";
+import { downloadPdf, form16Text, payslipText } from "@/lib/files";
 import { inrExact } from "@/lib/format";
 import { useHrms } from "@/lib/store";
 import { useParams } from "next/navigation";
@@ -25,10 +25,10 @@ export default function PayslipLinePage() {
         subtitle={`Payslip · ${run.month} · ${e.grade} ${e.cadre}`}
         actions={
           <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => downloadText(`payslip-${e.empNo}-${row.month}.txt`, payslipText(e, row))}>
+            <Button variant="secondary" onClick={() => downloadPdf(`payslip-${e.empNo}-${row.month}.pdf`, payslipText(e, row).split("\n"))}>
               Download PDF
             </Button>
-            <Button variant="secondary" onClick={() => downloadText(`form16-${e.empNo}.txt`, form16Text(e, row))}>
+            <Button variant="secondary" onClick={() => downloadPdf(`form16-${e.empNo}.pdf`, form16Text(e, row).split("\n"))}>
               Form 16
             </Button>
           </div>
