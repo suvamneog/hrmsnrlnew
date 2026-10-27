@@ -1,5 +1,3 @@
-import type { ReactNode } from "react";
-
 export function LoginScene() {
   return (
     <svg viewBox="0 0 1000 680" preserveAspectRatio="xMidYMax meet" className="absolute inset-0 h-full w-full" aria-hidden>
@@ -86,131 +84,138 @@ export function LoginScene() {
         <path d="M48 22c14 10 10 26-2 32-4-12-2-26 2-32z" fill="#6f9178" />
       </g>
 
-      <Person
-        x={48}
-        y={300}
-        hair="bob"
-        item={<rect x="42" y="118" width="14" height="24" rx="3" fill={hair} />}
-      />
-      <Person x={208} y={310} hair="short" />
-      <Person
-        x={368}
-        y={296}
-        hair="long"
-        item={
-          <g>
-            <rect x="64" y="84" width="15" height="18" rx="4" fill="#fff" />
-            <path d="M79 90h5c4 0 4 6 0 8h-4" fill="none" stroke="#fff" strokeWidth="2.5" />
-          </g>
-        }
-      />
-      <Person
-        x={528}
-        y={308}
-        hair="short"
-        item={
-          <g>
-            <rect x="42" y="104" width="16" height="16" rx="4" fill="#fff" />
-            <path d="M58 109h4c3 0 4 5 0 7h-4" fill="none" stroke="#fff" strokeWidth="2.5" />
-          </g>
-        }
-      />
-      <Person
-        x={668}
-        y={294}
-        hair="long"
-        item={<rect x="42" y="118" width="14" height="24" rx="3" fill={hair} />}
-      />
-
+      <PhoneWoman />
+      <LaptopMan />
+      <CupWoman />
+      <TalkingMan />
+      <StandingWoman />
       <rect x="28" y="478" width="760" height="34" rx="3" fill="#fff" />
       <rect x="52" y="512" width="16" height="90" fill="#eef1f6" />
       <rect x="748" y="512" width="16" height="90" fill="#eef1f6" />
       <path d="M228 478h52l7 11H223z" fill="#eef1f6" />
       <path d="M236 478l9-26h32l9 26" fill="#d8dee8" />
 
-      <Standing />
+      <ShelfWoman />
     </svg>
   );
 }
 
-const skin = "#f1c4a4";
-const hair = "#1b2136";
+const skin = "#f6c7a6";
+const hair = "#1b1f33";
 const shirt = "#3d5afe";
+const shade = "#2f49d8";
+const ink = "#14182a";
 
-function Hairdo({ kind, cx, cy }: { kind: "bob" | "short" | "long"; cx: number; cy: number }) {
-  if (kind === "long") {
-    return (
-      <g>
-        <path
-          d={`M${cx - 20} ${cy + 6}c0-26 12-38 20-40 10 2 20 14 22 40v58c-2 8-10 10-15 4-4-22-5-34-7-42-2 8-3 22-7 42-6 6-14 4-15-4V${cy + 6}z`}
-          fill={hair}
-        />
-        <ellipse cx={cx} cy={cy + 18} rx="6" ry="8" fill={skin} />
-        <ellipse cx={cx} cy={cy + 4} rx="15" ry="17" fill={skin} />
-        <path d={`M${cx - 14} ${cy - 8}c6-10 22-10 28 0-8-4-20-4-28 0z`} fill={hair} />
-      </g>
-    );
-  }
-  if (kind === "bob") {
-    return (
-      <g>
-        <path
-          d={`M${cx - 21} ${cy + 4}c0-24 14-36 21-38 9 2 21 14 21 38v16c0 10-8 16-14 16h-14c-8 0-14-6-14-16z`}
-          fill={hair}
-        />
-        <ellipse cx={cx} cy={cy + 18} rx="6" ry="8" fill={skin} />
-        <ellipse cx={cx} cy={cy + 4} rx="15" ry="17" fill={skin} />
-        <path d={`M${cx - 14} ${cy - 8}c6-9 22-9 28 0-8-3-20-3-28 0z`} fill={hair} />
-      </g>
-    );
-  }
+/* Woman with a bob, side-on facing right, reading her phone. */
+function PhoneWoman() {
   return (
-    <g>
-      <path d={`M${cx - 18} ${cy}c2-22 32-26 36 0 0 8-6 12-12 12h-12c-6 0-12-4-12-12z`} fill={hair} />
-      <ellipse cx={cx} cy={cy + 18} rx="6" ry="8" fill={skin} />
-      <ellipse cx={cx} cy={cy + 4} rx="15" ry="17" fill={skin} />
-      <path d={`M${cx - 13} ${cy - 10}c5-7 22-7 28 0-8-3-20-3-28 0z`} fill={hair} />
+    <g transform="translate(64 296)">
+      <rect x="30" y="150" width="15" height="66" rx="6" fill={ink} />
+      <rect x="48" y="150" width="15" height="66" rx="6" fill={ink} />
+      <path d="M26 82c4-14 38-16 46 0l6 76H22z" fill={shirt} />
+      <rect x="40" y="62" width="12" height="16" rx="5" fill={skin} />
+      <ellipse cx="50" cy="44" rx="17" ry="20" fill={skin} />
+      <path d="M66 44l6 6-6 3z" fill={skin} />
+      <path d="M30 50c-4-26 10-36 24-36 12 0 20 8 20 18-10-2-18-6-22-12-2 10-8 16-10 30 0 8-2 14-6 16-6-2-6-10-6-16z" fill={hair} />
+      <path d="M44 92c-2 26 10 40 30 34" stroke={shade} strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M58 92c4 18 14 28 22 30" stroke={shirt} strokeWidth="12" strokeLinecap="round" fill="none" />
+      <circle cx="80" cy="122" r="6" fill={skin} />
+      <rect x="76" y="104" width="9" height="17" rx="2" fill={ink} transform="rotate(18 80 112)" />
     </g>
   );
 }
 
-function Person({
-  x,
-  y,
-  hair: kind,
-  item,
-}: {
-  x: number;
-  y: number;
-  hair: "bob" | "short" | "long";
-  item?: ReactNode;
-}) {
+/* Bearded man seated side-on, hunched over a laptop. */
+function LaptopMan() {
   return (
-    <g transform={`translate(${x} ${y})`}>
-      <Hairdo kind={kind} cx={50} cy={36} />
-      <path d="M12 86c8-16 68-16 76 4v78H12V86z" fill={shirt} />
-      <ellipse cx="50" cy="80" rx="8" ry="7" fill={skin} />
-      <path d="M18 96c-2 16 8 30 20 40" stroke={skin} strokeWidth="10" strokeLinecap="round" fill="none" />
-      <path d="M82 96c2 16-8 30-20 40" stroke={skin} strokeWidth="10" strokeLinecap="round" fill="none" />
-      {item}
+    <g transform="translate(206 330)">
+      <path d="M22 150c-6-40 6-70 30-82 22-8 44 6 50 30l6 52z" fill={shirt} />
+      <ellipse cx="78" cy="48" rx="17" ry="20" fill={skin} />
+      <path d="M93 46l7 7-7 3z" fill={skin} />
+      <path d="M60 46c-2-22 12-30 26-28 10 2 14 8 14 14-10-4-20-2-24 6-2 6-6 10-10 12z" fill={hair} />
+      <path d="M66 58c4 14 14 20 26 16-2 6-10 12-18 10-8-2-12-12-8-26z" fill={hair} />
+      <path d="M52 92c10 22 30 34 54 36" stroke={shade} strokeWidth="14" strokeLinecap="round" fill="none" />
+      <circle cx="110" cy="128" r="7" fill={skin} />
+      <path d="M118 148l14-40h56l-14 40z" fill="#ffffff" stroke="#dfe4ec" strokeWidth="2" />
+      <rect x="108" y="146" width="80" height="4" rx="2" fill="#dfe4ec" />
     </g>
   );
 }
 
-function Standing() {
+/* Woman with long hair facing out, drinking from a cup, in a dark chair. */
+function CupWoman() {
   return (
-    <g transform="translate(888 278)">
-      <Hairdo kind="bob" cx={40} cy={36} />
-      <path d="M10 80c8-18 52-18 58 4v62H10V80z" fill={shirt} />
-      <ellipse cx="40" cy="76" rx="7" ry="6" fill={skin} />
-      <path d="M16 142h48l8 38H8z" fill={hair} />
-      <rect x="20" y="178" width="9" height="34" rx="4" fill={skin} />
-      <rect x="49" y="178" width="9" height="34" rx="4" fill={skin} />
-      <ellipse cx="24" cy="214" rx="11" ry="5" fill={hair} />
-      <ellipse cx="54" cy="214" rx="11" ry="5" fill={hair} />
-      <path d="M14 92c6 10 12 16 16 20" stroke={skin} strokeWidth="9" strokeLinecap="round" fill="none" />
-      <path d="M66 92c-6 10-12 16-16 20" stroke={skin} strokeWidth="9" strokeLinecap="round" fill="none" />
-      <rect x="32" y="78" width="14" height="22" rx="3" fill={hair} />
+    <g transform="translate(372 318)">
+      <path d="M8 160V96c0-14 10-22 22-22h52c12 0 22 8 22 22v64z" fill={ink} />
+      <path d="M26 64c-6-36 10-52 30-52s36 16 30 52l2 40H24z" fill={hair} />
+      <path d="M22 160c0-48 8-68 34-70 26 2 34 22 34 70z" fill={shirt} />
+      <rect x="49" y="66" width="14" height="16" rx="5" fill={skin} />
+      <ellipse cx="56" cy="48" rx="17" ry="20" fill={skin} />
+      <path d="M38 40c4-18 34-20 38 0-8-8-28-8-38 0z" fill={hair} />
+      <path d="M30 104c-4 22 10 30 26 22" stroke={shade} strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M84 104c4 22-10 30-24 22" stroke={shade} strokeWidth="13" strokeLinecap="round" fill="none" />
+      <circle cx="58" cy="122" r="7" fill={skin} />
+      <rect x="50" y="56" width="16" height="22" rx="3" fill="#ffffff" />
+      <path d="M66 62h4c4 0 4 9 0 10h-4" fill="none" stroke="#ffffff" strokeWidth="3" />
+    </g>
+  );
+}
+
+/* Man seated side-on facing left, holding a cup and talking. */
+function TalkingMan() {
+  return (
+    <g transform="translate(520 322)">
+      <path d="M88 160V92c0-12 8-20 18-20h10v88z" fill={ink} />
+      <path d="M30 156c-4-44 8-76 34-84 22-4 38 12 40 40l2 44z" fill={shirt} />
+      <ellipse cx="52" cy="48" rx="17" ry="20" fill={skin} />
+      <path d="M36 46l-7 7 7 3z" fill={skin} />
+      <path d="M44 28c10-14 34-12 38 6 2 10-2 18-8 24-2-10-6-16-12-18-6 4-14 2-18-12z" fill={hair} />
+      <path d="M62 96c-14 20-26 28-36 30" stroke={shade} strokeWidth="13" strokeLinecap="round" fill="none" />
+      <circle cx="26" cy="126" r="7" fill={skin} />
+      <rect x="16" y="104" width="16" height="18" rx="3" fill="#ffffff" />
+      <path d="M16 110h-4c-4 0-4 8 0 9h4" fill="none" stroke="#ffffff" strokeWidth="3" />
+    </g>
+  );
+}
+
+/* Woman with long hair standing, looking down at her phone. */
+function StandingWoman() {
+  return (
+    <g transform="translate(668 286)">
+      <rect x="32" y="160" width="15" height="66" rx="6" fill={ink} />
+      <rect x="50" y="160" width="15" height="66" rx="6" fill={ink} />
+      <path d="M28 66c-6-34 8-52 22-52s30 16 24 52l4 62H24z" fill={hair} />
+      <path d="M22 168c-2-52 6-78 28-82 22 4 30 30 28 82z" fill={shirt} />
+      <rect x="42" y="64" width="14" height="18" rx="5" fill={skin} />
+      <ellipse cx="50" cy="46" rx="17" ry="20" fill={skin} />
+      <path d="M32 40c4-18 34-20 38 0-8-8-28-8-38 0z" fill={hair} />
+      <path d="M28 102c-6 26 6 38 22 34" stroke={shade} strokeWidth="13" strokeLinecap="round" fill="none" />
+      <path d="M72 102c6 26-6 38-20 34" stroke={shade} strokeWidth="13" strokeLinecap="round" fill="none" />
+      <circle cx="52" cy="134" r="7" fill={skin} />
+      <rect x="45" y="118" width="12" height="18" rx="2" fill={ink} />
+    </g>
+  );
+}
+
+/* Woman in a skirt by the shelf, turned left, holding a mug. */
+function ShelfWoman() {
+  return (
+    <g transform="translate(880 262)">
+      <rect x="26" y="178" width="10" height="70" rx="4" fill={skin} />
+      <rect x="46" y="178" width="10" height="70" rx="4" fill={skin} />
+      <path d="M18 250h20l-2 8H10z" fill={ink} />
+      <path d="M44 250h20l-2 8H36z" fill={ink} />
+      <path d="M18 138h46l10 46H8z" fill={ink} />
+      <path d="M16 84c6-16 46-18 54 0l-4 60H20z" fill={shirt} />
+      <rect x="36" y="62" width="13" height="16" rx="5" fill={skin} />
+      <ellipse cx="42" cy="44" rx="17" ry="20" fill={skin} />
+      <path d="M26 44l-7 6 7 3z" fill={skin} />
+      <circle cx="54" cy="20" r="10" fill={hair} />
+      <path d="M30 34c6-18 34-18 40 2 2 12-2 22-8 26 0-12-4-18-10-20-8 0-16-2-22-8z" fill={hair} />
+      <path d="M30 94c-6 16-4 24 2 30" stroke={shade} strokeWidth="12" strokeLinecap="round" fill="none" />
+      <circle cx="30" cy="124" r="6" fill={skin} />
+      <rect x="16" y="104" width="14" height="16" rx="3" fill="#ffffff" />
+      <path d="M16 109h-3c-4 0-4 7 0 8h3" fill="none" stroke="#ffffff" strokeWidth="2.5" />
     </g>
   );
 }
