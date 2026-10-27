@@ -4,13 +4,13 @@ import { LoginScene } from "@/components/login/login-scene";
 import { needsMfa, resolveDirectory, verifyMfa } from "@/lib/auth";
 import { useHrms } from "@/lib/store";
 import type { Role } from "@/lib/types";
-import { ArrowRight, LockSimple, ShieldCheck, User } from "@phosphor-icons/react";
+import { CaretRight, LockSimple, ShieldCheck, User } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const field =
-  "w-full bg-transparent text-[15px] text-white outline-none placeholder:text-white/75 [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_#3d5afe] [&:-webkit-autofill]:[-webkit-text-fill-color:#fff]";
+  "w-full bg-transparent text-[12px] font-semibold text-white outline-none placeholder:font-semibold placeholder:text-white/90 [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_#3d5afe] [&:-webkit-autofill]:[-webkit-text-fill-color:#fff]";
 
 export default function LoginPage() {
   const login = useHrms((s) => s.login);
@@ -54,15 +54,15 @@ export default function LoginPage() {
     <div className="flex min-h-[100dvh] bg-[#3d5afe]">
       <form
         onSubmit={submit}
-        className="flex w-full shrink-0 flex-col justify-center px-10 py-12 text-white sm:px-12 md:w-[min(32vw,380px)] md:px-14"
+        className="flex w-full shrink-0 flex-col justify-center px-10 py-12 text-white sm:px-12 md:w-[33vw] md:max-w-[420px] md:px-[4.4vw]"
       >
-        <h1 className="text-[34px] font-semibold leading-none tracking-tight">{pending ? "Authenticator" : "Login"}</h1>
-        <span className="mt-3 mb-11 block h-[3px] w-[52px] bg-white" />
+        <h1 className="text-[26px] font-bold leading-none tracking-tight">{pending ? "Authenticator" : "Login"}</h1>
+        <span className="mt-3 mb-10 block h-[4px] w-[132px] rounded-full bg-white" />
 
         {!pending ? (
           <div className="grid gap-8">
-            <label className="flex items-center gap-3 border-b border-white/50 pb-3">
-              <User size={16} weight="fill" className="shrink-0" />
+            <label className="flex items-center gap-3 border-b border-white/60 pb-2.5">
+              <User size={15} weight="fill" className="shrink-0" />
               <input
                 autoComplete="username"
                 value={user}
@@ -71,8 +71,8 @@ export default function LoginPage() {
                 className={field}
               />
             </label>
-            <label className="flex items-center gap-3 border-b border-white/50 pb-3">
-              <LockSimple size={16} weight="fill" className="shrink-0" />
+            <label className="flex items-center gap-3 border-b border-white/60 pb-2.5">
+              <LockSimple size={15} weight="fill" className="shrink-0" />
               <input
                 type="password"
                 autoComplete="current-password"
@@ -85,7 +85,7 @@ export default function LoginPage() {
           </div>
         ) : (
           <div>
-            <label className="flex items-center gap-3 border-b border-white/50 pb-3">
+            <label className="flex items-center gap-3 border-b border-white/60 pb-2.5">
               <ShieldCheck size={18} weight="bold" className="shrink-0" />
               <input
                 inputMode="numeric"
@@ -105,16 +105,15 @@ export default function LoginPage() {
 
         <button
           type="submit"
-          className="mx-auto mt-12 inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white px-10 text-[12px] font-bold tracking-[0.18em] text-[#3d5afe] transition hover:bg-white/95 active:scale-[0.98]"
+          className="mx-auto mt-12 inline-flex h-[34px] w-[104px] items-center justify-center gap-2 rounded-full bg-white text-[10px] font-bold tracking-[0.08em] shadow-[0_6px_16px_rgba(20,30,90,0.18)] text-[#3d5afe] transition hover:bg-white/95 active:scale-[0.98]"
         >
           {pending ? "VERIFY" : "LOGIN"}
-          <ArrowRight size={16} weight="bold" />
+          <CaretRight size={11} weight="bold" />
         </button>
-        <p className="mt-10 text-center text-[11px] text-white/65">IT helpdesk · 03774-265000</p>
       </form>
 
-      <div className="hidden min-h-[100dvh] flex-1 p-4 pl-2 pr-5 py-5 md:block">
-        <div className="relative h-full overflow-hidden rounded-[28px] bg-[#f5f7fb]">
+      <div className="hidden min-h-[100dvh] flex-1 pt-1 md:block">
+        <div className="relative h-full overflow-hidden rounded-l-[28px] bg-[#f5f7fb]">
           <div className="absolute right-8 top-7 z-10 flex items-center gap-2.5">
             <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden>
               <g fill="#3d5afe" transform="rotate(-38 16 16)">
@@ -124,7 +123,7 @@ export default function LoginPage() {
                 <rect x="24" y="4" width="5" height="24" rx="2.5" />
               </g>
             </svg>
-            <span className="text-[18px] font-semibold tracking-tight text-[#1b2140]">NRL People</span>
+            <span className="text-[22px] font-normal tracking-tight text-[#1b2140]">NRL <b className="font-bold">People</b></span>
           </div>
           <LoginScene />
         </div>
