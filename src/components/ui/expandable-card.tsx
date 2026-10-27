@@ -4,8 +4,8 @@ import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/cn";
 import { easeOut, spring } from "@/lib/motion";
 import { CaretDown, Check, Flag, Hourglass } from "@phosphor-icons/react";
-import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
-import { useId, useState, type ReactNode } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useState, type ReactNode } from "react";
 
 export type ChecklistItem = { label: string; done: boolean; hint?: string; onToggle?: () => void };
 export type Pill = { label: string; tone: "danger" | "warn" | "ok" | "muted" | "brand" };
@@ -46,58 +46,50 @@ export function ExpandableCard({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   const reduce = useReducedMotion();
-  const id = useId();
   const done = items.filter((i) => i.done).length;
   const pct = items.length ? Math.round((done / items.length) * 100) : 0;
   const t = reduce ? { duration: 0 } : spring;
 
   return (
-    <LayoutGroup id={id}>
-      <motion.div
-        layout
-        transition={t}
+          <div
         style={{ borderRadius: 22 }}
         className={cn(
-          "overflow-hidden bg-white ring-1 ring-[#e7eaf3] transition-shadow",
+          "overflow-hidden bg-white ring-1 ring-[#e7eaf3] transition-shadow duration-500",
           open ? "shadow-[0_24px_60px_rgba(27,33,64,0.12)]" : "shadow-[0_6px_20px_rgba(27,33,64,0.06)] hover:shadow-[0_12px_32px_rgba(27,33,64,0.1)]",
         )}
       >
-        <motion.button
-          layout="position"
-          transition={t}
+        <button
           type="button"
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
           className="block w-full p-4 text-left sm:p-5"
         >
           <div className="flex items-center gap-3">
-            <motion.span
-              layout
-              transition={t}
-              className={cn(
-                "grid shrink-0 place-items-center rounded-2xl bg-[#f3f5fb] text-ink ring-1 ring-[#e7eaf3]",
-                open ? "h-12 w-12" : "h-10 w-10",
-              )}
-            >
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#f3f5fb] text-ink ring-1 ring-[#e7eaf3]">
               {icon}
-            </motion.span>
-            <motion.div layout="position" transition={t} className="min-w-0 flex-1">
-              <p className={cn("truncate font-semibold tracking-tight", open ? "text-[19px]" : "text-[15px]")}>{title}</p>
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[15px] font-semibold tracking-tight">{title}</p>
               {subtitle && <p className="truncate text-[12px] text-muted">{subtitle}</p>}
+            </div>
+            <motion.div
+              animate={{ opacity: open ? 0 : 1, x: open ? 8 : 0 }}
+              transition={{ duration: 0.25, ease: easeOut }}
+              className="hidden items-center gap-2.5 sm:flex"
+              aria-hidden={open}
+            >
+              <Progress pct={pct} className="w-28" />
+              <span className="w-9 text-right text-[13px] tabular-nums text-muted">{pct}%</span>
             </motion.div>
-            {!open && (
-              <motion.div layoutId="progress" transition={t} className="hidden items-center gap-2.5 sm:flex">
-                <Progress pct={pct} className="w-28" />
-                <span className="w-9 text-right text-[13px] tabular-nums text-muted">{pct}%</span>
-              </motion.div>
-            )}
             <motion.span animate={{ rotate: open ? 180 : 0 }} transition={t} className="text-muted">
               <CaretDown size={16} weight="bold" />
             </motion.span>
           </div>
 
+          <AnimatePresence initial={false}>
           {!open && (
-            <motion.div layout="position" transition={t} className="mt-3 flex items-center gap-4 text-[13px] text-muted">
+            <Collapse key="summary" reduce={!!reduce}>
+            <div className="flex items-center gap-4 pt-3 text-[13px] text-muted">
               {priority && (
                 <span className="inline-flex items-center gap-1.5">
                   <Flag size={14} weight="fill" className="text-[#b8c0d0]" />
@@ -112,28 +104,20 @@ export function ExpandableCard({
               )}
               <span className="ml-auto flex -space-x-2">
                 {people.slice(0, 3).map((n) => (
-                  <motion.span key={n} layoutId={`p-${n}`} transition={t}>
-                    <Avatar name={n} size={28} className="ring-2 ring-white" />
-                  </motion.span>
+                  <Avatar key={n} name={n} size={28} className="ring-2 ring-white" />
                 ))}
               </span>
-            </motion.div>
+            </div>
+            </Collapse>
           )}
-        </motion.button>
+          </AnimatePresence>
+        </button>
 
         <AnimatePresence initial={false}>
           {open && (
-            <motion.div
-              key="body"
-              initial={{ opacity: 0, y: -6, filter: "blur(4px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -6, filter: "blur(4px)", transition: { duration: 0.15 } }}
-              transition={reduce ? { duration: 0 } : { duration: 0.32, ease: easeOut, delay: 0.05 }}
-              className="px-4 pb-5 sm:px-5"
-            >
-              <motion.div
-                layoutId="progress"
-                transition={t}
+            <Collapse key="body" reduce={!!reduce}>
+            <div className="px-4 pb-5 sm:px-5">
+              <div
                 className="inline-flex items-center gap-2.5 rounded-full bg-white px-3 py-1.5 text-[13px] ring-1 ring-[#e7eaf3]"
               >
                 <span className="grid h-4 w-4 place-items-center rounded-full ring-1 ring-[#c3c9d6]">
@@ -144,7 +128,7 @@ export function ExpandableCard({
                 </span>
                 <Progress pct={pct} className="w-28" />
                 <span className="tabular-nums text-muted">{pct}%</span>
-              </motion.div>
+              </div>
 
               <ul className="relative ml-[22px] mt-1 border-l border-[#dfe3ec] pt-1">
                 {items.map((it, i) => (
@@ -199,24 +183,48 @@ export function ExpandableCard({
               {people.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {people.map((n) => (
-                    <motion.span
+                    <span
                       key={n}
-                      layoutId={`p-${n}`}
-                      transition={t}
                       className="inline-flex items-center gap-2 rounded-full bg-white py-1 pl-1 pr-3 text-[13px] font-medium ring-1 ring-[#e7eaf3]"
                     >
                       <Avatar name={n} size={24} />
                       {n.split(" ")[0]}
-                    </motion.span>
+                    </span>
                   ))}
                 </div>
               )}
               {footer && <div className="mt-4">{footer}</div>}
-            </motion.div>
+            </div>
+            </Collapse>
           )}
         </AnimatePresence>
-      </motion.div>
-    </LayoutGroup>
+      </div>
+  );
+}
+
+/*
+ * Height from 0 to auto and back, so the card and everything below it glide.
+ * Content fades a beat after the height starts, and leaves before it ends.
+ */
+function Collapse({ children, reduce }: { children: ReactNode; reduce: boolean }) {
+  const glide = [0.32, 0.72, 0, 1] as const;
+  return (
+    <motion.div
+      initial={{ height: 0, opacity: 0 }}
+      animate={{
+        height: "auto",
+        opacity: 1,
+        transition: reduce ? { duration: 0 } : { height: { duration: 0.5, ease: glide }, opacity: { duration: 0.3, delay: 0.08 } },
+      }}
+      exit={{
+        height: 0,
+        opacity: 0,
+        transition: reduce ? { duration: 0 } : { height: { duration: 0.42, ease: glide }, opacity: { duration: 0.18 } },
+      }}
+      style={{ overflow: "hidden" }}
+    >
+      {children}
+    </motion.div>
   );
 }
 
