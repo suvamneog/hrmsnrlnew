@@ -1,0 +1,44 @@
+import { NAV } from "./nav";
+import type { Employee, Role } from "./types";
+
+export function routeAllowed(path: string, role: Role | null): boolean {
+  if (!role) return false;
+  const item = NAV.filter((n) => path === n.href || path.startsWith(`${n.href}/`)).sort(
+    (a, b) => b.href.length - a.href.length,
+  )[0];
+  if (!item) return true;
+  return item.roles === "all" || item.roles.includes(role);
+}
+
+export function canSeePayslip(role: Role | null, viewer: Employee | null, subjectId: string): boolean {
+  if (!role || !viewer) return false;
+  if (viewer.id === subjectId) return true;
+  if (role === "payroll_officer" || role === "finance_approver" || role === "hr_admin" || role === "auditor") {
+    return true;
+  }
+  if (role === "line_manager") return true;
+  return false;
+}
+
+export function canSeePii(role: Role | null): boolean {
+  return role === "hr_admin" || role === "auditor" || role === "payroll_officer";
+}
+
+export function canMutateHr(role: Role | null): boolean {
+  return role === "hr_admin";
+}
+
+export function canAdvancePayroll(role: Role | null, stage: string): boolean {
+  if (role === "auditor") return false;
+  if (stage === "finance_approval") return role === "finance_approver";
+  if (stage === "bank_file" || stage === "publish") {
+    return role === "payroll_officer" || role === "finance_approver";
+  }
+  return role === "payroll_officer" || role === "hr_admin" || role === "finance_approver";
+}
+
+export function claimApproverRole(amount: number): Role[] {
+  if (amount >= 25000) return ["finance_approver"];
+  if (amount >= 10000) return ["hr_admin", "finance_approver"];
+  return ["line_manager", "hr_admin", "finance_approver"];
+}

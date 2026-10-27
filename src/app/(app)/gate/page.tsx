@@ -1,0 +1,146 @@
+"use client";
+
+import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { maskAadhaar } from "@/lib/format";
+import { passBlockReason } from "@/lib/gate";
+import { useHrms } from "@/lib/store";
+import { motion } from "motion/react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
+
+export default function GatePage() {
+  const workers = useHrms((s) => s.workers);
+  const passes = useHrms((s) => s.passes);
+  const contractors = useHrms((s) => s.contractors);
+  const events = useHrms((s) => s.gateEvents);
+  const record = useHrms((s) => s.recordGate);
+  const certs = useHrms((s) => s.certificates);
+  const offline = useHrms((s) => s.gateOffline);
+  const queue = useHrms((s) => s.gateQueue);
+  const setGateOffline = useHrms((s) => s.setGateOffline);
+  const flushGateQueue = useHrms((s) => s.flushGateQueue);
+  const role = useHrms((s) => s.actingRole);
+  const me = useHrms((s) => s.employees.find((e) => e.id === s.currentUserId));
+  const [q, setQ] = useState("");
+  const [flash, setFlash] = useState<"ok" | "no" | null>(null);
+  const [picked, setPicked] = useState(passes[0]?.id ?? "");
+  const pass = passes.find((p) => p.id === picked);
+  const worker = workers.find((w) => w.id === pass?.workerId);
+  const contractor = contractors.find((c) => c.id === worker?.contractorId);
+
+  const visiblePasses =
+    role === "contractor_supervisor"
+      ? passes.filter((p) => workers.find((w) => w.id === p.workerId)?.contractorId === me?.contractorId)
+      : passes;
+
+  const inside = useMemo(() => {
+    const last = new Map<string, "in" | "out">();
+    [...events].reverse().forEach((e) => {
+      const p = passes.find((x) => x.id === e.passId);
+      if (p) last.set(p.workerId, e.direction);
+    });
+    return [...last.entries()].filter(([, d]) => d === "in").length;
+  }, [events, passes]);
+
+  function scan(direction: "in" | "out") {
+    const r = record(picked, "Gate 2", direction);
+    setFlash(r.ok ? "ok" : "no");
+    if (r.ok) toast.success(direction === "in" ? "Entry allowed" : "Exit recorded");
+    else toast.error(r.reason);
+    setTimeout(() => setFlash(null), 1200);
+  }
+
+  return (
+    <div className="mx-auto max-w-3xl">
+      <div className="mb-6 flex items-end justify-between">
+        <div>
+          <p className="text-sm text-muted">Gate 2 · CDU west</p>
+          <h1 className="text-3xl font-semibold tracking-tight">Pass check</h1>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            className="rounded-full bg-white px-3 py-2 text-xs font-semibold"
+            onClick={() => {
+              if (offline) flushGateQueue();
+              else setGateOffline(true);
+            }}
+          >
+            {offline ? `Sync ${queue.length}` : "Go offline"}
+          </button>
+          <div className="rounded-2xl bg-white px-4 py-3 text-right shadow-[0_10px_30px_rgba(45,64,180,0.07)]">
+            <p className="text-xs text-muted">Headcount inside</p>
+            <p className="text-2xl font-semibold">{inside}</p>
+          </div>
+        </div>
+      </div>
+      <motion.div
+        animate={{
+          boxShadow:
+            flash === "ok"
+              ? "0 0 0 6px rgba(15,159,110,0.35)"
+              : flash === "no"
+                ? "0 0 0 6px rgba(225,75,75,0.35)"
+                : "0 10px 30px rgba(45,64,180,0.07)",
+        }}
+        className="rounded-[28px] bg-white p-6"
+      >
+        <Input
+          placeholder="Search worker or scan pass"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          className="mb-4 h-14 rounded-2xl text-lg"
+        />
+        <div className="mb-5 grid max-h-40 grid-cols-2 gap-2 overflow-auto">
+          {visiblePasses
+            .filter((p) => {
+              const w = workers.find((x) => x.id === p.workerId);
+              return !q || w?.name.toLowerCase().includes(q.toLowerCase()) || p.id.includes(q);
+            })
+            .map((p) => {
+              const w = workers.find((x) => x.id === p.workerId)!;
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => setPicked(p.id)}
+                  className={`flex items-center gap-2 rounded-2xl px-3 py-2 text-left ${picked === p.id ? "bg-brand-soft" : "bg-[#f6f8fd]"}`}
+                >
+                  <Avatar name={w.name} size={32} />
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold">{w.name}</span>
+                    <span className="text-[11px] text-muted">{p.id.toUpperCase()}</span>
+                  </span>
+                </button>
+              );
+            })}
+        </div>
+        {worker && pass && (
+          <div className="rounded-3xl bg-[#f6f8fd] p-5">
+            <div className="flex items-center gap-4">
+              <Avatar name={worker.name} size={72} />
+              <div>
+                <p className="text-xl font-semibold">{worker.name}</p>
+                <p className="text-sm text-muted">
+                  {worker.skill} · {contractor?.name}
+                </p>
+                <p className="font-mono text-xs text-muted">{maskAadhaar(worker.aadhaar)}</p>
+              </div>
+            </div>
+            <p className={`mt-4 text-lg font-semibold ${passBlockReason({ worker, contractor, certs }) ? "text-[#d13b3b]" : "text-[#0f9f6e]"}`}>
+              {passBlockReason({ worker, contractor, certs }) ?? "All checks valid. Allow entry."}
+            </p>
+            <div className="mt-5 flex gap-3">
+              <Button className="h-12 flex-1" disabled={!!passBlockReason({ worker, contractor, certs })} onClick={() => scan("in")}>
+                In
+              </Button>
+              <Button className="h-12 flex-1" variant="secondary" onClick={() => scan("out")}>
+                Out
+              </Button>
+            </div>
+          </div>
+        )}
+      </motion.div>
+    </div>
+  );
+}
