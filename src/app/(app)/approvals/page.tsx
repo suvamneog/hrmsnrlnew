@@ -4,6 +4,8 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { HoldToConfirm } from "@/components/ui/hold-to-confirm";
+import { ScrollFade } from "@/components/ui/scroll-fade";
 import { canDecideFor, claimApproverRole } from "@/lib/access";
 import { formatDay, inr } from "@/lib/format";
 import { useCurrentUser, useHrms } from "@/lib/store";
@@ -22,6 +24,7 @@ type Row = {
   own: boolean;
   approve?: () => void;
   reject?: () => void;
+  hold?: boolean;
 };
 
 export default function ApprovalsPage() {
@@ -111,6 +114,7 @@ export default function ApprovalsPage() {
       own,
       approve: own || !claimDecide ? undefined : () => { decideClaim(c.id, "approved"); toast.success("Approved"); },
       reject: own || !claimDecide ? undefined : () => { decideClaim(c.id, "rejected"); toast("Rejected"); },
+      hold: c.amount >= 25000,
     });
   }
   for (const ch of changes.filter((x) => x.status === "pending")) {
@@ -182,7 +186,7 @@ export default function ApprovalsPage() {
         ))}
       </div>
 
-      <div className="grid gap-2">
+      <ScrollFade className="grid max-h-[min(70vh,720px)] gap-2 pr-1">
         {filtered.length === 0 && (
           <Card className="p-10 text-center text-sm text-muted">
             {scope === "todo" ? "Nothing waiting on you." : "No open requests of yours."}
@@ -212,13 +216,16 @@ export default function ApprovalsPage() {
                   Reject
                 </Button>
               )}
-              {!r.own && r.approve && (
+              {!r.own && r.approve && r.hold && (
+                <HoldToConfirm label="Hold to approve" doneLabel="Approved" onConfirm={r.approve} />
+              )}
+              {!r.own && r.approve && !r.hold && (
                 <Button onClick={r.approve}>Approve</Button>
               )}
             </div>
           </Card>
         ))}
-      </div>
+      </ScrollFade>
     </div>
   );
 }

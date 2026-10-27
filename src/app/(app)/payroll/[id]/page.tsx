@@ -2,9 +2,9 @@
 
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { downloadPdf, form16Text, payslipText } from "@/lib/files";
+import { FileDownload, FileDownloadList } from "@/components/ui/file-download";
+import { downloadPdf, form16Text, payslipText, prettySize } from "@/lib/files";
 import { inrExact } from "@/lib/format";
 import { useHrms } from "@/lib/store";
 import { useParams } from "next/navigation";
@@ -20,20 +20,7 @@ export default function PayslipLinePage() {
 
   return (
     <div>
-      <PageHeader
-        title={e.name}
-        subtitle={`Payslip · ${run.month} · ${e.grade} ${e.cadre}`}
-        actions={
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => downloadPdf(`payslip-${e.empNo}-${row.month}.pdf`, payslipText(e, row).split("\n"))}>
-              Download PDF
-            </Button>
-            <Button variant="secondary" onClick={() => downloadPdf(`form16-${e.empNo}.pdf`, form16Text(e, row).split("\n"))}>
-              Form 16
-            </Button>
-          </div>
-        }
-      />
+      <PageHeader title={e.name} subtitle={`Payslip · ${run.month} · ${e.grade} ${e.cadre}`} />
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
         <Card className="p-5">
           <table className="w-full text-sm">
@@ -73,6 +60,22 @@ export default function PayslipLinePage() {
           </table>
         </Card>
         <div className="space-y-3">
+          <Card className="px-5 py-2">
+            <FileDownloadList>
+              <FileDownload
+                kind="pdf"
+                name="Payslip"
+                size={prettySize(payslipText(e, row))}
+                onClick={() => downloadPdf(`payslip-${e.empNo}-${row.month}.pdf`, payslipText(e, row).split("\n"))}
+              />
+              <FileDownload
+                kind="pdf"
+                name="Form 16"
+                size={prettySize(form16Text(e, row))}
+                onClick={() => downloadPdf(`form16-${e.empNo}.pdf`, form16Text(e, row).split("\n"))}
+              />
+            </FileDownloadList>
+          </Card>
           <Card className="p-4">
             <p className="text-xs text-muted">Perk ratio vs 35% cap</p>
             <p className="text-2xl font-semibold">{row.perkPct.toFixed(1)}%</p>

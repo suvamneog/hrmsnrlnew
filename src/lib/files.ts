@@ -1,5 +1,16 @@
 import type { Employee, PayResult, StatutoryFile } from "./types";
 
+export function prettySize(content: string) {
+  const n = typeof TextEncoder !== "undefined" ? new TextEncoder().encode(content).length : content.length;
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) {
+    const kb = n / 1024;
+    return kb >= 10 ? `${Math.round(kb)} KB` : `${kb.toFixed(1)} KB`;
+  }
+  const mb = n / (1024 * 1024);
+  return mb >= 10 ? `${Math.round(mb)} MB` : `${mb.toFixed(1)} MB`;
+}
+
 export function downloadText(name: string, content: string, mime = "text/plain") {
   const blob = new Blob([content], { type: `${mime};charset=utf-8` });
   const url = URL.createObjectURL(blob);

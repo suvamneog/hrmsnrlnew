@@ -4,8 +4,9 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { FileDownload, FileDownloadList } from "@/components/ui/file-download";
 import { DEMO_TODAY } from "@/lib/demo";
-import { downloadText } from "@/lib/files";
+import { downloadText, prettySize } from "@/lib/files";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import { toast } from "sonner";
 
@@ -22,26 +23,21 @@ export default function SafetyPage() {
   const me = useCurrentUser();
   const today = DEMO_TODAY;
   const due = certs.filter((c) => c.expires <= "2026-12-15");
+  const dueCsv = ["person,course,expires", ...due.map((c) => `${c.personId},${c.courseId},${c.expires}`)].join("\n");
 
   return (
     <div>
-      <PageHeader
-        title="Safety training"
-        actions={
-          <Button
-            variant="secondary"
-            onClick={() =>
-              downloadText(
-                "safety-due.csv",
-                ["person,course,expires", ...due.map((c) => `${c.personId},${c.courseId},${c.expires}`)].join("\n"),
-                "text/csv",
-              )
-            }
-          >
-            Export due list
-          </Button>
-        }
-      />
+      <PageHeader title="Safety training" />
+      <Card className="mb-5 px-5 py-2">
+        <FileDownloadList>
+          <FileDownload
+            kind="xls"
+            name="Certificates due"
+            size={prettySize(dueCsv)}
+            onClick={() => downloadText("safety-due.csv", dueCsv, "text/csv")}
+          />
+        </FileDownloadList>
+      </Card>
       <div className="mb-5 grid gap-3 sm:grid-cols-3">
         {sessions.map((t) => {
           const course = courses.find((c) => c.id === t.courseId);

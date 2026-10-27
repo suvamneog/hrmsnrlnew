@@ -3,13 +3,17 @@
 import { PageHeader } from "@/components/layout/page-header";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { liveCensus } from "@/lib/census";
-import { locationName, positionTitle, unitName } from "@/lib/org";
-import { cadreTone, empStatus } from "@/lib/status";
+import { positionTitle } from "@/lib/org";
+import { empStatus } from "@/lib/status";
 import { useCurrentUser, useHrms } from "@/lib/store";
-import type { Cadre } from "@/lib/types";
+import type { Cadre, Employee } from "@/lib/types";
+import { FunnelSimple, MagnifyingGlass } from "@phosphor-icons/react";
+import { format, parseISO } from "date-fns";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 const filters: { id: "all" | Cadre; label: string }[] = [
@@ -19,10 +23,17 @@ const filters: { id: "all" | Cadre; label: string }[] = [
   { id: "trainee", label: "Trainees" },
 ];
 
+function rowStatus(e: Employee) {
+  if (e.status !== "active") return { label: e.status === "probation" ? "Probation" : e.status === "notice" ? "Notice" : e.status === "retired" ? "Retired" : "Separated", tone: empStatus(e.status) };
+  if (e.assignmentHistory.length > 1) return { label: "Transfer", tone: "brand" as const };
+  return { label: "On board", tone: "ok" as const };
+}
+
 export default function PeoplePage() {
   const employees = useHrms((s) => s.employees);
   const role = useHrms((s) => s.actingRole);
   const me = useCurrentUser();
+  const router = useRouter();
   const [q, setQ] = useState("");
   const [f, setF] = useState<(typeof filters)[number]["id"]>("all");
   const [page, setPage] = useState(0);
@@ -41,17 +52,19 @@ export default function PeoplePage() {
     });
     return [...hit].sort((a, b) => Number(a.id.startsWith("g-")) - Number(b.id.startsWith("g-")));
   }, [scoped, q, f]);
-  const PAGE = 48;
+  const PAGE = 12;
   const pages = Math.max(1, Math.ceil(rows.length / PAGE));
   const slice = rows.slice(page * PAGE, page * PAGE + PAGE);
+  const filterLabel = filters.find((x) => x.id === f)?.label ?? "All";
 
   return (
     <div>
       <PageHeader
-        title={
+        title={role === "line_manager" ? "Your crew" : "People"}
+        subtitle={
           role === "line_manager"
-            ? `Your crew (${rows.length})`
-            : `People (${census.onRoll.toLocaleString("en-IN")} on roll)`
+            ? `${rows.length} in your reporting line`
+            : `${census.onRoll.toLocaleString("en-IN")} on roll`
         }
         actions={
           role === "hr_admin" || role === "recruiter" ? (
@@ -61,61 +74,102 @@ export default function PeoplePage() {
           ) : undefined
         }
       />
-      <div className="mb-5 flex flex-wrap items-center gap-2">
-        <Input
-          value={q}
-          onChange={(e) => {
-            setQ(e.target.value);
-            setPage(0);
-          }}
-          placeholder="Name, employee number, grade, post"
-          className="max-w-sm rounded-full"
-        />
-        {filters.map((x) => (
-          <button
-            key={x.id}
-            onClick={() => {
-              setF(x.id);
-              setPage(0);
-            }}
-            className={`rounded-full px-3 py-1.5 text-sm font-semibold ${f === x.id ? "bg-brand text-white" : "bg-white text-muted"}`}
-          >
-            {x.label}
-          </button>
-        ))}
-      </div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {slice.map((e) => (
-          <Link key={e.id} href={`/people/${e.id}`} className="block rounded-[22px] bg-white p-4 shadow-[0_10px_30px_rgba(45,64,180,0.07)] transition hover:-translate-y-0.5">
-            <div className="flex items-start justify-between">
-              <Avatar name={e.name} size={56} />
-              <Badge tone={empStatus(e.status)}>{e.status}</Badge>
-            </div>
-            <p className="mt-3 font-semibold">{e.name}</p>
-            <p className="text-xs text-muted">{positionTitle(e.positionId)}</p>
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              <Badge tone={cadreTone(e.cadre)}>{e.grade}</Badge>
-              <Badge>{unitName(e.unitId)}</Badge>
-            </div>
-            <p className="mt-3 text-[11px] text-muted">
-              {e.empNo} · {locationName(e.locationId).split(" ")[0]}
-            </p>
-          </Link>
-        ))}
-      </div>
-      <div className="mt-4 flex items-center justify-between text-xs text-muted">
-        <p>
-          {page * PAGE + 1}–{Math.min((page + 1) * PAGE, rows.length)} of {rows.length.toLocaleString("en-IN")}
-        </p>
-        <div className="flex gap-2">
-          <button disabled={page === 0} className="font-semibold disabled:opacity-40" onClick={() => setPage((p) => p - 1)}>
-            Previous
-          </button>
-          <button disabled={page + 1 >= pages} className="font-semibold disabled:opacity-40" onClick={() => setPage((p) => p + 1)}>
-            Next
-          </button>
+      <Card className="overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+          <h2 className="font-semibold">Recent</h2>
+          <div className="flex items-center gap-2">
+            <label className="relative">
+              <MagnifyingGlass size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
+              <input
+                value={q}
+                onChange={(e) => {
+                  setQ(e.target.value);
+                  setPage(0);
+                }}
+                placeholder="Search for employee"
+                className="h-10 w-[220px] rounded-full bg-[#f6f8fd] pl-9 pr-4 text-sm outline-none placeholder:text-muted focus:ring-4 focus:ring-brand/10"
+              />
+            </label>
+            <Popover>
+              <PopoverTrigger className="inline-flex h-10 items-center gap-2 rounded-full bg-[#f6f8fd] px-4 text-sm font-semibold text-ink">
+                Filter
+                <FunnelSimple size={16} weight="bold" className="text-muted" />
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-44 p-2">
+                {filters.map((x) => (
+                  <button
+                    key={x.id}
+                    type="button"
+                    onClick={() => {
+                      setF(x.id);
+                      setPage(0);
+                    }}
+                    className={`flex w-full rounded-xl px-3 py-2 text-left text-sm font-semibold ${
+                      f === x.id ? "bg-brand-soft text-brand" : "text-ink hover:bg-[#f6f8fd]"
+                    }`}
+                  >
+                    {x.label}
+                  </button>
+                ))}
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
-      </div>
+        {f !== "all" && <p className="px-5 pb-2 text-xs text-muted">Showing {filterLabel.toLowerCase()}</p>}
+        <div className="overflow-x-auto">
+          <table className="min-w-[720px] w-full text-sm">
+            <thead className="text-left text-[12px] font-medium text-muted">
+              <tr>
+                <th className="px-5 py-2 font-medium">Date</th>
+                <th className="py-2 font-medium">Employee ID</th>
+                <th className="py-2 font-medium">Name</th>
+                <th className="py-2 font-medium">Role</th>
+                <th className="px-5 py-2 font-medium">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {slice.map((e) => {
+                const st = rowStatus(e);
+                return (
+                  <tr
+                    key={e.id}
+                    className="cursor-pointer border-t border-line/80 transition hover:bg-[#f6f8fd]"
+                    onClick={() => router.push(`/people/${e.id}`)}
+                  >
+                    <td className="px-5 py-3.5 tabular-nums text-muted">{format(parseISO(e.doj), "dd-MM-yy")}</td>
+                    <td className="py-3.5 font-medium">{e.empNo}</td>
+                    <td className="py-3.5">
+                      <span className="flex items-center gap-2.5">
+                        <Avatar name={e.name} size={32} />
+                        <span className="font-semibold">{e.name}</span>
+                      </span>
+                    </td>
+                    <td className="py-3.5 text-muted">
+                      {positionTitle(e.positionId)} · {e.grade}
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <Badge tone={st.tone}>{st.label}</Badge>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <div className="flex items-center justify-between border-t border-line px-5 py-3 text-xs text-muted">
+          <p>
+            {page * PAGE + 1}–{Math.min((page + 1) * PAGE, rows.length)} of {rows.length.toLocaleString("en-IN")}
+          </p>
+          <div className="flex gap-3">
+            <button disabled={page === 0} className="font-semibold disabled:opacity-40" onClick={() => setPage((p) => p - 1)}>
+              Previous
+            </button>
+            <button disabled={page + 1 >= pages} className="font-semibold disabled:opacity-40" onClick={() => setPage((p) => p + 1)}>
+              Next
+            </button>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 }

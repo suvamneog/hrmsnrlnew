@@ -4,8 +4,10 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { FileDownload, FileDownloadList } from "@/components/ui/file-download";
+import { HoldToConfirm } from "@/components/ui/hold-to-confirm";
 import { Field, Input, Select } from "@/components/ui/input";
-import { downloadText } from "@/lib/files";
+import { downloadText, prettySize } from "@/lib/files";
 import { useHrms } from "@/lib/store";
 import type { Cadre, CandidateStage } from "@/lib/types";
 import { toast } from "sonner";
@@ -129,15 +131,15 @@ export default function RecruitmentPage() {
                             </Button>
                           )}
                           {canEdit && c.stage === "offer" && (
-                            <Button
-                              onClick={() => {
+                            <HoldToConfirm
+                              label={`Hold to join ${c.name.split(" ")[0]}`}
+                              doneLabel="Joined"
+                              onConfirm={() => {
                                 const r = joinCandidate(c.id);
                                 if (!r.ok) toast.error(r.reason);
                                 else toast.success(`Joined ${c.name}. Employee record created.`);
                               }}
-                            >
-                              Join {c.name.split(" ")[0]}
-                            </Button>
+                            />
                           )}
                         </span>
                       </div>
@@ -168,17 +170,21 @@ export default function RecruitmentPage() {
                   );
                 })}
             </ul>
-            <button
-              className="mt-3 text-xs font-semibold text-brand"
-              onClick={() =>
-                downloadText(
-                  `rti-${o.id}.txt`,
+            <FileDownloadList className="mt-1">
+              <FileDownload
+                kind="xls"
+                name="RTI selection record"
+                size={prettySize(
                   [`${o.post}`, ...candidates.filter((c) => c.openingId === o.id).map((c) => `${c.name},${c.category},${c.score},${c.stage}`)].join("\n"),
-                )
-              }
-            >
-              RTI selection record
-            </button>
+                )}
+                onClick={() =>
+                  downloadText(
+                    `rti-${o.id}.csv`,
+                    [`${o.post}`, ...candidates.filter((c) => c.openingId === o.id).map((c) => `${c.name},${c.category},${c.score},${c.stage}`)].join("\n"),
+                  )
+                }
+              />
+            </FileDownloadList>
           </Card>
         ))}
       </div>

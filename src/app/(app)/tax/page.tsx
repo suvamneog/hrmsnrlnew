@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { DropZone } from "@/components/ui/drop-zone";
 import { Field, Input, Select } from "@/components/ui/input";
 import { inr } from "@/lib/format";
 import { requestTone } from "@/lib/status";
@@ -18,7 +19,7 @@ export default function TaxPage() {
   const [regime, setRegime] = useState<"new" | "old">("new");
   const [section80C, setSection80C] = useState("150000");
   const [rent, setRent] = useState("0");
-  const [proofs, setProofs] = useState(0);
+  const [proofs, setProofs] = useState<File[]>([]);
   if (!me) return null;
   const mine = tax.filter((t) => t.employeeId === me.id);
 
@@ -37,7 +38,7 @@ export default function TaxPage() {
                 regime,
                 section80C: Number(section80C),
                 rent: Number(rent),
-                proofs,
+                proofs: proofs.length,
               });
               toast.success("Declaration sent to payroll");
             }}
@@ -54,14 +55,13 @@ export default function TaxPage() {
             <Field label="Rent paid (HRA)">
               <Input type="number" value={rent} onChange={(e) => setRent(e.target.value)} />
             </Field>
-            <Field label="Proofs">
-              <Input
-                type="file"
-                multiple
-                onChange={(e) => setProofs(e.target.files?.length ?? 0)}
-              />
-              {proofs > 0 && <p className="mt-1 text-xs text-muted">{proofs} file{proofs === 1 ? "" : "s"} attached</p>}
-            </Field>
+            <DropZone
+              label="Proofs"
+              hint="Form 16A, rent receipts, 80C — drop or browse"
+              files={proofs}
+              accept="application/pdf,image/*"
+              onFiles={setProofs}
+            />
             <Button type="submit">Submit FY 2026-27</Button>
           </form>
         </Card>

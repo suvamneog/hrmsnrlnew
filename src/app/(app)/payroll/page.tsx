@@ -4,8 +4,10 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { FileDownload, FileDownloadList, fileKindFromName } from "@/components/ui/file-download";
+import { HoldToConfirm } from "@/components/ui/hold-to-confirm";
 import { canAdvancePayroll } from "@/lib/access";
-import { downloadText, fileMime } from "@/lib/files";
+import { downloadText, fileMime, prettySize } from "@/lib/files";
 import { inr } from "@/lib/format";
 import { PAYROLL_STAGES } from "@/lib/payroll";
 import { useHrms } from "@/lib/store";
@@ -15,6 +17,10 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 const PAGE = 40;
+
+function statutoryTitle(name: string) {
+  return name.replace(/\.[^.]+$/, "").replaceAll("_", " ");
+}
 
 export default function PayrollPage() {
   const run = useHrms((s) => s.payrollRuns[0]);
@@ -68,7 +74,17 @@ export default function PayrollPage() {
                 {run.lockedAttendance ? "Compute" : "Lock first"}
               </Button>
             )}
-            {run.stage !== "inputs" && run.stage !== "publish" && (
+            {run.stage !== "inputs" && run.stage !== "publish" && run.stage === "finance_approval" && role === "finance_approver" ? (
+              <HoldToConfirm
+                label="Hold to release bank file"
+                doneLabel="Released"
+                onConfirm={() => {
+                  const r = advance(run.id);
+                  if (!r.ok) toast.error(r.reason);
+                  else toast.success("Bank file released");
+                }}
+              />
+            ) : run.stage !== "inputs" && run.stage !== "publish" ? (
               <Button
                 disabled={!canAdvancePayroll(role, run.stage)}
                 onClick={() => {
@@ -79,17 +95,16 @@ export default function PayrollPage() {
               >
                 {role !== "finance_approver" && run.stage === "finance_approval" ? "Needs finance" : "Advance"}
               </Button>
-            )}
+            ) : null}
             {run.results.length > 0 && (
               <Button
                 variant="secondary"
                 onClick={() => {
-                  const files = generateFiles(run.id);
-                  files.forEach((f) => downloadText(f.name, f.content, fileMime(f.kind)));
-                  toast.success(`${files.length} statutory files downloaded`);
+                  generateFiles(run.id);
+                  toast.success("Statutory files ready");
                 }}
               >
-                Bank / ECR / 24Q
+                {run.files?.length ? "Regenerate files" : "Prepare bank / ECR / 24Q"}
               </Button>
             )}
           </div>
@@ -201,17 +216,19 @@ export default function PayrollPage() {
         <p className="mt-3 text-sm text-muted">{blockers} rows fail DPE 35/30/50, bank or net-pay checks. Finance cannot release until they clear.</p>
       )}
       {(run.files ?? []).length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-2">
-          {run.files!.map((f) => (
-            <button
-              key={f.kind}
-              className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold"
-              onClick={() => downloadText(f.name, f.content, fileMime(f.kind))}
-            >
-              {f.name}
-            </button>
-          ))}
-        </div>
+        <Card className="mt-5 px-5 py-2">
+          <FileDownloadList>
+            {run.files!.map((f) => (
+              <FileDownload
+                key={f.name}
+                kind={fileKindFromName(f.name)}
+                name={statutoryTitle(f.name)}
+                size={prettySize(f.content)}
+                onClick={() => downloadText(f.name, f.content, fileMime(f.kind))}
+              />
+            ))}
+          </FileDownloadList>
+        </Card>
       )}
     </div>
   );

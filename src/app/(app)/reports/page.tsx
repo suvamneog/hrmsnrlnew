@@ -3,11 +3,10 @@
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Field, Select } from "@/components/ui/input";
+import { FileDownload, FileDownloadList } from "@/components/ui/file-download";
 import { liveCensus } from "@/lib/census";
-import { downloadText } from "@/lib/files";
+import { downloadText, prettySize } from "@/lib/files";
 import { useHrms } from "@/lib/store";
-import { useState } from "react";
 import { toast } from "sonner";
 
 const COPY = {
@@ -42,19 +41,21 @@ export default function ReportsPage() {
   const setLocale = useHrms((s) => s.setLocale);
   const exportReport = useHrms((s) => s.exportReport);
   const employees = useHrms((s) => s.employees);
-  const [metric, setMetric] = useState("cadre");
   const t = COPY[locale];
   const census = liveCensus(employees);
+  const onRoll = employees.filter((e) => e.cadre !== "contract" && e.status !== "separated");
+  const cadreCsv = [
+    "empNo,name,cadre,grade,unit",
+    ...onRoll.map((e) => `${e.empNo},${e.name},${e.cadre},${e.grade},${e.unitId}`),
+  ].join("\n");
+  const reservationCsv = [
+    "empNo,name,category,cadre,grade",
+    ...onRoll.map((e) => `${e.empNo},${e.name},${e.category},${e.cadre},${e.grade}`),
+  ].join("\n");
 
-  function dump() {
-    const content =
-      metric === "cadre"
-        ? `executives,${census.executives}\nworkmen,${census.workmen}\ntrainees,${census.trainees}`
-        : Object.entries(census.category)
-            .map(([k, v]) => `${k},${v}`)
-            .join("\n");
+  function dump(metric: string, content: string, file: string) {
     exportReport(metric, content);
-    downloadText(`nrl-${metric}.csv`, content, "text/csv");
+    downloadText(file, content, "text/csv");
     toast.success("Exported and logged");
   }
 
@@ -100,16 +101,21 @@ export default function ReportsPage() {
           {t.women} {census.women} · PwBD {census.pwbd} · on roll {census.onRoll.toLocaleString("en-IN")}
         </p>
       </Card>
-      <Card className="mt-5 grid gap-3 p-5 sm:grid-cols-[1fr_auto]">
-        <Field label="Ad hoc report">
-          <Select value={metric} onChange={(e) => setMetric(e.target.value)}>
-            <option value="cadre">Cadre strength (DPE / Board)</option>
-            <option value="reservation">Reservation roster</option>
-          </Select>
-        </Field>
-        <div className="flex items-end">
-          <Button onClick={dump}>Export (logged)</Button>
-        </div>
+      <Card className="mt-5 px-5 py-2">
+        <FileDownloadList>
+          <FileDownload
+            kind="xls"
+            name="Cadre strength"
+            size={prettySize(cadreCsv)}
+            onClick={() => dump("cadre", cadreCsv, "nrl-cadre.csv")}
+          />
+          <FileDownload
+            kind="xls"
+            name="Reservation roster"
+            size={prettySize(reservationCsv)}
+            onClick={() => dump("reservation", reservationCsv, "nrl-reservation.csv")}
+          />
+        </FileDownloadList>
       </Card>
     </div>
   );

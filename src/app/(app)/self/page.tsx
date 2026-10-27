@@ -5,8 +5,10 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { FileDownload, FileDownloadList } from "@/components/ui/file-download";
 import { Field, Input, Select } from "@/components/ui/input";
 import { routeAllowed } from "@/lib/access";
+import { downloadPdf, form16Text, payslipText, prettySize } from "@/lib/files";
 import { formatClock, formatDay } from "@/lib/format";
 import { positionTitle, unitName } from "@/lib/org";
 import { useCurrentUser, useHrms } from "@/lib/store";
@@ -60,13 +62,30 @@ export default function SelfPage() {
             All slips
           </Link>
         </div>
-        <Link href="/payslips" className="flex items-center justify-between rounded-2xl bg-[#f6f8fd] px-4 py-3">
-          <div>
-            <p className="text-sm font-semibold">Latest payslip</p>
-            <p className="text-xs text-muted">October 2026</p>
-          </div>
-          <span className="text-sm font-semibold tabular-nums text-brand">{slip ? "Open" : "View"}</span>
-        </Link>
+        {slip ? (
+          <FileDownloadList>
+            <FileDownload
+              kind="pdf"
+              name="October 2026 payslip"
+              size={prettySize(payslipText(me, slip))}
+              onClick={() => downloadPdf(`payslip-${me.empNo}-2026-10.pdf`, payslipText(me, slip).split("\n"))}
+            />
+            <FileDownload
+              kind="pdf"
+              name="Form 16"
+              size={prettySize(form16Text(me, slip))}
+              onClick={() => downloadPdf(`form16-${me.empNo}.pdf`, form16Text(me, slip).split("\n"))}
+            />
+          </FileDownloadList>
+        ) : (
+          <Link href="/payslips" className="flex items-center justify-between rounded-2xl bg-[#f6f8fd] px-4 py-3">
+            <div>
+              <p className="text-sm font-semibold">Latest payslip</p>
+              <p className="text-xs text-muted">October 2026</p>
+            </div>
+            <span className="text-sm font-semibold text-brand">View</span>
+          </Link>
+        )}
       </Card>
       )}
 

@@ -5,9 +5,12 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { DropZone } from "@/components/ui/drop-zone";
+import { FileDownload, FileDownloadList } from "@/components/ui/file-download";
+import { HoldToConfirm } from "@/components/ui/hold-to-confirm";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Field, Input, Select } from "@/components/ui/input";
-import { downloadText, oshReturn } from "@/lib/files";
+import { downloadText, oshReturn, prettySize } from "@/lib/files";
 import { maskAadhaar } from "@/lib/format";
 import { daysToLicence, passBlockReason } from "@/lib/gate";
 import { useCurrentUser, useHrms } from "@/lib/store";
@@ -63,37 +66,40 @@ export default function ContractorsPage() {
                 <Badge tone={days < 45 ? "danger" : "ok"}>Licence {c.licenceExpiry} · {days}d</Badge>
               </div>
               {(role === "contract_labour_cell" || role === "contractor_supervisor") && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      const n = bulkOnboard(c.id, 12);
-                      toast.success(`Onboarded ${n} of 300 shutdown workers`);
-                    }}
-                  >
-                    Shutdown batch (12)
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      uploadWageProof(c.id, "2026-10", `wage_${c.id}_Oct.pdf`);
-                      toast.success("Wage proof filed");
-                    }}
-                  >
-                    Upload wage proof
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    onClick={() =>
-                      downloadText(
-                        `OSH_${c.id}_2026-10.txt`,
-                        oshReturn("2026-10", c, crew.length, inside),
-                      )
-                    }
-                  >
-                    OSH return
-                  </Button>
-                </div>
+                <>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        const n = bulkOnboard(c.id, 12);
+                        toast.success(`Onboarded ${n} of 300 shutdown workers`);
+                      }}
+                    >
+                      Shutdown batch (12)
+                    </Button>
+                    <div className="min-w-[220px] flex-1">
+                      <DropZone
+                        label="Wage proof"
+                        hint="Drop October PF / wage file"
+                        files={[]}
+                        onFiles={(files) => {
+                          uploadWageProof(c.id, "2026-10", files[0]?.name ?? `wage_${c.id}_Oct.pdf`);
+                          toast.success("Wage proof filed");
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <FileDownloadList>
+                    <FileDownload
+                      kind="txt"
+                      name="OSH return"
+                      size={prettySize(oshReturn("2026-10", c, crew.length, inside))}
+                      onClick={() =>
+                        downloadText(`OSH_${c.id}_2026-10.txt`, oshReturn("2026-10", c, crew.length, inside))
+                      }
+                    />
+                  </FileDownloadList>
+                </>
               )}
               {proofs.filter((p) => p.contractorId === c.id).map((p) => (
                 <p key={p.id} className="mt-2 text-xs text-muted">
@@ -113,16 +119,17 @@ export default function ContractorsPage() {
                         </p>
                         <Badge tone={reason ? "danger" : "ok"}>{reason ?? "Pass live"}</Badge>
                         {role === "contract_labour_cell" && !w.blacklisted && (
-                          <button
-                            className="mt-1 block text-[11px] font-semibold text-[#d13b3b]"
-                            onClick={() => {
+                          <HoldToConfirm
+                            className="mt-2 h-8 min-w-0 px-3 text-[11px]"
+                            variant="danger"
+                            label="Hold to blacklist"
+                            doneLabel="Barred"
+                            onConfirm={() => {
                               const r = blacklistWorker(w.id, "Safety violation");
                               if (!r.ok) toast.error(r.reason);
                               else toast.success("Blacklisted");
                             }}
-                          >
-                            Blacklist
-                          </button>
+                          />
                         )}
                       </div>
                     </div>

@@ -4,7 +4,8 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { downloadText } from "@/lib/files";
+import { FileDownload, FileDownloadList } from "@/components/ui/file-download";
+import { downloadText, prettySize } from "@/lib/files";
 import { formatStamp } from "@/lib/format";
 import { NRL_INTERFACES } from "@/lib/interfaces";
 import { nrlExtractCsv, sapMismatch } from "@/lib/sap";
@@ -74,9 +75,11 @@ export default function InterfacesPage() {
                 <div className="mt-4 border-t border-line pt-4">
                   <p className="mb-2 text-sm font-semibold">SAP HR reconciliation</p>
                   <p className="mb-3 text-xs text-muted">CSV columns EMPNO, NAME, GRADE, BASIC, UNIT. Import replaces matching employee numbers.</p>
-                  <div className="mb-3 flex flex-wrap gap-2">
-                    <Button
-                      variant="secondary"
+                  <FileDownloadList className="mb-3">
+                    <FileDownload
+                      kind="xls"
+                      name="NRL HR extract"
+                      size={prettySize(nrlExtractCsv(employees))}
                       onClick={() => {
                         downloadText("NRL_HR_EXTRACT.csv", nrlExtractCsv(employees), "text/csv");
                         recordInterface("sap_hr", {
@@ -86,9 +89,9 @@ export default function InterfacesPage() {
                         });
                         toast.success("NRL extract written");
                       }}
-                    >
-                      NRL extract
-                    </Button>
+                    />
+                  </FileDownloadList>
+                  <div className="mb-3 flex flex-wrap gap-2">
                     <Button variant="secondary" onClick={() => fileRef.current?.click()}>
                       Import SAP CSV
                     </Button>

@@ -1,7 +1,10 @@
 "use client";
 
 import { Avatar } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { PassTicket } from "@/components/ui/pass-ticket";
+import { ScrambleText } from "@/components/ui/scramble-text";
+import { ScrollFade } from "@/components/ui/scroll-fade";
+import { TactileButton } from "@/components/ui/tactile-button";
 import { Input } from "@/components/ui/input";
 import { maskAadhaar } from "@/lib/format";
 import { passBlockReason } from "@/lib/gate";
@@ -106,7 +109,7 @@ export default function GatePage() {
           onChange={(e) => setQ(e.target.value)}
           className="mb-4 h-14 rounded-2xl text-lg"
         />
-        <div className="mb-5 grid max-h-40 grid-cols-2 gap-2 overflow-auto">
+        <ScrollFade className="mb-5 grid max-h-40 grid-cols-2 gap-2">
           {visiblePasses
             .filter((p) => {
               const w = workers.find((x) => x.id === p.workerId);
@@ -129,9 +132,9 @@ export default function GatePage() {
                 </button>
               );
             })}
-        </div>
+        </ScrollFade>
         {worker && pass && (
-          <div className="rounded-3xl bg-[#f6f8fd] p-5">
+          <PassTicket tone={passBlockReason({ worker, contractor, certs }) ? "no" : "ok"}>
             <div className="flex items-center gap-4">
               <Avatar name={worker.name} size={72} />
               <div>
@@ -140,20 +143,29 @@ export default function GatePage() {
                   {worker.skill} · {contractor?.name}
                 </p>
                 <p className="font-mono text-xs text-muted">{maskAadhaar(worker.aadhaar)}</p>
+                <p className="mt-1 font-mono text-[11px] font-semibold text-brand">
+                  <ScrambleText value={pass.id.toUpperCase()} />
+                </p>
               </div>
             </div>
-            <p className={`mt-4 text-lg font-semibold ${passBlockReason({ worker, contractor, certs }) ? "text-[#d13b3b]" : "text-[#0f9f6e]"}`}>
+            <div className="my-4 border-t border-dashed border-line" />
+            <p className={`text-lg font-semibold ${passBlockReason({ worker, contractor, certs }) ? "text-[#d13b3b]" : "text-[#0f9f6e]"}`}>
               {passBlockReason({ worker, contractor, certs }) ?? "All checks valid. Allow entry."}
             </p>
             <div className="mt-5 flex gap-3">
-              <Button className="h-12 flex-1" disabled={!!passBlockReason({ worker, contractor, certs })} onClick={() => scan("in")}>
+              <TactileButton
+                className="flex-1"
+                variant="mint"
+                disabled={!!passBlockReason({ worker, contractor, certs })}
+                onClick={() => scan("in")}
+              >
                 In
-              </Button>
-              <Button className="h-12 flex-1" variant="secondary" onClick={() => scan("out")}>
+              </TactileButton>
+              <TactileButton className="flex-1" variant="secondary" onClick={() => scan("out")}>
                 Out
-              </Button>
+              </TactileButton>
             </div>
-          </div>
+          </PassTicket>
         )}
       </motion.div>
     </div>

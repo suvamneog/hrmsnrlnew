@@ -1,12 +1,12 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { TactileButton } from "@/components/ui/tactile-button";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { DEMO_TODAY, openPair, punchesOn } from "@/lib/demo";
 import { formatClock, formatWeekday } from "@/lib/format";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import { SignIn, SignOut } from "@phosphor-icons/react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { toast } from "sonner";
 
 export function PunchCard() {
@@ -15,7 +15,6 @@ export function PunchCard() {
   const roster = useHrms((s) => s.roster);
   const shifts = useHrms((s) => s.shifts);
   const clockPunch = useHrms((s) => s.clockPunch);
-  const reduce = useReducedMotion();
   if (!me) return null;
 
   const today = punchesOn(punches, me.id);
@@ -23,6 +22,7 @@ export function PunchCard() {
   const closed = Boolean(inn && out && !inside);
   const shift = roster.find((r) => r.employeeId === me.id && r.date === DEMO_TODAY);
   const shiftLabel = shifts.find((s) => s.id === shift?.shiftId)?.label ?? "General";
+  const label = closed ? "Day closed" : inside ? "Check out" : "Check in";
 
   return (
     <SpotlightCard className="p-5 sm:p-6">
@@ -44,35 +44,30 @@ export function PunchCard() {
       <div className="mt-5 grid grid-cols-2 gap-3">
         <div className="rounded-2xl bg-[#f6f8fd] px-4 py-3">
           <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">In</p>
-          <p className="mt-1 font-mono text-lg font-medium tabular-nums">
-            {inn ? formatClock(inn.time) : "—"}
-          </p>
+          <p className="mt-1 font-mono text-lg font-medium tabular-nums">{inn ? formatClock(inn.time) : "—"}</p>
         </div>
         <div className="rounded-2xl bg-[#f6f8fd] px-4 py-3">
           <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Out</p>
-          <p className="mt-1 font-mono text-lg font-medium tabular-nums">
-            {out ? formatClock(out.time) : "—"}
-          </p>
+          <p className="mt-1 font-mono text-lg font-medium tabular-nums">{out ? formatClock(out.time) : "—"}</p>
         </div>
       </div>
-      <motion.div
-        className="mt-5"
-        animate={reduce ? undefined : { scale: 1 }}
-        whileTap={reduce ? undefined : { scale: 0.98 }}
-      >
-        <Button
-          className="h-12 w-full rounded-2xl text-base"
+      <div className="mt-5">
+        <TactileButton
+          className="w-full"
           disabled={closed}
+          variant={closed ? "secondary" : inside ? "danger" : "mint"}
           onClick={() => {
             const res = clockPunch();
             if (!res.ok) toast.error(res.reason ?? "Could not punch");
             else toast.success(res.kind === "in" ? "Checked in" : "Checked out");
           }}
         >
-          {inside ? <SignOut size={18} weight="bold" /> : <SignIn size={18} weight="bold" />}
-          {closed ? "Day closed" : inside ? "Check out" : "Check in"}
-        </Button>
-      </motion.div>
+          <motion.span layout className="inline-flex items-center gap-2">
+            {inside ? <SignOut size={18} weight="bold" /> : <SignIn size={18} weight="bold" />}
+            {label}
+          </motion.span>
+        </TactileButton>
+      </div>
     </SpotlightCard>
   );
 }

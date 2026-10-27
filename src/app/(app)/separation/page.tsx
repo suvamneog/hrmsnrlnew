@@ -4,7 +4,8 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { downloadText } from "@/lib/files";
+import { FileDownload, FileDownloadList } from "@/components/ui/file-download";
+import { downloadText, prettySize } from "@/lib/files";
 import { formatStamp, inr } from "@/lib/format";
 import { useHrms } from "@/lib/store";
 import { toast } from "sonner";
@@ -81,20 +82,24 @@ export default function SeparationPage() {
               >
                 Compute F&F
               </Button>
-              {s.netFf !== undefined && (
-                <Button
-                  variant="secondary"
+            </div>
+            {s.netFf !== undefined && (
+              <FileDownloadList className="mt-1">
+                <FileDownload
+                  kind="xls"
+                  name="F&F bank file"
+                  size={prettySize(
+                    `${e?.name}\nGratuity ${s.gratuity}\nEL ${s.leaveEncashment}\nRecoveries ${s.recoveries}\nNet ${s.netFf}`,
+                  )}
                   onClick={() =>
                     downloadText(
-                      `FF-${e?.empNo}.txt`,
+                      `FF-${e?.empNo}.csv`,
                       `${e?.name}\nGratuity ${s.gratuity}\nEL ${s.leaveEncashment}\nRecoveries ${s.recoveries}\nNet ${s.netFf}`,
                     )
                   }
-                >
-                  Bank file
-                </Button>
-              )}
-            </div>
+                />
+              </FileDownloadList>
+            )}
           </Card>
         );
       })}
