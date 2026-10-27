@@ -132,6 +132,15 @@ export interface Position {
   vacant: boolean;
 }
 
+export interface PolicyVersion {
+  value: number | string;
+  validFrom: string;
+  validTo?: string;
+  proposedBy?: string;
+  approvedBy?: string;
+  source: string;
+}
+
 export interface PolicySetting {
   id: string;
   key: string;
@@ -147,6 +156,24 @@ export interface PolicySetting {
   pendingValidFrom?: string;
   previousValue?: number | string;
   source: string;
+  versions?: PolicyVersion[];
+}
+
+export type NrlInterfaceId = "sap_hr" | "sbi" | "epfo" | "traces" | "ad";
+
+export type NrlInterfaceStatus = "acked" | "file_ready" | "awaiting_ack" | "idle";
+
+export interface NrlInterface {
+  id: NrlInterfaceId;
+  name: string;
+  system: string;
+  purpose: string;
+  channel: string;
+  lastFile?: string;
+  lastAck?: string;
+  lastRun?: string;
+  status: NrlInterfaceStatus;
+  note: string;
 }
 
 export interface PayLine {
@@ -454,7 +481,7 @@ export interface Separation {
   kind: "resignation" | "superannuation" | "vrs" | "death";
   lastDay: string;
   status: "initiated" | "clearance" | "settled";
-  clearances: { dept: string; done: boolean }[];
+  clearances: { dept: string; done: boolean; byId?: string; at?: string }[];
   gratuity?: number;
   leaveEncashment?: number;
   recoveries?: number;

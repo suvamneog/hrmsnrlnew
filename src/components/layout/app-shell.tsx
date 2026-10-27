@@ -1,8 +1,10 @@
 "use client";
 
+import { AccountChip } from "./account-chip";
 import { Guard } from "./guard";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
+import { routeAllowed } from "@/lib/access";
 import { useHrms } from "@/lib/store";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -32,6 +34,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (role === "gate_security" && path !== "/gate") router.replace("/gate");
+    else if (role && role !== "gate_security" && path === "/gate" && !routeAllowed(path, role)) {
+      router.replace("/home");
+    }
   }, [role, path, router]);
 
   if (!hydrated || !userId) {
@@ -45,6 +50,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (role === "gate_security") {
     return (
       <div className="min-h-[100dvh] bg-[#e8edf8]">
+        <div className="flex items-center justify-end px-4 py-3">
+          <AccountChip />
+        </div>
         <Guard>{children}</Guard>
       </div>
     );

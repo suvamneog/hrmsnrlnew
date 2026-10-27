@@ -67,3 +67,7 @@ export function initials(name: string) {
     .toUpperCase();
 }
 
+export function avatarUrl(seed: string) {
+  return `https://api.dicebear.com/9.x/lorelei/svg?seed=${encodeURIComponent(seed)}&backgroundColor=c0aede,d1d4f9,b6e3f4,ffd5dc,ffdfbf`;
+}
+

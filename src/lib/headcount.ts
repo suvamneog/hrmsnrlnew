@@ -1,5 +1,5 @@
 import { CENSUS } from "./census";
-import { strengthPositionId } from "./org";
+import { STRENGTH_POSITIONS, UNITS } from "./org";
 import type { Cadre, Category, Employee, LocationId } from "./types";
 
 const FIRST_M = [
@@ -31,33 +31,6 @@ const WORK_GRADES = [
   { grade: "W4", basic: 37200 },
   { grade: "W5", basic: 42800 },
   { grade: "W6", basic: 49200 },
-];
-type Slot = { id: string; locationId: LocationId; positionId: string };
-const EXEC_SLOTS: Slot[] = [
-  { id: "cdu", locationId: "numaligarh", positionId: "p-sic-cdu" },
-  { id: "util", locationId: "numaligarh", positionId: "p-eng-el" },
-  { id: "tech", locationId: "numaligarh", positionId: "p-cgm-tech" },
-  { id: "hse", locationId: "numaligarh", positionId: "p-dy-hse" },
-  { id: "hr", locationId: "numaligarh", positionId: "p-gm-hr" },
-  { id: "fin", locationId: "numaligarh", positionId: "p-mgr-fin" },
-  { id: "twn", locationId: "numaligarh", positionId: "p-mgr-twn" },
-  { id: "mkt-slg", locationId: "siliguri", positionId: "p-mgr-mkt" },
-  { id: "crd-prt", locationId: "paradip", positionId: "p-eng-prt" },
-  { id: "corp-ghy", locationId: "guwahati", positionId: "p-str-corp-ghy-E3" },
-];
-const WORK_SLOTS: Slot[] = [
-  { id: "cdu", locationId: "numaligarh", positionId: "p-op-cdu" },
-  { id: "fcc", locationId: "numaligarh", positionId: "p-op-fcc" },
-  { id: "fcc", locationId: "numaligarh", positionId: "p-tech-mech" },
-  { id: "tech", locationId: "numaligarh", positionId: "p-lab" },
-  { id: "util", locationId: "numaligarh", positionId: "p-fitter" },
-  { id: "hse", locationId: "numaligarh", positionId: "p-fire" },
-  { id: "cdu", locationId: "numaligarh", positionId: "p-helper" },
-  { id: "cdu", locationId: "numaligarh", positionId: "p-inst" },
-];
-const TRAIN_SLOTS: Slot[] = [
-  { id: "tech", locationId: "numaligarh", positionId: "p-et-mech" },
-  { id: "ops", locationId: "numaligarh", positionId: "p-et-chem" },
 ];
 const IFSC: Record<LocationId, string> = {
   numaligarh: "SBIN0003180",
@@ -117,14 +90,16 @@ export function generatedEmployees(named: Employee[]): Employee[] {
     const gender: Employee["gender"] = women.has(i) ? "F" : "M";
     const first = gender === "F" ? FIRST_F[i % FIRST_F.length] : FIRST_M[i % FIRST_M.length];
     const last = LAST[(i * 3) % LAST.length];
-    const g =
+    const posts = STRENGTH_POSITIONS.filter((p) => p.cadre === cadre);
+    const pos = posts[i % Math.max(posts.length, 1)] ?? STRENGTH_POSITIONS[0];
+    const unit = UNITS.find((u) => u.id === pos.unitId);
+    const locationId = unit?.locationId ?? "numaligarh";
+    const pay =
       cadre === "trainee"
-        ? { grade: "ET", basic: 50000 }
+        ? { grade: pos.grade, basic: 50000 }
         : cadre === "workman"
-          ? WORK_GRADES[i % WORK_GRADES.length]
-          : EXEC_GRADES[i % EXEC_GRADES.length];
-    const slots = cadre === "workman" ? WORK_SLOTS : cadre === "trainee" ? TRAIN_SLOTS : EXEC_SLOTS;
-    const loc = slots[i % slots.length];
+          ? (WORK_GRADES.find((x) => x.grade === pos.grade) ?? WORK_GRADES[0])
+          : (EXEC_GRADES.find((x) => x.grade === pos.grade) ?? EXEC_GRADES[0]);
     const year = 1998 + (i % 27);
     const seq = 500 + i;
     const prefix = cadre === "workman" ? "W" : cadre === "trainee" ? "T" : "E";
@@ -141,26 +116,26 @@ export function generatedEmployees(named: Employee[]): Employee[] {
       category: catList[i],
       pwbd: pwbd.has(i),
       cadre,
-      grade: g.grade,
-      basic: g.basic,
+      grade: pay.grade,
+      basic: pay.basic,
       cafeteriaPct: cadre === "executive" ? 24 : cadre === "workman" ? 16 : 10,
       hardshipAllowance: cadre === "workman" && i % 7 === 0 ? 1800 : 0,
-      locationId: loc.locationId,
-      unitId: loc.id,
-      positionId: strengthPositionId(loc.id, g.grade),
+      locationId,
+      unitId: pos.unitId,
+      positionId: pos.id,
       status: cadre === "trainee" ? "probation" : "active",
       bankAccount: String(2000000000 + i),
-      ifsc: IFSC[loc.locationId],
+      ifsc: IFSC[locationId],
       pan: panFor(i),
       aadhaar: String(200000000000 + i),
       uan: String(101000000000 + i),
       npsPran: cadre === "workman" ? undefined : String(110100000000 + i),
       assignmentHistory: [
         {
-          positionId: strengthPositionId(loc.id, g.grade),
-          unitId: loc.id,
-          locationId: loc.locationId,
-          grade: g.grade,
+          positionId: pos.id,
+          unitId: pos.unitId,
+          locationId,
+          grade: pay.grade,
           cadre,
           validFrom: `${year}-${pad((i % 12) + 1, 2)}-01`,
         },

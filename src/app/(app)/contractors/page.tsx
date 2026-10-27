@@ -5,7 +5,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Field, Input } from "@/components/ui/input";
+import { Field, Input, Select } from "@/components/ui/input";
 import { downloadText, oshReturn } from "@/lib/files";
 import { maskAadhaar } from "@/lib/format";
 import { daysToLicence, passBlockReason } from "@/lib/gate";
@@ -28,6 +28,12 @@ export default function ContractorsPage() {
   const uploadWageProof = useHrms((s) => s.uploadWageProof);
   const [name, setName] = useState("");
   const [skill, setSkill] = useState("");
+  const [aadhaar, setAadhaar] = useState("");
+  const [uan, setUan] = useState("");
+  const [esic, setEsic] = useState("");
+  const [medical, setMedical] = useState("");
+  const [police, setPolice] = useState(false);
+  const [contractorId, setContractorId] = useState(contractorsAll[0]?.id ?? "");
   const contractors =
     role === "contractor_supervisor"
       ? contractorsAll.filter((c) => c.supervisorId === me?.id || c.id === me?.contractorId)
@@ -127,13 +133,38 @@ export default function ContractorsPage() {
         })}
       </div>
       {role === "contract_labour_cell" && contractors[0] && (
-        <Card className="mt-5 grid gap-3 p-5 sm:grid-cols-3">
-          <Field label="Register worker">
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" />
+        <Card className="mt-5 grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-3">
+          <Field label="Contractor">
+            <Select value={contractorId} onChange={(e) => setContractorId(e.target.value)}>
+              {contractors.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="Name">
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" />
           </Field>
           <Field label="Skill">
-            <Input value={skill} onChange={(e) => setSkill(e.target.value)} placeholder="Skill" />
+            <Input value={skill} onChange={(e) => setSkill(e.target.value)} placeholder="Rigger, welder…" />
           </Field>
+          <Field label="Aadhaar">
+            <Input value={aadhaar} onChange={(e) => setAadhaar(e.target.value.replace(/\D/g, "").slice(0, 12))} inputMode="numeric" placeholder="12 digits" />
+          </Field>
+          <Field label="UAN">
+            <Input value={uan} onChange={(e) => setUan(e.target.value.replace(/\D/g, "").slice(0, 12))} inputMode="numeric" placeholder="12 digits" />
+          </Field>
+          <Field label="ESIC">
+            <Input value={esic} onChange={(e) => setEsic(e.target.value.replace(/\D/g, "").slice(0, 10))} inputMode="numeric" placeholder="10 digits" />
+          </Field>
+          <Field label="Medical fitness valid to">
+            <Input type="date" value={medical} onChange={(e) => setMedical(e.target.value)} />
+          </Field>
+          <label className="flex items-center gap-2 self-end pb-2 text-sm">
+            <input type="checkbox" checked={police} onChange={(e) => setPolice(e.target.checked)} />
+            Police verification on file
+          </label>
           <div className="flex items-end">
             <Button
               onClick={() => {
@@ -141,21 +172,42 @@ export default function ContractorsPage() {
                   toast.error("Name and skill are required.");
                   return;
                 }
+                if (aadhaar.length !== 12) {
+                  toast.error("Aadhaar must be 12 digits.");
+                  return;
+                }
+                if (uan.length !== 12) {
+                  toast.error("UAN must be 12 digits.");
+                  return;
+                }
+                if (esic.length !== 10) {
+                  toast.error("ESIC number must be 10 digits.");
+                  return;
+                }
+                if (!medical) {
+                  toast.error("Enter medical fitness expiry.");
+                  return;
+                }
                 registerWorker({
-                  contractorId: contractors[0].id,
+                  contractorId: contractorId || contractors[0].id,
                   name: name.trim(),
                   skill: skill.trim(),
-                  aadhaar: "000000000000",
-                  uan: "101000000000",
-                  esic: "2211000000",
-                  policeVerification: true,
-                  medicalFitnessExpiry: "2027-04-01",
-                  photoSeed: name,
+                  aadhaar,
+                  uan,
+                  esic,
+                  policeVerification: police,
+                  medicalFitnessExpiry: medical,
+                  photoSeed: name.trim(),
                   inductionPassed: false,
                 });
                 toast.success("Worker on register. Induction still required.");
                 setName("");
                 setSkill("");
+                setAadhaar("");
+                setUan("");
+                setEsic("");
+                setMedical("");
+                setPolice(false);
               }}
             >
               Register

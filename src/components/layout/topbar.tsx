@@ -1,10 +1,9 @@
 "use client";
 
-import { Avatar } from "@/components/ui/avatar";
+import { AccountChip } from "@/components/layout/account-chip";
 import { Bell, MagnifyingGlass, SignOut } from "@phosphor-icons/react";
 import { commandHits } from "@/lib/search";
 import { useCurrentUser, useHrms } from "@/lib/store";
-import { positionTitle } from "@/lib/org";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -76,12 +75,8 @@ export function Topbar() {
         <Bell size={18} weight="duotone" />
         {mine.length > 0 && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#e14b4b]" />}
       </button>
-      <div className="ml-auto flex h-11 min-w-0 items-center gap-2 rounded-full bg-white py-1 pl-1 pr-3 md:ml-0">
-        <Avatar name={user.name} size={32} />
-        <div className="min-w-0">
-          <p className="truncate text-xs font-semibold">{user.preferredName}</p>
-          <p className="truncate text-[11px] text-muted">{positionTitle(user.positionId)}</p>
-        </div>
+      <div className="ml-auto md:ml-0">
+        <AccountChip />
       </div>
       <button
         onClick={() => {

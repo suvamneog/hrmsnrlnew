@@ -11,6 +11,13 @@ import { toast } from "sonner";
 
 const FLOW: CandidateStage[] = ["applied", "shortlist", "interview", "medical", "offer", "joined"];
 
+const ADVANCE: Partial<Record<CandidateStage, string>> = {
+  applied: "Record shortlist",
+  shortlist: "Call for interview",
+  interview: "Clear interview",
+  medical: "Issue offer",
+};
+
 export default function RecruitmentPage() {
   const openings = useHrms((s) => s.openings);
   const candidates = useHrms((s) => s.candidates);
@@ -23,7 +30,7 @@ export default function RecruitmentPage() {
     <div>
       <PageHeader
         title="Recruitment"
-        subtitle="Reservation roster per opening. Joining writes the candidate into the employee record with no re-entry."
+        subtitle="Reservation roster per opening. Each stage is a recorded decision. Joining writes the employee record."
       />
       <div className="grid gap-4">
         {openings.map((o) => (
@@ -53,6 +60,7 @@ export default function RecruitmentPage() {
                 .map((c) => {
                   const idx = FLOW.indexOf(c.stage);
                   const next = FLOW[idx + 1];
+                  const action = c.stage !== "joined" && c.stage !== "offer" ? ADVANCE[c.stage] : null;
                   return (
                     <li key={c.id} className="rounded-xl bg-[#f6f8fd] px-3 py-3 text-sm">
                       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -61,36 +69,51 @@ export default function RecruitmentPage() {
                           {c.gateScore ? ` · GATE ${c.gateScore}` : ""}
                         </span>
                         <span className="flex items-center gap-2">
-                          <span className="text-muted">{c.stage}</span>
-                          {next && next !== "joined" && (
-                            <button className="text-xs font-semibold text-brand" onClick={() => moveCandidate(c.id, next)}>
-                              Move to {next}
-                            </button>
+                          <span className="capitalize text-muted">{c.stage}</span>
+                          {action && next && (
+                            <Button
+                              variant="secondary"
+                              onClick={() => {
+                                moveCandidate(c.id, next);
+                                toast.success(`${action}: ${c.name} → ${next}.`);
+                              }}
+                            >
+                              {action}
+                            </Button>
                           )}
                           {c.stage === "offer" && (
                             <Button
                               onClick={() => {
                                 const r = joinCandidate(c.id);
                                 if (!r.ok) toast.error(r.reason);
-                                else toast.success("Employee record created");
+                                else toast.success(`Joined ${c.name}. Employee record created.`);
                               }}
                             >
-                              Join
+                              Join {c.name.split(" ")[0]}
                             </Button>
                           )}
                         </span>
                       </div>
                       {(c.stage === "offer" || c.stage === "joined") && (
                         <div className="mt-2 flex flex-wrap gap-2">
-                          {c.checklist.map((item) => (
-                            <button
-                              key={item.item}
-                              onClick={() => tickOnboarding(c.id, item.item)}
-                              className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${item.done ? "bg-[#e7f8ef] text-[#0f9f6e]" : "bg-white text-muted"}`}
-                            >
-                              {item.item}
-                            </button>
-                          ))}
+                          {c.checklist.map((item) =>
+                            item.done ? (
+                              <span key={item.item} className="rounded-full bg-[#e7f8ef] px-2 py-0.5 text-[11px] font-semibold text-[#0f9f6e]">
+                                {item.item} · done
+                              </span>
+                            ) : (
+                              <button
+                                key={item.item}
+                                onClick={() => {
+                                  tickOnboarding(c.id, item.item);
+                                  toast.success(`${item.item} marked for ${c.name}.`);
+                                }}
+                                className="rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-muted"
+                              >
+                                Mark {item.item}
+                              </button>
+                            ),
+                          )}
                         </div>
                       )}
                     </li>

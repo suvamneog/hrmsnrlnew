@@ -10,6 +10,7 @@ import { passBlockReason } from "./gate";
 import { countLeaveDays, validateLeave } from "./leave";
 import { mergeHeadcount } from "./headcount";
 import { parseSapCsv, sapMismatch } from "./sap";
+import { NRL_INTERFACES } from "./interfaces";
 import { POSITIONS } from "./org";
 import { computeRun, settingOn } from "./payroll";
 import {
@@ -73,9 +74,12 @@ import type {
   LeaveRequest,
   LeaveType,
   NotificationItem,
+  NrlInterface,
+  NrlInterfaceId,
   PayrollRun,
   PayrollStage,
   PolicySetting,
+  PolicyVersion,
   Position,
   Punch,
   Regularisation,
@@ -262,6 +266,7 @@ export interface HrmsState {
   rosterPoints: typeof ROSTER_POINTS;
   sapHr: typeof SAP_HR;
   retention: typeof RETENTION;
+  interfaces: NrlInterface[];
   login: (employeeId: string, role: Role) => void;
   logout: () => void;
   switchRole: (role: Role) => void;
@@ -278,6 +283,7 @@ export interface HrmsState {
   withdrawClaim: (id: string) => void;
   proposeSetting: (id: string, value: number, validFrom?: string) => void;
   approveSetting: (id: string) => { ok: boolean; reason?: string };
+  recordInterface: (id: NrlInterfaceId, patch: Partial<NrlInterface>) => void;
   lockAttendance: (runId: string) => void;
   computePayroll: (runId: string, opts?: { silent?: boolean }) => { ok: boolean; reason?: string };
   importSapCsv: (csv: string) => { ok: boolean; reason?: string; imported?: number; mismatches?: number };
@@ -312,8 +318,9 @@ export interface HrmsState {
   moveCandidate: (id: string, stage: CandidateStage) => void;
   tickOnboarding: (id: string, item: string) => void;
   joinCandidate: (id: string) => { ok: boolean; reason?: string };
-  rateAppraisal: (employeeId: string, field: "selfRating" | "reportingRating" | "reviewingRating", value: number) => void;
-  closeAppraisal: (employeeId: string) => void;
+  acceptGoals: (employeeId: string) => { ok: boolean; reason?: string };
+  rateAppraisal: (employeeId: string, field: "selfRating" | "reportingRating" | "reviewingRating", value: number) => { ok: boolean; reason?: string };
+  closeAppraisal: (employeeId: string) => { ok: boolean; reason?: string };
   allotQuarter: (quarterId: string, employeeId: string) => { ok: boolean; reason?: string };
   raiseMaintenance: (quarterId: string, title: string) => void;
   tickMaintenance: (id: string) => void;
@@ -378,6 +385,7 @@ const initial = {
   rosterPoints: ROSTER_POINTS,
   sapHr: SAP_HR,
   retention: RETENTION,
+  interfaces: NRL_INTERFACES.map((row) => ({ ...row })),
 };
 
 export const useHrms = create<HrmsState>()(
@@ -560,6 +568,14 @@ export const useHrms = create<HrmsState>()(
         const row = s.settings.find((p) => p.id === id);
         if (!row || !row.pendingBy) return { ok: false, reason: "Nothing pending" };
         if (row.pendingBy === s.currentUserId) return { ok: false, reason: "Maker cannot check their own change." };
+        const closed: PolicyVersion = {
+          value: row.value,
+          validFrom: row.validFrom,
+          validTo: row.pendingValidFrom,
+          proposedBy: row.pendingBy,
+          approvedBy: row.approvedBy,
+          source: row.source,
+        };
         set({
           settings: s.settings.map((p) =>
             p.id === id
@@ -572,6 +588,7 @@ export const useHrms = create<HrmsState>()(
                   pendingValue: undefined,
                   pendingBy: undefined,
                   pendingValidFrom: undefined,
+                  versions: [closed, ...(p.versions ?? SETTINGS.find((x) => x.id === p.id)?.versions ?? [])],
                 }
               : p,
           ),
@@ -579,6 +596,10 @@ export const useHrms = create<HrmsState>()(
         });
         return { ok: true };
       },
+      recordInterface: (id, patch) =>
+        set((s) => ({
+          interfaces: s.interfaces.map((row) => (row.id === id ? { ...row, ...patch } : row)),
+        })),
       lockAttendance: (runId) =>
         set((s) => {
           const attendance = rebuildAttendance({
@@ -678,8 +699,24 @@ export const useHrms = create<HrmsState>()(
       },
       generateFiles: (runId) => {
         const files = getFiles(get(), runId);
+        const at = stamp();
+        const bank = files.find((f) => f.kind === "bank");
+        const ecr = files.find((f) => f.kind === "ecr");
+        const tds = files.find((f) => f.kind === "tds24q");
         set((s) => ({
           payrollRuns: s.payrollRuns.map((r) => (r.id === runId ? { ...r, files } : r)),
+          interfaces: s.interfaces.map((row) => {
+            if (row.id === "sbi" && bank) {
+              return { ...row, lastFile: bank.name, lastRun: at, lastAck: undefined, status: "awaiting_ack" as const };
+            }
+            if (row.id === "epfo" && ecr) {
+              return { ...row, lastFile: ecr.name, lastRun: at, status: "file_ready" as const };
+            }
+            if (row.id === "traces" && tds) {
+              return { ...row, lastFile: tds.name, lastRun: at, status: "file_ready" as const };
+            }
+            return row;
+          }),
           audit: log(s.audit, s.currentUserId ?? "system", "export_statutory", runId, "payroll"),
         }));
         return files;
@@ -940,6 +977,11 @@ export const useHrms = create<HrmsState>()(
           const sapHr = [...kept, ...parsed.rows];
           return {
             sapHr,
+            interfaces: s.interfaces.map((row) =>
+              row.id === "sap_hr"
+                ? { ...row, lastFile: "SAP_HR_IMPORT.csv", lastRun: stamp(), status: "file_ready" as const }
+                : row,
+            ),
             audit: log(s.audit, s.currentUserId ?? "system", "import_sap_csv", `${parsed.rows.length} rows`, "hr"),
           };
         });
@@ -1065,8 +1107,11 @@ export const useHrms = create<HrmsState>()(
       tickOnboarding: (id, item) =>
         set((s) => ({
           candidates: s.candidates.map((c) =>
-            c.id === id ? { ...c, checklist: c.checklist.map((x) => (x.item === item ? { ...x, done: !x.done } : x)) } : c,
+            c.id === id
+              ? { ...c, checklist: c.checklist.map((x) => (x.item === item ? { ...x, done: true } : x)) }
+              : c,
           ),
+          audit: log(s.audit, s.currentUserId ?? "system", "onboarding", `${id}:${item}`, "rec"),
         })),
       joinCandidate: (id) => {
         const s = get();
@@ -1097,23 +1142,58 @@ export const useHrms = create<HrmsState>()(
         }));
         return { ok: true };
       },
-      rateAppraisal: (employeeId, field, value) =>
-        set((s) => ({
-          appraisals: s.appraisals.map((a) => (a.employeeId === employeeId ? { ...a, [field]: value } : a)),
-        })),
-      closeAppraisal: (employeeId) =>
-        set((s) => {
-          const mou = settingOn(s.settings, "prp.mou", DEMO_TODAY) || 91;
-          return {
-            appraisals: s.appraisals.map((a) => {
-              if (a.employeeId !== employeeId) return a;
-              const finalRating = a.reviewingRating ?? a.reportingRating ?? a.selfRating ?? 3;
-              const e = s.employees.find((x) => x.id === employeeId);
-              const prpAmount = Math.round(((e?.basic ?? 0) * 0.4 * (finalRating / 5) * (mou / 100)));
-              return { ...a, stage: "closed" as const, finalRating, prpAmount };
-            }),
-          };
-        }),
+      acceptGoals: (employeeId) => {
+        const s = get();
+        const a = s.appraisals.find((x) => x.employeeId === employeeId);
+        if (!a) return { ok: false, reason: "No appraisal this cycle." };
+        if (a.stage !== "goal_setting" && a.stage !== "mid_year") {
+          return { ok: false, reason: "Goals are already accepted." };
+        }
+        set({
+          appraisals: s.appraisals.map((x) =>
+            x.employeeId === employeeId ? { ...x, stage: "self" as const } : x,
+          ),
+          audit: log(s.audit, s.currentUserId ?? "system", "accept_goals", employeeId, "apar"),
+        });
+        return { ok: true };
+      },
+      rateAppraisal: (employeeId, field, value) => {
+        const n = Math.round(Number(value));
+        if (n < 1 || n > 5) return { ok: false, reason: "Choose a rating from 1 to 5." };
+        const s = get();
+        const a = s.appraisals.find((x) => x.employeeId === employeeId);
+        if (!a) return { ok: false, reason: "No appraisal this cycle." };
+        if (field === "selfRating" && a.stage !== "self") return { ok: false, reason: "Self-appraisal is not open." };
+        if (field === "reportingRating" && a.stage !== "reporting") return { ok: false, reason: "Reporting officer rating is not open." };
+        if (field === "reviewingRating" && a.stage !== "reviewing") return { ok: false, reason: "Reviewing officer rating is not open." };
+        const next = field === "selfRating" ? "reporting" : field === "reportingRating" ? "reviewing" : a.stage;
+        set({
+          appraisals: s.appraisals.map((x) =>
+            x.employeeId === employeeId ? { ...x, [field]: n, stage: next } : x,
+          ),
+          audit: log(s.audit, s.currentUserId ?? "system", "rate_appraisal", employeeId, "apar", `${field}:${n}`),
+        });
+        return { ok: true };
+      },
+      closeAppraisal: (employeeId) => {
+        const s = get();
+        const a = s.appraisals.find((x) => x.employeeId === employeeId);
+        if (!a) return { ok: false, reason: "No appraisal this cycle." };
+        if (a.stage !== "reviewing" || !a.reviewingRating) {
+          return { ok: false, reason: "Reviewing officer must rate before close." };
+        }
+        const mou = settingOn(s.settings, "prp.mou", DEMO_TODAY) || 91;
+        const e = s.employees.find((x) => x.id === employeeId);
+        const finalRating = a.reviewingRating;
+        const prpAmount = Math.round((e?.basic ?? 0) * 0.4 * (finalRating / 5) * (mou / 100));
+        set({
+          appraisals: s.appraisals.map((x) =>
+            x.employeeId === employeeId ? { ...x, stage: "closed" as const, finalRating, prpAmount } : x,
+          ),
+          audit: log(s.audit, s.currentUserId ?? "system", "close_appraisal", employeeId, "apar", String(finalRating)),
+        });
+        return { ok: true };
+      },
       allotQuarter: (quarterId, employeeId) => {
         const s = get();
         const q = s.quarters.find((x) => x.id === quarterId);
@@ -1140,9 +1220,18 @@ export const useHrms = create<HrmsState>()(
         set((s) => ({
           separations: s.separations.map((sp) =>
             sp.id === sepId
-              ? { ...sp, clearances: sp.clearances.map((c) => (c.dept === dept ? { ...c, done: !c.done } : c)), status: "clearance" }
+              ? {
+                  ...sp,
+                  status: "clearance" as const,
+                  clearances: sp.clearances.map((c) =>
+                    c.dept === dept && !c.done
+                      ? { ...c, done: true, byId: s.currentUserId ?? undefined, at: stamp() }
+                      : c,
+                  ),
+                }
               : sp,
           ),
+          audit: log(s.audit, s.currentUserId ?? "system", "clearance", `${sepId}:${dept}`, "sep"),
         })),
       settleFf: (sepId) =>
         set((s) => {
@@ -1199,7 +1288,7 @@ export const useHrms = create<HrmsState>()(
     }),
     {
       name: "nrl-people",
-      version: 6,
+      version: 7,
       migrate: () => ({ ...initial }),
       partialize: (s) => {
         const slice = { ...initial };
@@ -1219,6 +1308,11 @@ export const useHrms = create<HrmsState>()(
           ...current,
           ...p,
           employees: mergeHeadcount(core, EMPLOYEES),
+          interfaces: p.interfaces ?? current.interfaces,
+          settings: (p.settings ?? current.settings).map((row) => ({
+            ...row,
+            versions: row.versions ?? SETTINGS.find((x) => x.id === row.id)?.versions,
+          })),
         };
       },
       onRehydrateStorage: () => (state) => {

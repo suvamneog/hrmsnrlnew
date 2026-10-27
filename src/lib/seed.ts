@@ -28,6 +28,7 @@ import type {
   Opening,
   PayrollRun,
   PolicySetting,
+  PolicyVersion,
   Punch,
   Quarter,
   Regularisation,
@@ -1011,6 +1012,54 @@ export const SETTINGS: PolicySetting[] = [
   { id: "s29", key: "prp.mou", label: "MoU composite score", value: 91, unit: "%", validFrom: "2026-04-01", approvedBy: "e-bhaskar", source: "DPE MoU 2026-27" },
 ];
 
+const POLICY_HISTORY: Record<string, PolicyVersion[]> = {
+  s1: [
+    { value: 46.2, validFrom: "2026-07-01", validTo: "2026-09-30", proposedBy: "e-pranjal", approvedBy: "e-rajib", source: "DPE IDA, Q2 2026" },
+    { value: 43.8, validFrom: "2026-04-01", validTo: "2026-06-30", proposedBy: "e-pranjal", approvedBy: "e-rajib", source: "DPE IDA, Q1 2026" },
+    { value: 42.0, validFrom: "2026-01-01", validTo: "2026-03-31", proposedBy: "e-pranjal", approvedBy: "e-bhaskar", source: "DPE IDA, Q4 2025" },
+  ],
+  s2: [
+    { value: 38.4, validFrom: "2022-01-01", validTo: "2023-12-31", proposedBy: "e-pranjal", approvedBy: "e-bhaskar", source: "Previous wage settlement" },
+  ],
+  s3: [
+    { value: 46.2, validFrom: "2026-07-01", validTo: "2026-09-30", proposedBy: "e-pranjal", approvedBy: "e-rajib", source: "DPE IDA, Q2 2026" },
+  ],
+  s4: [
+    { value: 50, validFrom: "2007-01-01", validTo: "2016-12-31", approvedBy: "e-bhaskar", source: "DPE 2007 cafeteria" },
+  ],
+  s7: [
+    { value: 26, validFrom: "2007-01-01", validTo: "2016-12-31", approvedBy: "e-bhaskar", source: "DPE 2007 superannuation" },
+  ],
+  s10: [
+    { value: 10, validFrom: "2015-07-01", validTo: "2022-06-30", approvedBy: "e-bhaskar", source: "7th CPC / DPE, Z-class (Numaligarh)" },
+  ],
+  s11: [
+    { value: 12, validFrom: "1995-11-16", validTo: "2014-08-31", approvedBy: "e-bhaskar", source: "EPF Act, NRL PF Trust" },
+  ],
+  s12: [
+    { value: 10, validFrom: "2004-01-01", validTo: "2019-03-31", approvedBy: "e-bhaskar", source: "NRL NPS for new joiners" },
+  ],
+  s13: [
+    { value: 180, validFrom: "2018-01-01", validTo: "2023-12-31", proposedBy: "e-hiren", approvedBy: "e-bhaskar", source: "Earlier settlement" },
+  ],
+  s15: [
+    { value: 240, validFrom: "2018-01-01", validTo: "2023-12-31", proposedBy: "e-hiren", approvedBy: "e-bhaskar", source: "Earlier settlement" },
+  ],
+  s17: [
+    { value: 8, validFrom: "2019-01-01", validTo: "2025-11-20", approvedBy: "e-bhaskar", source: "Standing order, pending OSH confirmation" },
+  ],
+  s22: [
+    { value: 43.8, validFrom: "2026-04-01", validTo: "2026-06-30", approvedBy: "e-bhaskar", source: "SAP HR, Q1 2026 still on box" },
+  ],
+  s29: [
+    { value: 88, validFrom: "2025-04-01", validTo: "2026-03-31", approvedBy: "e-bhaskar", source: "DPE MoU 2025-26" },
+  ],
+};
+
+for (const row of SETTINGS) {
+  row.versions = POLICY_HISTORY[row.id];
+}
+
 export const SHIFTS: ShiftPattern[] = [
   { id: "M", code: "M", label: "Morning", start: "06:00", end: "14:00" },
   { id: "A", code: "A", label: "Afternoon", start: "14:00", end: "22:00" },
@@ -1235,13 +1284,20 @@ export const GOALS: Goal[] = [
   { id: "g3", employeeId: "e-ananya", title: "Energy intensity vs 2025 baseline", weight: 30, target: "-2.5%", achievement: 54 },
   { id: "g4", employeeId: "e-pallabi", title: "Substation reliability", weight: 50, target: "< 2 trips / quarter", achievement: 80 },
   { id: "g5", employeeId: "e-pallabi", title: "Training hours completed", weight: 50, target: "40 hrs", achievement: 60 },
+  { id: "g6", employeeId: "e-pranjal", title: "October payroll lock on T+2", weight: 60, target: "Lock by 3 Nov", achievement: 55 },
+  { id: "g7", employeeId: "e-pranjal", title: "Statutory files without rejection", weight: 40, target: "ECR and 24Q accepted", achievement: 40 },
+  { id: "g8", employeeId: "e-bhaskar", title: "Establishment strength vs sanctioned posts", weight: 50, target: "Variance under 2%", achievement: 62 },
+  { id: "g9", employeeId: "e-bhaskar", title: "APAR cycle closed on time", weight: 50, target: "31 Mar 2027", achievement: 20 },
+  { id: "g10", employeeId: "e-hiren", title: "CDU crew rest-hour compliance", weight: 60, target: "No 11h rest breach", achievement: 88 },
+  { id: "g11", employeeId: "e-hiren", title: "Overtime within monthly cap", weight: 40, target: "<= 50 h / person", achievement: 70 },
+  { id: "g12", employeeId: "e-bikash", title: "Panel alarms acknowledged under 3 min", weight: 100, target: "95% of alarms", achievement: 76 },
 ];
 
 export const APPRAISALS: Appraisal[] = EMPLOYEES.filter((e) => e.cadre !== "contract").map((e) => ({
   employeeId: e.id,
   cycle: "2026-27",
-  stage: e.id === "e-ananya" || e.id === "e-pallabi" ? "mid_year" : "goal_setting",
-  selfRating: e.id === "e-pallabi" ? 4 : undefined,
+  stage: e.id === "e-pallabi" ? "self" : e.id === "e-bikash" ? "reporting" : e.id === "e-ananya" ? "mid_year" : "goal_setting",
+  selfRating: e.id === "e-bikash" ? 4 : undefined,
 }));
 
 export const QUARTERS: Quarter[] = [

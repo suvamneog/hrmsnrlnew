@@ -24,7 +24,8 @@ export interface NavItem {
     | "chart"
     | "sliders"
     | "list"
-    | "user";
+    | "user"
+    | "plugs";
   roles: Role[] | "all";
 }
 
@@ -50,6 +51,7 @@ export const NAV: NavItem[] = [
   { href: "/separation", label: "Separation", icon: "signout", roles: ["hr_admin", "payroll_officer", "auditor"] },
   { href: "/reports", label: "Reports", icon: "chart", roles: ["hr_admin", "auditor", "recruiter"] },
   { href: "/policy", label: "Rules engine", icon: "sliders", roles: ["hr_admin", "payroll_officer", "finance_approver", "auditor"] },
+  { href: "/interfaces", label: "Interfaces", icon: "plugs", roles: ["hr_admin", "payroll_officer", "finance_approver", "auditor"] },
   { href: "/audit", label: "Audit trail", icon: "list", roles: ["auditor", "hr_admin", "finance_approver"] },
 ];
 

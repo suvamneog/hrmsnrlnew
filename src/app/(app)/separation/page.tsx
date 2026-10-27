@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { downloadText } from "@/lib/files";
-import { inr } from "@/lib/format";
+import { formatStamp, inr } from "@/lib/format";
 import { useHrms } from "@/lib/store";
 import { toast } from "sonner";
 
@@ -17,7 +17,7 @@ export default function SeparationPage() {
 
   return (
     <div>
-      <PageHeader title="Separation" subtitle="Gratuity, leave encashment and final settlement compute into payroll. Clearance is a checklist, not an email chain." />
+      <PageHeader title="Separation" subtitle="Each department records clearance under their name. Final settlement runs only when the list is complete." />
       {rows.map((s) => {
         const e = employees.find((x) => x.id === s.employeeId);
         const open = s.clearances.some((c) => !c.done);
@@ -33,17 +33,35 @@ export default function SeparationPage() {
               <Badge tone={s.status === "settled" ? "ok" : "warn"}>{s.status}</Badge>
             </div>
             <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-              {s.clearances.map((c) => (
-                <li key={c.dept}>
-                  <button
-                    className="flex w-full justify-between rounded-xl bg-[#f6f8fd] px-3 py-2 text-sm"
-                    onClick={() => tickClearance(s.id, c.dept)}
-                  >
-                    {c.dept}
-                    <span className={c.done ? "text-[#0f9f6e]" : "text-muted"}>{c.done ? "Cleared" : "Open"}</span>
-                  </button>
-                </li>
-              ))}
+              {s.clearances.map((c) => {
+                const who = c.byId ? employees.find((x) => x.id === c.byId)?.preferredName : null;
+                return (
+                  <li key={c.dept} className="rounded-xl bg-[#f6f8fd] px-3 py-2 text-sm">
+                    <div className="flex items-center justify-between gap-2">
+                      <span>{c.dept}</span>
+                      {c.done ? (
+                        <span className="text-[#0f9f6e]">Cleared</span>
+                      ) : (
+                        <Button
+                          variant="secondary"
+                          onClick={() => {
+                            tickClearance(s.id, c.dept);
+                            toast.success(`${c.dept} clearance recorded.`);
+                          }}
+                        >
+                          Record clearance
+                        </Button>
+                      )}
+                    </div>
+                    {c.done && (who || c.at) && (
+                      <p className="mt-1 text-xs text-muted">
+                        {who ?? "Recorded"}
+                        {c.at ? ` · ${formatStamp(c.at)}` : ""}
+                      </p>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
             {s.netFf !== undefined && (
               <div className="mt-4 grid gap-2 text-sm sm:grid-cols-4">

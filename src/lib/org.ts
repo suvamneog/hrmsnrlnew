@@ -44,14 +44,50 @@ const STRENGTH_UNITS = [
   { id: "fcc", cadre: "workman" as const, grades: ["W4", "W6"] },
   { id: "mkt-slg", cadre: "executive" as const, grades: ["E2", "E3", "E4"] },
   { id: "crd-prt", cadre: "executive" as const, grades: ["E2", "E3", "E4", "E5"] },
-  { id: "corp-ghy", cadre: "executive" as const, grades: ["E2", "E3", "E4"] },
+  { id: "corp-ghy", cadre: "executive" as const, grades: ["E2", "E3", "E4", "E5", "E6"] },
 ];
 
+const EXEC_RANK: Record<string, string> = {
+  E2: "Engineer",
+  E3: "Dy Manager",
+  E4: "Manager",
+  E5: "DGM",
+  E6: "CGM",
+};
+
+const AREA: Record<string, string> = {
+  cdu: "CDU",
+  fcc: "FCC",
+  util: "Utilities",
+  tech: "Technical",
+  hse: "HSE",
+  hr: "HR",
+  fin: "Finance",
+  twn: "Township",
+  ops: "Operations",
+  "mkt-slg": "Siliguri",
+  "crd-prt": "Paradip",
+  "corp-ghy": "Guwahati",
+};
+
 function strengthTitle(unitId: string, grade: string, cadre: Cadre) {
-  const area = UNITS.find((u) => u.id === unitId)?.name ?? unitId;
-  if (cadre === "trainee") return `Engineer trainee · ${area}`;
-  if (cadre === "workman") return `${grade} · ${area}`;
-  return `${grade} officer · ${area}`;
+  const area = AREA[unitId] ?? unitId;
+  if (cadre === "trainee") {
+    return unitId === "ops" ? "Engineer trainee (Chemical)" : "Engineer trainee (Mechanical)";
+  }
+  if (cadre === "workman") {
+    if (unitId === "hse" && grade === "W5") return "Leading fireman";
+    if (unitId === "tech" && grade === "W3") return "Lab analyst";
+    if (unitId === "util" && grade === "W4") return "Fitter, utilities";
+    if (unitId === "cdu" && grade === "W2") return "Helper, CDU";
+    if (unitId === "cdu" && grade === "W4") return "Instrument technician, CDU";
+    if (unitId === "cdu" && grade === "W5") return "Panel operator, CDU";
+    if (unitId === "fcc" && grade === "W4") return "Technician (Mechanical), FCC";
+    if (unitId === "fcc" && grade === "W6") return "Senior operator, FCC";
+    return `Operator, ${area}`;
+  }
+  const rank = EXEC_RANK[grade] ?? "Officer";
+  return `${rank} (${area})`;
 }
 
 export function strengthPositionId(unitId: string, grade: string) {
@@ -100,7 +136,7 @@ export function unitName(id: string) {
 }
 
 export function positionTitle(id: string) {
-  return POSITIONS.find((p) => p.id === id)?.title ?? id;
+  return POSITIONS.find((p) => p.id === id)?.title ?? "Officer";
 }
 
 export function locationName(id: LocationId) {

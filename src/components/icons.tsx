@@ -22,6 +22,7 @@ import {
   Users,
   Wallet,
   Briefcase,
+  Plugs,
 } from "@phosphor-icons/react";
 import type { NavItem } from "@/lib/nav";
 
@@ -47,6 +48,7 @@ const map = {
   sliders: Sliders,
   list: ListBullets,
   user: User,
+  plugs: Plugs,
 };
 
 export function NavIcon({ name, size = 20 }: { name: NavItem["icon"]; size?: number }) {
