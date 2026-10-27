@@ -40,11 +40,12 @@ export default function PerformancePage() {
   const [selfScore, setSelfScore] = useState("4");
   const [reportScore, setReportScore] = useState<Record<string, string>>({});
   const [reviewScore, setReviewScore] = useState<Record<string, string>>({});
+  const meId = me?.id;
+  const team = useMemo(() => employees.filter((e) => e.managerId === meId), [employees, meId]);
   if (!me) return null;
 
   const mine = appraisals.find((a) => a.employeeId === me.id);
   const myGoals = goalsAll.filter((g) => g.employeeId === me.id);
-  const team = useMemo(() => employees.filter((e) => e.managerId === me.id), [employees, me.id]);
   const reportQueue = appraisals.filter((a) => a.stage === "reporting" && team.some((e) => e.id === a.employeeId));
   const reviewQueue =
     role === "hr_admin" ? appraisals.filter((a) => a.stage === "reviewing" && a.employeeId !== me.id) : [];

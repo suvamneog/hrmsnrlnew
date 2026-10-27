@@ -15,6 +15,8 @@ export default function SeparationPage() {
   const employees = useHrms((s) => s.employees);
   const tickClearance = useHrms((s) => s.tickClearance);
   const settleFf = useHrms((s) => s.settleFf);
+  const role = useHrms((s) => s.actingRole);
+  const meId = useHrms((s) => s.currentUserId);
 
   return (
     <div>
@@ -42,6 +44,8 @@ export default function SeparationPage() {
                       <span>{c.dept}</span>
                       {c.done ? (
                         <span className="text-[#0f9f6e]">Cleared</span>
+                      ) : role !== "hr_admin" || s.employeeId === meId ? (
+                        <span className="text-muted">Pending</span>
                       ) : (
                         <Button
                           variant="secondary"
@@ -72,7 +76,8 @@ export default function SeparationPage() {
                 <p className="font-semibold">Net F&F {inr(s.netFf)}</p>
               </div>
             )}
-            <div className="mt-4 flex gap-2">
+            {role === "hr_admin" && s.employeeId !== meId && (
+            <div className="mt-4 flex items-center gap-3">
               <Button
                 disabled={open || s.status === "settled"}
                 onClick={() => {
@@ -82,7 +87,9 @@ export default function SeparationPage() {
               >
                 Compute F&F
               </Button>
+              {open && <span className="text-sm text-muted">Record every clearance first.</span>}
             </div>
+            )}
             {s.netFf !== undefined && (
               <FileDownloadList className="mt-1">
                 <FileDownload

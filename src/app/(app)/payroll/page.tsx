@@ -32,6 +32,7 @@ export default function PayrollPage() {
   const generateFiles = useHrms((s) => s.generateFiles);
   const [page, setPage] = useState(0);
   const idx = PAYROLL_STAGES.findIndex((s) => s.id === run.stage);
+  const released = run.stage === "bank_file" || run.stage === "publish";
   const byId = useMemo(() => new Map(employees.map((e) => [e.id, e])), [employees]);
   const ordered = useMemo(() => {
     const named = run.results.filter((r) => !r.employeeId.startsWith("g-"));
@@ -96,7 +97,19 @@ export default function PayrollPage() {
                 {role !== "finance_approver" && run.stage === "finance_approval" ? "Needs finance" : "Advance"}
               </Button>
             ) : null}
-            {run.results.length > 0 && (
+            {run.stage === "validate" && (role === "payroll_officer" || role === "hr_admin") && (
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  const r = compute(run.id);
+                  if (!r.ok) toast.error(r.reason);
+                  else toast.success("Recomputed with the latest records");
+                }}
+              >
+                Recompute
+              </Button>
+            )}
+            {released && !run.files?.length && (role === "payroll_officer" || role === "finance_approver") && (
               <Button
                 variant="secondary"
                 onClick={() => {
@@ -104,7 +117,7 @@ export default function PayrollPage() {
                   toast.success("Statutory files ready");
                 }}
               >
-                {run.files?.length ? "Regenerate files" : "Prepare bank / ECR / 24Q"}
+                Bank / ECR / 24Q files
               </Button>
             )}
           </div>

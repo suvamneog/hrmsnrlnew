@@ -44,11 +44,11 @@ export default function GatePage() {
   const inside = useMemo(() => {
     const last = new Map<string, "in" | "out">();
     [...events].reverse().forEach((e) => {
-      const p = passes.find((x) => x.id === e.passId);
+      const p = visiblePasses.find((x) => x.id === e.passId);
       if (p) last.set(p.workerId, e.direction);
     });
     return [...last.entries()].filter(([, d]) => d === "in").length;
-  }, [events, passes]);
+  }, [events, visiblePasses]);
 
   function scan(direction: "in" | "out") {
     const r = record(picked, "Gate 2", direction);
@@ -66,6 +66,7 @@ export default function GatePage() {
           <h1 className="text-3xl font-semibold tracking-tight">Pass check</h1>
         </div>
         <div className="flex items-center gap-3">
+          {role === "gate_security" && (
           <button
             className="rounded-full bg-white px-3 py-2 text-xs font-semibold"
             onClick={() => {
@@ -75,6 +76,7 @@ export default function GatePage() {
           >
             {offline ? `Sync ${queue.length}` : "Work offline"}
           </button>
+          )}
           <div className="rounded-2xl bg-white px-4 py-3 text-right shadow-[0_10px_30px_rgba(45,64,180,0.07)]">
             <p className="text-xs text-muted">Headcount inside</p>
             <p className="text-2xl font-semibold">{inside}</p>
@@ -152,6 +154,7 @@ export default function GatePage() {
             <p className={`text-lg font-semibold ${passBlockReason({ worker, contractor, certs }) ? "text-[#d13b3b]" : "text-[#0f9f6e]"}`}>
               {passBlockReason({ worker, contractor, certs }) ?? "All checks valid. Allow entry."}
             </p>
+            {role === "gate_security" && (
             <div className="mt-5 flex gap-3">
               <TactileButton
                 className="flex-1"
@@ -165,6 +168,7 @@ export default function GatePage() {
                 Out
               </TactileButton>
             </div>
+            )}
           </PassTicket>
         )}
       </motion.div>

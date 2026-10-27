@@ -51,7 +51,7 @@ export default function ClaimsPage() {
               <Select value={type} onChange={(e) => setType(e.target.value as Claim["type"])}>
                 <option value="medical">Medical</option>
                 <option value="ltc">LTC</option>
-                <option value="cea">Children's education</option>
+                <option value="cea">Children&apos;s education</option>
                 <option value="tour">Tour / travel</option>
                 <option value="cafeteria">Cafeteria item</option>
               </Select>

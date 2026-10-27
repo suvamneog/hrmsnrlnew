@@ -47,11 +47,20 @@ export function validateLeave(args: {
   days: number;
   balance: LeaveBalance | undefined;
   halfDay?: "am" | "pm";
+  gender?: "M" | "F" | "O";
+  pendingDays?: number;
+  overlaps?: boolean;
 }): { ok: boolean; reason?: string } {
   if (!args.type) return { ok: false, reason: "Unknown leave type" };
+  if (args.type.gender && args.gender !== args.type.gender) return { ok: false, reason: `You are not eligible for ${args.type.name.toLowerCase()}.` };
+  if (args.overlaps) return { ok: false, reason: "You already have leave on some of these dates." };
   if (args.days <= 0) return { ok: false, reason: "No working days in that range (weekly off or holiday)." };
   if (args.halfDay && !args.type.halfDay) return { ok: false, reason: `${args.type.name} cannot be taken as a half day.` };
-  const bal = args.balance?.balance ?? 0;
-  if (args.days > bal) return { ok: false, reason: `Only ${bal} ${args.type.code} days left.` };
+  if (args.type.maxPerSpell && args.days > args.type.maxPerSpell) {
+    return { ok: false, reason: `${args.type.code} is limited to ${args.type.maxPerSpell} day(s) at a time.` };
+  }
+  // Days already waiting for approval are held against the balance.
+  const bal = (args.balance?.balance ?? 0) - (args.pendingDays ?? 0);
+  if (args.days > bal) return { ok: false, reason: `Only ${Math.max(0, bal)} ${args.type.code} days left after pending requests.` };
   return { ok: true };
 }

@@ -57,6 +57,7 @@ export interface Assignment {
   grade: string;
   cadre: Cadre;
   crew?: "A" | "B" | "C" | "D";
+  basic?: number;
   validFrom: string;
   validTo?: string;
 }
@@ -281,6 +282,8 @@ export interface LeaveType {
   carryForward: number;
   encashable: boolean;
   halfDay: boolean;
+  maxPerSpell?: number;
+  gender?: "M" | "F";
 }
 
 export interface LeaveBalance {
@@ -538,10 +541,12 @@ export interface TaxDeclaration {
 export interface ChangeRequest {
   id: string;
   employeeId: string;
-  field: "phone" | "email" | "bank" | "address";
+  field: "phone" | "email" | "bank" | "address" | "promotion";
   from: string;
   to: string;
   status: RequestStatus;
+  makerId?: string;
+  promotion?: { grade: string; positionId: string; basic: number; validFrom: string };
 }
 
 export interface TrainingSession {

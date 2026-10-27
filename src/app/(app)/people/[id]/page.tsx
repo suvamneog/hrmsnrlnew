@@ -126,11 +126,14 @@ export default function PersonPage() {
             <Card className="grid gap-3 p-5 sm:grid-cols-2">
               <Field label="Position">
                 <Select value={positionId || e.positionId} onChange={(ev) => setPositionId(ev.target.value)}>
-                  {positions.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.title}
-                    </option>
-                  ))}
+                  {positions
+                    .filter((p) => p.cadre !== "contract")
+                    .filter((p, i, all) => all.findIndex((x) => x.title === p.title && x.unitId === p.unitId && x.grade === p.grade) === i)
+                    .map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.title} · {unitName(p.unitId)} · {p.grade}
+                      </option>
+                    ))}
                 </Select>
               </Field>
               <Field label="Effective">
@@ -159,7 +162,7 @@ export default function PersonPage() {
                     const pos = positions.find((p) => p.id === (positionId || e.positionId));
                     const r = promoteEmployee(e.id, grade || e.grade, pos?.id ?? e.positionId, Number(basic || e.basic), from);
                     if (!r.ok) toast.error(r.reason);
-                    else toast.success("Promotion dated");
+                    else toast.success("Promotion sent to finance for checking");
                   }}
                 >
                   Promote

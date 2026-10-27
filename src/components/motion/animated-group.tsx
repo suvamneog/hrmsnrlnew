@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/cn";
 import { motion, useReducedMotion, type Variants } from "motion/react";
-import { Children, type ReactNode, useMemo } from "react";
+import { Children, type ReactNode } from "react";
 
 export type PresetType = "fade" | "slide" | "scale" | "blur" | "blur-slide" | "zoom";
 
@@ -51,8 +51,8 @@ export function AnimatedGroup({
   asChild = "div",
 }: AnimatedGroupProps) {
   const reduce = useReducedMotion();
-  const MotionParent = useMemo(() => motion.create(as as "div"), [as]);
-  const MotionChild = useMemo(() => motion.create(asChild as "div"), [asChild]);
+  const MotionParent = motion[as as "div"];
+  const MotionChild = motion[asChild as "div"];
   const item = variants?.item ?? mergeItem(presets[preset]);
   const container = variants?.container ?? {
     hidden: {},

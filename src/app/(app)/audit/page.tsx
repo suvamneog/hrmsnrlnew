@@ -36,7 +36,7 @@ export default function AuditPage() {
             </tr>
           </thead>
           <tbody>
-            {audit.map((a) => (
+            {[...audit].sort((x, y) => y.at.localeCompare(x.at)).map((a) => (
               <tr key={a.id} className="border-t border-line">
                 <td className="px-4 py-2.5 text-xs">{formatStamp(a.at)}</td>
                 <td>{employees.find((e) => e.id === a.actorId)?.preferredName ?? a.actorId}</td>
@@ -50,7 +50,7 @@ export default function AuditPage() {
         </table>
       </Card>
 
-      {role === "auditor" || role === "hr_admin" ? (
+      {role === "hr_admin" ? (
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <Card className="p-4">
             <p className="mb-3 font-semibold">DPDP breach</p>

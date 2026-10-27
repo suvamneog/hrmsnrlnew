@@ -36,7 +36,7 @@ export function InView({
   delay = 0,
 }: InViewProps) {
   const reduce = useReducedMotion();
-  const MotionComponent = motion.create(as as "div");
+  const MotionComponent = motion[as as "div"];
 
   if (reduce) {
     return <div className={className}>{children}</div>;

@@ -4,35 +4,38 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Card } from "@/components/ui/card";
 import { FileDownload, FileDownloadList } from "@/components/ui/file-download";
 import { downloadPdf, form16Text, payslipText, prettySize } from "@/lib/files";
-import { inr } from "@/lib/format";
+import { inr, monthLabel } from "@/lib/format";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import Link from "next/link";
 
 export default function PayslipsPage() {
   const me = useCurrentUser();
-  const run = useHrms((s) => s.payrollRuns[0]);
-  const row = run.results.find((r) => r.employeeId === me?.id);
+  const runs = useHrms((s) => s.payrollRuns);
   if (!me) return null;
+
+  const current = runs[0];
+  const slips = runs
+    .filter((r) => r.stage === "publish")
+    .map((r) => ({ run: r, row: r.results.find((x) => x.employeeId === me.id) }))
+    .filter((x) => x.row);
 
   return (
     <div>
       <PageHeader title="Payslips" />
-      {run.stage !== "publish" && !row && (
+      {current.stage !== "publish" && (
         <Card className="p-6 text-sm text-muted">
-          October payroll is still in {run.stage.replaceAll("_", " ")}.
+          {monthLabel(current.month)} payroll is in {current.stage.replaceAll("_", " ")}.
         </Card>
       )}
       <div className="mt-4 grid gap-3">
-        {row && (
-          <Card className="p-5">
+        {slips.map(({ run, row }) => (
+          <Card key={run.id} className="p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="font-semibold">October 2026</p>
-                <p className="text-sm text-muted">
-                  {run.stage === "publish" ? "Published" : `In ${run.stage.replaceAll("_", " ")}`} · {inr(row.net)}
-                </p>
+                <p className="font-semibold">{monthLabel(run.month)}</p>
+                <p className="text-sm text-muted">Published · {inr(row!.net)}</p>
               </div>
-              <Link href={`/payroll/${me.id}`} className="text-sm font-semibold text-brand">
+              <Link href={`/payroll/${me.id}?month=${run.month}`} className="text-sm font-semibold text-brand">
                 Open slip
               </Link>
             </div>
@@ -40,18 +43,18 @@ export default function PayslipsPage() {
               <FileDownload
                 kind="pdf"
                 name="Payslip"
-                size={prettySize(payslipText(me, row))}
-                onClick={() => downloadPdf(`payslip-${me.empNo}-2026-10.pdf`, payslipText(me, row).split("\n"))}
+                size={prettySize(payslipText(me, row!))}
+                onClick={() => downloadPdf(`payslip-${me.empNo}-${run.month}.pdf`, payslipText(me, row!).split("\n"))}
               />
               <FileDownload
                 kind="pdf"
                 name="Form 16"
-                size={prettySize(form16Text(me, row))}
-                onClick={() => downloadPdf(`form16-${me.empNo}.pdf`, form16Text(me, row).split("\n"))}
+                size={prettySize(form16Text(me, row!))}
+                onClick={() => downloadPdf(`form16-${me.empNo}.pdf`, form16Text(me, row!).split("\n"))}
               />
             </FileDownloadList>
           </Card>
-        )}
+        ))}
       </div>
     </div>
   );

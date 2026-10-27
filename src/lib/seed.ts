@@ -383,7 +383,7 @@ export const EMPLOYEES: Employee[] = [
     cadre: "executive",
     grade: "E2",
     basic: 58600,
-    cafeteriaPct: 20,
+    cafeteriaPct: 40,
     hardshipAllowance: 0,
     locationId: "paradip",
     unitId: "crd-prt",
@@ -670,7 +670,7 @@ export const EMPLOYEES: Employee[] = [
     unitId: "tech",
     positionId: "p-lab",
     managerId: "e-ananya",
-    crew: "A",
+    crew: "C",
     status: "active",
     bankAccount: "5566778890",
     ifsc: "SBIN0003180",
@@ -767,7 +767,7 @@ export const EMPLOYEES: Employee[] = [
     positionId: "p-fire",
     managerId: "e-ritu",
     crew: "C",
-    status: "active",
+    status: "notice",
     bankAccount: "3344556677",
     ifsc: "SBIN0003180",
     pan: "BHGPK7712V",
@@ -940,7 +940,7 @@ export const EMPLOYEES: Employee[] = [
     positionId: "p-et-chem",
     managerId: "e-ananya",
     status: "probation",
-    bankAccount: "2233445566",
+    bankAccount: "",
     ifsc: "SBIN0003180",
     pan: "CQNPB2291Z",
     aadhaar: "778800112233",
@@ -1005,6 +1005,7 @@ export const EMPLOYEES: Employee[] = [
 export const DEMOS: { employeeId: string; role: Employee["roles"][number]; blurb: string }[] = [
   { employeeId: "e-pallabi", role: "employee", blurb: "Payslips, leave, swaps, tax declarations." },
   { employeeId: "e-hiren", role: "line_manager", blurb: "CDU crew roster, overtime, shift swaps." },
+  { employeeId: "e-ananya", role: "line_manager", blurb: "Day-staff section head. Approves Pallabi and Shreya." },
   { employeeId: "e-bhaskar", role: "hr_admin", blurb: "Records, policy, onboarding. Maker, not checker." },
   { employeeId: "e-pranjal", role: "payroll_officer", blurb: "Monthly run, arrears, statutory files." },
   { employeeId: "e-rajib", role: "finance_approver", blurb: "Releases the bank file. Cannot edit own pay." },
@@ -1115,11 +1116,11 @@ export const HOLIDAYS: Holiday[] = [
 
 export const LEAVE_TYPES: LeaveType[] = [
   { id: "el", name: "Earned leave", code: "EL", accrual: 30, carryForward: 300, encashable: true, halfDay: true },
-  { id: "cl", name: "Casual leave", code: "CL", accrual: 12, carryForward: 0, encashable: false, halfDay: true },
+  { id: "cl", name: "Casual leave", code: "CL", accrual: 12, carryForward: 0, encashable: false, halfDay: true, maxPerSpell: 3 },
   { id: "hpl", name: "Half-pay leave", code: "HPL", accrual: 20, carryForward: 360, encashable: true, halfDay: true },
-  { id: "rh", name: "Restricted holiday", code: "RH", accrual: 2, carryForward: 0, encashable: false, halfDay: false },
-  { id: "ml", name: "Maternity leave", code: "ML", accrual: 180, carryForward: 0, encashable: false, halfDay: false },
-  { id: "pl", name: "Paternity leave", code: "PL", accrual: 15, carryForward: 0, encashable: false, halfDay: false },
+  { id: "rh", name: "Restricted holiday", code: "RH", accrual: 2, carryForward: 0, encashable: false, halfDay: false, maxPerSpell: 1 },
+  { id: "ml", name: "Maternity leave", code: "ML", accrual: 180, carryForward: 0, encashable: false, halfDay: false, gender: "F" },
+  { id: "pl", name: "Paternity leave", code: "PL", accrual: 15, carryForward: 0, encashable: false, halfDay: false, gender: "M" },
   { id: "sl", name: "Special leave (shutdown)", code: "SL", accrual: 0, carryForward: 0, encashable: false, halfDay: true },
 ];
 
@@ -1281,7 +1282,7 @@ const NAMED_WORKERS: ContractWorker[] = [
   { id: "w-2", contractorId: "c-lt", name: "Nurul Islam", skill: "Welder-6G", aadhaar: "998877221100", uan: "101998877221", esic: "2211988772", policeVerification: true, medicalFitnessExpiry: "2026-12-02", photoSeed: "NurulIslam", blacklisted: false, inductionPassed: true },
   { id: "w-3", contractorId: "c-lt", name: "Lakshmi Kisku", skill: "Scaffolder", aadhaar: "667788990123", uan: "101667788990", esic: "2211677889", policeVerification: true, medicalFitnessExpiry: "2027-04-08", photoSeed: "LakshmiKisku", blacklisted: false, inductionPassed: true },
   { id: "w-4", contractorId: "c-br", name: "Prakash Oraon", skill: "Fitter", aadhaar: "112200334455", uan: "101112200334", esic: "2211112200", policeVerification: true, medicalFitnessExpiry: "2026-10-30", photoSeed: "PrakashOraon", blacklisted: false, inductionPassed: true },
-  { id: "w-5", contractorId: "c-br", name: "Anita Minj", skill: "Helper", aadhaar: "334455221100", uan: "101334455221", esic: "2211334455", policeVerification: false, medicalFitnessExpiry: "2027-02-14", photoSeed: "AnitaMinj", blacklisted: false, inductionPassed: false },
+  { id: "w-5", contractorId: "c-br", name: "Anita Minj", skill: "Helper", aadhaar: "334455228812", uan: "101334455221", esic: "2211334455", policeVerification: false, medicalFitnessExpiry: "2027-02-14", photoSeed: "AnitaMinj", blacklisted: false, inductionPassed: false },
   { id: "w-6", contractorId: "c-sis", name: "Dhan Bahadur Rai", skill: "Security guard", aadhaar: "778811223344", uan: "101778811223", esic: "2211778811", policeVerification: true, medicalFitnessExpiry: "2027-06-01", photoSeed: "DhanBahadur", blacklisted: false, inductionPassed: true },
   { id: "w-7", contractorId: "c-lt", name: "Ramesh Paswan", skill: "Grinder", aadhaar: "556677889944", uan: "101556677889", esic: "2211556677", policeVerification: true, medicalFitnessExpiry: "2025-09-12", photoSeed: "RameshPaswan", blacklisted: false, inductionPassed: true },
 ];
@@ -1382,7 +1383,7 @@ export const MAINT: MaintenanceRequest[] = [
 ];
 
 export const SEPARATIONS: Separation[] = [
-  { id: "sp-1", employeeId: "e-arup", kind: "superannuation", lastDay: "2026-08-31", status: "initiated", clearances: [
+  { id: "sp-1", employeeId: "e-anil", kind: "superannuation", lastDay: "2026-11-30", status: "initiated", clearances: [
     { dept: "Township", done: false },
     { dept: "Finance (advances)", done: true },
     { dept: "IT assets", done: false },
@@ -1397,11 +1398,18 @@ export const CONSENTS: Consent[] = EMPLOYEES.flatMap((e) => [
 ]);
 
 export const AUDIT: AuditEvent[] = [
-  { id: "au-1", actorId: "e-bhaskar", action: "approve_policy", object: "da.ida", after: "48.7", at: "2026-09-28T11:02:00+05:30", source: "policy" },
-  { id: "au-2", actorId: "e-hiren", action: "approve_leave", object: "lv-3", after: "approved", at: "2026-10-14T09:10:00+05:30", source: "leave" },
-  { id: "au-3", actorId: "e-pranjal", action: "open_payroll_run", object: "pay-2026-10", at: "2026-10-26T10:15:00+05:30", source: "payroll" },
-  { id: "au-4", actorId: "e-meenakshi", action: "block_gate_pass", object: "gp-7", after: "Mandatory certificate expired", at: "2026-09-13T16:22:00+05:30", source: "gate" },
+  { id: "au-1", actorId: "e-meenakshi", action: "block_gate_pass", object: "gp-7", after: "Mandatory certificate expired", at: "2026-09-13T16:22:00+05:30", source: "gate" },
+  { id: "au-2", actorId: "e-pranjal", action: "propose_policy", object: "da.ida", before: "46.2", after: "48.7", at: "2026-09-26T15:40:00+05:30", source: "policy" },
+  { id: "au-3", actorId: "e-bhaskar", action: "approve_policy", object: "da.ida", before: "46.2", after: "48.7", at: "2026-09-28T11:02:00+05:30", source: "policy" },
+  { id: "au-4", actorId: "e-rajib", action: "advance_payroll", object: "pay-2026-09:bank_file", at: "2026-09-28T16:05:00+05:30", source: "payroll" },
+  { id: "au-5", actorId: "e-pranjal", action: "advance_payroll", object: "pay-2026-09:publish", at: "2026-09-29T17:00:00+05:30", source: "payroll" },
+  { id: "au-6", actorId: "e-arup", action: "reveal_pii", object: "e-rajib:bank", at: "2026-10-06T12:18:00+05:30", source: "hr" },
+  { id: "au-7", actorId: "e-bhaskar", action: "start_separation", object: "e-anil", after: "superannuation 2026-11-30", at: "2026-10-09T10:30:00+05:30", source: "sep" },
+  { id: "au-8", actorId: "e-hiren", action: "approve_leave", object: "lv-3", before: "pending", after: "approved", at: "2026-10-14T09:10:00+05:30", source: "leave" },
+  { id: "au-9", actorId: "e-shreya", action: "request_change", object: "bank", after: "SBIN0003180 2233445577", at: "2026-10-21T09:45:00+05:30", source: "hr" },
+  { id: "au-10", actorId: "e-pranjal", action: "open_payroll_run", object: "pay-2026-10", at: "2026-10-26T10:15:00+05:30", source: "payroll" },
 ];
+
 
 export const NOTES: NotificationItem[] = [
   { id: "nt-1", userId: "e-ananya", title: "Leave pending", body: "Pallabi Gogoi, casual leave 29 Oct", href: "/approvals", at: "2026-10-26T18:10:00+05:30", read: false },
@@ -1426,7 +1434,11 @@ export const TAX: TaxDeclaration[] = [
 
 export const CHANGES: ChangeRequest[] = [
   { id: "ch-1", employeeId: "e-pallabi", field: "phone", from: "+91 86382 44109", to: "+91 86382 44110", status: "pending" },
+  { id: "ch-2", employeeId: "e-shreya", field: "bank", from: "SBIN0003180 2233445566 (closed)", to: "SBIN0003180 2233445577", status: "pending" },
 ];
+
+// Shreya's salary went to this account until it was closed in October.
+export const PRIOR_BANK: Record<string, string> = { "e-shreya": "2233445566" };
 
 export const SESSIONS: TrainingSession[] = [
   { id: "tr-1", courseId: "ind", date: "2026-11-04", seats: 40, enrolled: [] },

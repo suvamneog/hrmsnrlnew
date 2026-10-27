@@ -9,7 +9,7 @@ import { FileDownload, FileDownloadList } from "@/components/ui/file-download";
 import { Field, Input, Select } from "@/components/ui/input";
 import { routeAllowed } from "@/lib/access";
 import { downloadPdf, form16Text, payslipText, prettySize } from "@/lib/files";
-import { formatClock, formatDay } from "@/lib/format";
+import { formatClock, formatDay, monthLabel } from "@/lib/format";
 import { positionTitle, unitName } from "@/lib/org";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import Link from "next/link";
@@ -21,7 +21,7 @@ export default function SelfPage() {
   const role = useHrms((s) => s.actingRole);
   const consentsAll = useHrms((s) => s.consents);
   const punchesAll = useHrms((s) => s.punches);
-  const run = useHrms((s) => s.payrollRuns[0]);
+  const run = useHrms((s) => s.payrollRuns.find((r) => r.stage === "publish") ?? s.payrollRuns[0]);
   const withdrawConsent = useHrms((s) => s.withdrawConsent);
   const giveConsent = useHrms((s) => s.giveConsent);
   const requestChange = useHrms((s) => s.requestChange);
@@ -66,9 +66,9 @@ export default function SelfPage() {
           <FileDownloadList>
             <FileDownload
               kind="pdf"
-              name="October 2026 payslip"
+              name={`${monthLabel(run.month)} payslip`}
               size={prettySize(payslipText(me, slip))}
-              onClick={() => downloadPdf(`payslip-${me.empNo}-2026-10.pdf`, payslipText(me, slip).split("\n"))}
+              onClick={() => downloadPdf(`payslip-${me.empNo}-${run.month}.pdf`, payslipText(me, slip).split("\n"))}
             />
             <FileDownload
               kind="pdf"
@@ -81,7 +81,7 @@ export default function SelfPage() {
           <Link href="/payslips" className="flex items-center justify-between rounded-2xl bg-[#f6f8fd] px-4 py-3">
             <div>
               <p className="text-sm font-semibold">Latest payslip</p>
-              <p className="text-xs text-muted">October 2026</p>
+              <p className="text-xs text-muted">{monthLabel(run.month)}</p>
             </div>
             <span className="text-sm font-semibold text-brand">View</span>
           </Link>

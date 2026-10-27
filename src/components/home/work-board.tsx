@@ -1,5 +1,6 @@
 "use client";
 
+import { canDecideFor, claimApproverRole } from "@/lib/access";
 import { Card } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -37,7 +38,12 @@ export function WorkBoard() {
 
   if (!showClearance && !showCrew && !showInbox) return null;
 
-  const mine = role === "contractor_supervisor" ? workers.filter((w) => w.contractorId === "c-lt") : workers;
+  const firms =
+    role === "contractor_supervisor"
+      ? contractors.filter((c) => c.supervisorId === me.id || c.id === me.contractorId)
+      : contractors;
+  const firmIds = new Set(firms.map((c) => c.id));
+  const mine = role === "contractor_supervisor" ? workers.filter((w) => firmIds.has(w.contractorId)) : workers;
   const namedNames = new Set(mine.filter((w) => !w.id.startsWith("w-g-")).map((w) => w.name));
   const blocked = mine.filter((w) => passes.find((p) => p.workerId === w.id)?.blocked);
   const queue: typeof blocked = [];
@@ -53,7 +59,14 @@ export function WorkBoard() {
   const team = employees.filter((e) => e.managerId === me.id);
   const teamIds = new Set(team.map((e) => e.id));
   const leaveInbox = leaves.filter((l) => l.status === "pending" && (l.approverId === me.id || teamIds.has(l.employeeId))).slice(0, 4);
-  const claimInbox = claims.filter((c) => c.status === "pending" && c.employeeId !== me.id).slice(0, 3);
+  // Same routing as the Inbox: by amount, and only for people this approver may decide for.
+  const claimInbox = claims
+    .filter((c) => {
+      if (c.status !== "pending" || c.employeeId === me.id) return false;
+      if (role === "finance_approver") return c.amount >= 25000;
+      return claimApproverRole(c.amount).includes(role) && canDecideFor(role, me.id, c.employeeId, teamIds);
+    })
+    .slice(0, 3);
 
   return (
     <div className="grid gap-4 xl:grid-cols-2">
@@ -126,7 +139,7 @@ export function WorkBoard() {
             </Link>
           </div>
           <ul className="space-y-2">
-            {contractors.map((c) => {
+            {firms.map((c) => {
               const days = daysToLicence(c.licenceExpiry);
               const count = workers.filter((w) => w.contractorId === c.id).length;
               return (

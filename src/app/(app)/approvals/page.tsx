@@ -45,12 +45,13 @@ export default function ApprovalsPage() {
   const role = useHrms((s) => s.actingRole);
   const [picked, setPicked] = useState<Scope | null>(null);
   const [kind, setKind] = useState<Kind>("all");
+  const meId = me?.id;
+  const teamIds = useMemo(
+    () => new Set(employees.filter((e) => e.managerId === meId).map((e) => e.id)),
+    [employees, meId],
+  );
   if (!me) return null;
 
-  const teamIds = useMemo(
-    () => new Set(employees.filter((e) => e.managerId === me.id).map((e) => e.id)),
-    [employees, me.id],
-  );
   const can = (empId: string) => canDecideFor(role, me.id, empId, teamIds);
 
   const nameOf = (id: string) => employees.find((e) => e.id === id)?.name ?? id;
@@ -118,8 +119,11 @@ export default function ApprovalsPage() {
     });
   }
   for (const ch of changes.filter((x) => x.status === "pending")) {
-    const own = ch.employeeId === me.id;
-    const checker = ch.field === "bank" ? role === "finance_approver" || role === "payroll_officer" : role === "hr_admin";
+    const own = ch.employeeId === me.id || ch.makerId === me.id;
+    const checker =
+      ch.field === "bank" || ch.field === "promotion"
+        ? role === "finance_approver" || role === "payroll_officer"
+        : role === "hr_admin";
     if (!own && !checker) continue;
     rows.push({
       id: ch.id,

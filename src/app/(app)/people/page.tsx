@@ -41,7 +41,8 @@ export default function PeoplePage() {
     if (role === "line_manager" && me) {
       return employees.filter((e) => e.id === me.id || e.managerId === me.id);
     }
-    return employees;
+    // Contractor supervisors have a login but are not on NRL's roll.
+    return employees.filter((e) => e.cadre !== "contract");
   }, [employees, role, me]);
   const census = liveCensus(role === "line_manager" ? scoped : employees);
   const rows = useMemo(() => {

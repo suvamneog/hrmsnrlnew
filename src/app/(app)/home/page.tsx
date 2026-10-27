@@ -1,5 +1,6 @@
 "use client";
 
+import { format, parseISO } from "date-fns";
 import { PunchCard } from "@/components/ess/punch-card";
 import { QuickActions } from "@/components/ess/quick-actions";
 import { HomeRightRail } from "@/components/home/right-rail";
@@ -25,6 +26,7 @@ export default function HomePage() {
   const balances = useHrms((s) => s.leaveBalances);
   const types = useHrms((s) => s.leaveTypes);
   const run = useHrms((s) => s.payrollRuns[0]);
+  const latestSlip = useHrms((s) => s.payrollRuns.find((r) => r.stage === "publish"));
   const workers = useHrms((s) => s.workers);
   const contractors = useHrms((s) => s.contractors);
   const events = useHrms((s) => s.gateEvents);
@@ -59,8 +61,18 @@ export default function HomePage() {
   ];
   const todoCount = pendingLeave.length + claimInbox.length + pendingSwaps.length + pendingRegs.length;
 
+  // A contractor's supervisor sees only their own firm's crew, never plant-wide figures.
+  const supervisor = role === "contractor_supervisor";
+  const myContractors = supervisor
+    ? contractors.filter((c) => c.supervisorId === me.id || c.id === me.contractorId)
+    : contractors;
+  const myContractorIds = new Set(myContractors.map((c) => c.id));
+  const myWorkers = supervisor ? workers.filter((w) => myContractorIds.has(w.contractorId)) : workers;
+  const myWorkerIds = new Set(myWorkers.map((w) => w.id));
+  const myPasses = supervisor ? passes.filter((p) => myWorkerIds.has(p.workerId)) : passes;
+
   const inside = new Set(
-    workers
+    myWorkers
       .map((w) => w.id)
       .filter((id) => {
         const ev = events.filter((g) => passes.find((p) => p.id === g.passId)?.workerId === id);
@@ -76,18 +88,19 @@ export default function HomePage() {
     role,
     todoCount,
     inside: inside.size,
-    workers: workers.length,
-    blocked: passes.filter((p) => p.blocked).length,
-    contractors: contractors.length,
+    workers: myWorkers.length,
+    blocked: myPasses.filter((p) => p.blocked).length,
+    contractors: myContractors.length,
     teamSize: team.length,
     elBalance,
     myOpen: myOpen.length,
     payrollStage: run?.stage,
+    latestSlip: latestSlip ? format(parseISO(`${latestSlip.month}-01`), "MMM yyyy") : undefined,
     openings: openings.length,
     interviews: candidates.filter((c) => c.stage === "interview" || c.stage === "medical").length,
   });
 
-  const nearby = (team.length ? team : employees.filter((e) => e.locationId === me.locationId && e.id !== me.id)).slice(0, 6);
+  const nearby = supervisor ? [] : (team.length ? team : employees.filter((e) => e.locationId === me.locationId && e.id !== me.id)).slice(0, 6);
 
   return (
     <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
@@ -177,7 +190,7 @@ export default function HomePage() {
           </ScrollReveal>
         )}
 
-        {(team.length > 0 || routeAllowed("/people", role) || nearby.length > 0) && (
+        {!supervisor && (team.length > 0 || routeAllowed("/people", role) || nearby.length > 0) && (
           <ScrollReveal>
             <Card className="p-5">
               <div className="mb-3 flex items-center justify-between">

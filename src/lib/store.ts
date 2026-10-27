@@ -39,6 +39,7 @@ import {
   NOTES,
   OPENINGS,
   PASSES,
+  PRIOR_BANK,
   PUNCHES,
   QUARTERS,
   REGS,
@@ -179,6 +180,10 @@ function rebuildAttendance(args: {
       }
       const shift = args.shifts.find((s) => s.id === r.shiftId);
       const flags = shiftFlags({ punches: args.punches, date: r.date, shift, employeeId: r.employeeId });
+      // Today's shift with an in-punch is still running, not a missed punch.
+      if (!flags.hours && r.date === DEMO_TODAY && openPair(punchesOn(args.punches, r.employeeId)).inside) {
+        return { employeeId: r.employeeId, date: r.date, status: "present" as const, hours: 0, overtime: 0, shiftId: r.shiftId };
+      }
       if (!flags.hours) {
         return {
           employeeId: r.employeeId,
@@ -339,6 +344,32 @@ export interface HrmsState {
   addWaiting: (employeeId: string, type: "II" | "III" | "IV" | "V") => void;
 }
 
+// August and September are already paid, so employees have payslip history before October runs.
+const PAST_RUNS: PayrollRun[] = ["2026-09", "2026-08"].map((month) => {
+  const { results, totals } = computeRun({
+    employees: EMPLOYEES.map((e) => (PRIOR_BANK[e.id] ? { ...e, bankAccount: PRIOR_BANK[e.id] } : e)),
+    month,
+    onDate: `${month}-01`,
+    settings: SETTINGS,
+    attendance: [],
+    claims: [],
+    advances: ADVANCES,
+    arrearsFor: () => 0,
+  });
+  return {
+    id: `pay-${month}`,
+    month,
+    stage: "publish",
+    startedAt: `${month}-24T10:00:00+05:30`,
+    lockedAttendance: true,
+    computedAt: `${month}-26T11:00:00+05:30`,
+    financeApproverId: "e-rajib",
+    publishedAt: `${month}-29T17:00:00+05:30`,
+    results,
+    totals,
+  };
+});
+
 const initial = {
   currentUserId: null as string | null,
   actingRole: null as Role | null,
@@ -353,7 +384,7 @@ const initial = {
   swaps: SWAPS,
   regularisations: REGS,
   claims: CLAIMS,
-  payrollRuns: [INITIAL_RUN],
+  payrollRuns: [INITIAL_RUN, ...PAST_RUNS],
   gateEvents: GATE_EVENTS,
   audit: AUDIT,
   notifications: NOTES,
@@ -428,6 +459,17 @@ export const useHrms = create<HrmsState>()(
           days,
           balance: s.leaveBalances.find((b) => b.employeeId === me.id && b.typeId === input.typeId),
           halfDay: input.halfDay,
+          gender: me.gender,
+          pendingDays: s.leaveRequests
+            .filter((l) => l.employeeId === me.id && l.typeId === input.typeId && l.status === "pending")
+            .reduce((n, l) => n + l.days, 0),
+          overlaps: s.leaveRequests.some(
+            (l) =>
+              l.employeeId === me.id &&
+              (l.status === "pending" || l.status === "approved") &&
+              l.from <= input.to &&
+              l.to >= input.from,
+          ),
         });
         if (!check.ok) return check;
         const row: LeaveRequest = {
@@ -706,7 +748,11 @@ export const useHrms = create<HrmsState>()(
         return { ok: true };
       },
       generateFiles: (runId) => {
-        const files = getFiles(get(), runId);
+        const s0 = get();
+        const run0 = s0.payrollRuns.find((r) => r.id === runId);
+        if (!run0 || (run0.stage !== "bank_file" && run0.stage !== "publish")) return [];
+        if (s0.actingRole !== "payroll_officer" && s0.actingRole !== "finance_approver") return [];
+        const files = getFiles(s0, runId);
         const at = stamp();
         const bank = files.find((f) => f.kind === "bank");
         const ecr = files.find((f) => f.kind === "ecr");
@@ -731,6 +777,7 @@ export const useHrms = create<HrmsState>()(
       },
       recordGate: (passId, gate, direction) => {
         const s = get();
+        if (s.actingRole !== "gate_security") return { ok: false, reason: "Only gate security records entry and exit." };
         const pass = s.passes.find((p) => p.id === passId);
         if (!pass) return { ok: false, reason: "Pass not found" };
         const worker = s.workers.find((w) => w.id === pass.workerId);
@@ -806,8 +853,37 @@ export const useHrms = create<HrmsState>()(
       decideChange: (id, status) =>
         set((s) => {
           const row = s.changes.find((c) => c.id === id);
+          if (!row || row.status !== "pending") return {};
+          if (row.makerId && row.makerId === s.currentUserId) return {};
+          if (row.employeeId === s.currentUserId) return {};
           let employees = s.employees;
-          if (status === "approved" && row) {
+          if (status === "approved" && row.promotion) {
+            const p = row.promotion;
+            employees = employees.map((e) => {
+              if (e.id !== row.employeeId) return e;
+              const current = p.validFrom <= DEMO_TODAY;
+              const prev = e.assignmentHistory.map((a) =>
+                a.validTo ? a : { ...a, basic: a.basic ?? e.basic, validTo: p.validFrom },
+              );
+              return {
+                ...e,
+                ...(current ? { grade: p.grade, positionId: p.positionId, basic: p.basic } : {}),
+                assignmentHistory: [
+                  {
+                    positionId: p.positionId,
+                    unitId: e.unitId,
+                    locationId: e.locationId,
+                    grade: p.grade,
+                    cadre: e.cadre,
+                    crew: e.crew,
+                    basic: p.basic,
+                    validFrom: p.validFrom,
+                  },
+                  ...prev,
+                ],
+              };
+            });
+          } else if (status === "approved") {
             employees = employees.map((e) => {
               if (e.id !== row.employeeId) return e;
               if (row.field === "phone") return { ...e, phone: row.to };
@@ -916,32 +992,30 @@ export const useHrms = create<HrmsState>()(
         return { ok: true };
       },
       promoteEmployee: (id, grade, positionId, basic, validFrom) => {
-        if (id === get().currentUserId) return { ok: false, reason: "You cannot change your own pay record." };
-        set((s) => ({
-          employees: s.employees.map((e) =>
-            e.id === id
-              ? {
-                  ...e,
-                  grade,
-                  positionId,
-                  basic,
-                  assignmentHistory: [
-                    {
-                      positionId,
-                      unitId: e.unitId,
-                      locationId: e.locationId,
-                      grade,
-                      cadre: e.cadre,
-                      crew: e.crew,
-                      validFrom,
-                    },
-                    ...e.assignmentHistory.map((a) => (a.validTo ? a : { ...a, validTo: validFrom })),
-                  ],
-                }
-              : e,
-          ),
-          audit: log(s.audit, s.currentUserId ?? "system", "promote", id, "hr", grade, s.employees.find((e) => e.id === id)?.grade),
-        }));
+        const s = get();
+        if (id === s.currentUserId) return { ok: false, reason: "You cannot change your own pay record." };
+        if (s.actingRole !== "hr_admin") return { ok: false, reason: "Only HR can propose a promotion." };
+        const e = s.employees.find((x) => x.id === id);
+        if (!e) return { ok: false, reason: "Employee not found" };
+        if (s.changes.some((c) => c.employeeId === id && c.field === "promotion" && c.status === "pending")) {
+          return { ok: false, reason: "A promotion is already waiting for a checker." };
+        }
+        set({
+          changes: [
+            {
+              id: uid("ch"),
+              employeeId: id,
+              field: "promotion",
+              from: `${e.grade} · ₹${e.basic.toLocaleString("en-IN")}`,
+              to: `${grade} · ₹${basic.toLocaleString("en-IN")} from ${validFrom}`,
+              status: "pending",
+              makerId: s.currentUserId ?? undefined,
+              promotion: { grade, positionId, basic, validFrom },
+            },
+            ...s.changes,
+          ],
+          audit: log(s.audit, s.currentUserId ?? "system", "propose_promotion", id, "hr", grade, e.grade),
+        });
         return { ok: true };
       },
       startSeparation: (employeeId, kind, lastDay) =>
@@ -1022,6 +1096,7 @@ export const useHrms = create<HrmsState>()(
         }),
       bulkOnboard: (contractorId, count) => {
         const s = get();
+        if (s.actingRole !== "contract_labour_cell") return 0;
         const skills = ["Rigger", "Welder-6G", "Helper", "Fitter", "Scaffolder", "Grinder"];
         const added: ContractWorker[] = Array.from({ length: count }, (_, i) => ({
           id: uid("w"),
@@ -1031,24 +1106,15 @@ export const useHrms = create<HrmsState>()(
           aadhaar: `${100000000000 + s.workers.length + i}`,
           uan: `${101000000000 + s.workers.length + i}`,
           esic: `${2211000000 + i}`,
-          policeVerification: true,
+          policeVerification: false,
           medicalFitnessExpiry: "2027-03-31",
           photoSeed: `Shut${i}`,
           blacklisted: false,
-          inductionPassed: true,
+          inductionPassed: false,
         }));
         const workers = [...added, ...s.workers];
-        const certificates = [
-          ...added.map((w) => ({
-            id: uid("ct"),
-            personId: w.id,
-            personKind: "contract" as const,
-            courseId: "ind",
-            issued: DEMO_TODAY,
-            expires: "2027-10-27",
-          })),
-          ...s.certificates,
-        ];
+        // Bulk registration only opens the record; police verification and induction still gate the pass.
+        const certificates = s.certificates;
         set({
           workers,
           certificates,
@@ -1231,7 +1297,10 @@ export const useHrms = create<HrmsState>()(
           ),
         })),
       tickClearance: (sepId, dept) =>
-        set((s) => ({
+        set((s) => {
+          const sep = s.separations.find((x) => x.id === sepId);
+          if (s.actingRole !== "hr_admin" || !sep || sep.employeeId === s.currentUserId) return {};
+          return {
           separations: s.separations.map((sp) =>
             sp.id === sepId
               ? {
@@ -1246,11 +1315,12 @@ export const useHrms = create<HrmsState>()(
               : sp,
           ),
           audit: log(s.audit, s.currentUserId ?? "system", "clearance", `${sepId}:${dept}`, "sep"),
-        })),
+          };
+        }),
       settleFf: (sepId) =>
         set((s) => {
           const sp = s.separations.find((x) => x.id === sepId);
-          if (!sp) return s;
+          if (!sp || s.actingRole !== "hr_admin" || sp.employeeId === s.currentUserId) return s;
           const e = s.employees.find((x) => x.id === sp.employeeId);
           if (!e) return s;
           const ff = computeFf({
@@ -1285,12 +1355,12 @@ export const useHrms = create<HrmsState>()(
           positions: [...s.positions, { id: uid("p"), title, unitId, grade, cadre, vacant: true }],
         })),
       logBreach: (title) =>
-        set((s) => ({
+        set((s) => s.actingRole !== "hr_admin" ? {} : ({
           breaches: [{ id: uid("br"), title, at: stamp(), notified: true }, ...s.breaches],
           audit: log(s.audit, s.currentUserId ?? "system", "breach", title, "privacy"),
         })),
       addRetention: (object, reason, until) =>
-        set((s) => ({ retention: [{ id: uid("rt"), object, reason, until }, ...s.retention] })),
+        set((s) => s.actingRole !== "hr_admin" ? {} : ({ retention: [{ id: uid("rt"), object, reason, until }, ...s.retention] })),
       exportReport: (name, content) => {
         set((s) => ({ audit: log(s.audit, s.currentUserId ?? "system", "export_report", name, "gov") }));
         void content;
@@ -1302,7 +1372,7 @@ export const useHrms = create<HrmsState>()(
     }),
     {
       name: "nrl-people",
-      version: 8,
+      version: 9,
       migrate: () => ({ ...initial }),
       partialize: (s) => {
         const slice = { ...initial };

@@ -64,6 +64,7 @@ export function buildHomeKpis(args: {
   elBalance: number;
   myOpen: number;
   payrollStage?: string;
+  latestSlip?: string;
   openings: number;
   interviews: number;
 }): HomeKpi[] {
@@ -128,6 +129,6 @@ export function buildHomeKpis(args: {
     { label: "EL balance", value: args.elBalance, hint: "Earned leave", href: "/leave", tone: "mint", count: true },
     { label: "Open requests", value: args.myOpen, hint: "Leave and claims", href: "/approvals", tone: "peach", count: true },
     { label: "On leave today", value: CENSUS.onLeave, hint: "Plant-wide", href: "/leave", tone: "lilac", count: true },
-    { label: "Payslip", value: "Oct 2026", hint: "Latest month", href: "/payslips", tone: "sky" },
+    { label: "Payslip", value: args.latestSlip ?? "—", hint: "Latest month", href: "/payslips", tone: "sky" },
   ];
 }

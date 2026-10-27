@@ -2,6 +2,7 @@
 
 import { ATT_DOT, StatusMonth } from "@/components/calendar/status-month";
 import { PunchCard } from "@/components/ess/punch-card";
+import type { Punch } from "@/lib/types";
 import { PageHeader } from "@/components/layout/page-header";
 import { AnimatedGroup } from "@/components/motion/animated-group";
 import { InView } from "@/components/motion/in-view";
@@ -64,7 +65,7 @@ export default function TimePage() {
     .filter((p) => p.employeeId === me.id && p.time.startsWith(date))
     .sort((a, b) => a.time.localeCompare(b.time));
   const inn = dayPunches.find((p) => p.kind === "in");
-  const out = [...dayPunches].reverse().find((p) => p.kind === "out");
+  const out = outAfter(punches, me.id, inn);
   const team = employees.filter((e) => e.managerId === me.id);
   const crewToday = team.map((e) => {
     const a = attendance.find((x) => x.employeeId === e.id && x.date === DEMO_TODAY);
@@ -79,7 +80,7 @@ export default function TimePage() {
       e,
       status: a?.status ?? "—",
       inn: day.find((p) => p.kind === "in"),
-      out: [...day].reverse().find((p) => p.kind === "out"),
+      out: outAfter(punches, e.id, day.find((p) => p.kind === "in")),
       ot: flags.overtime || a?.overtime || 0,
     };
   });
@@ -282,4 +283,12 @@ export default function TimePage() {
       </Tabs>
     </div>
   );
+}
+
+// A night shift's out-punch lands the next morning, and the morning's first out belongs to yesterday's shift.
+function outAfter(punches: Punch[], employeeId: string, inn: Punch | undefined) {
+  if (!inn) return undefined;
+  return punches
+    .filter((p) => p.employeeId === employeeId && p.kind === "out" && p.time > inn.time)
+    .sort((a, b) => a.time.localeCompare(b.time))[0];
 }

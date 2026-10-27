@@ -7,14 +7,15 @@ import { FileDownload, FileDownloadList } from "@/components/ui/file-download";
 import { downloadPdf, form16Text, payslipText, prettySize } from "@/lib/files";
 import { inrExact } from "@/lib/format";
 import { useHrms } from "@/lib/store";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 
 export default function PayslipLinePage() {
   const { id } = useParams<{ id: string }>();
-  const run = useHrms((s) => s.payrollRuns[0]);
+  const month = useSearchParams().get("month");
+  const run = useHrms((s) => s.payrollRuns.find((r) => r.month === month) ?? s.payrollRuns[0]);
   const e = useHrms((s) => s.employees.find((x) => x.id === id));
   const row = run.results.find((r) => r.employeeId === id);
-  if (!e || !row) return <p className="py-10 text-sm text-muted">Compute the October run first.</p>;
+  if (!e || !row) return <p className="py-10 text-sm text-muted">No payslip for this month yet.</p>;
 
   const sapByCode = new Map((row.sapLines ?? []).map((l) => [l.code, l.amount]));
 

@@ -21,14 +21,20 @@ export function settingOn(
   key: string,
   onDate: string,
   cadre?: Cadre,
+  fallback = 0,
 ) {
+  // Each setting carries its earlier versions, so a past month reads the value that was in force then.
   const row = settings
     .filter((s) => s.key === key)
     .filter((s) => !s.cadre || s.cadre === "all" || s.cadre === cadre)
-    .filter((s) => s.validFrom <= onDate && (!s.validTo || s.validTo >= onDate))
-    .filter((s) => s.approvedBy && s.pendingValue === undefined)
+    .flatMap((s) => [
+      { value: s.value, validFrom: s.validFrom, validTo: s.validTo, approvedBy: s.approvedBy },
+      ...(s.versions ?? []),
+    ])
+    .filter((v) => v.validFrom <= onDate && (!v.validTo || v.validTo >= onDate))
+    .filter((v) => v.approvedBy)
     .sort((a, b) => b.validFrom.localeCompare(a.validFrom))[0];
-  return row ? num(row.value) : 0;
+  return row ? num(row.value) : fallback;
 }
 
 function round2(n: number) {
@@ -104,7 +110,12 @@ export function computeEmployeePay(args: {
   arrears?: number;
   sapMode?: boolean;
 }): PayResult {
-  const { employee: e, onDate, settings, attendance, claims, advances, sapNet, sapMode } = args;
+  const { employee: e0, onDate, settings, attendance, claims, advances, sapNet, sapMode } = args;
+  // Pay follows the assignment in force on the run date, so a future-dated promotion waits for its month.
+  const asg = e0.assignmentHistory.find(
+    (a) => a.basic !== undefined && a.validFrom <= onDate && (!a.validTo || a.validTo > onDate),
+  );
+  const e = asg ? { ...e0, grade: asg.grade, basic: asg.basic ?? e0.basic } : e0;
   const lines: PayLine[] = [];
   const flags: PayFlag[] = [];
 
@@ -112,7 +123,7 @@ export function computeEmployeePay(args: {
     ? settingOn(settings, "da.ida.sap", onDate, e.cadre) || settingOn(settings, "da.ida", onDate, e.cadre)
     : settingOn(settings, "da.ida", onDate, e.cadre);
   const da = round2(e.basic * (daPct / 100));
-  const perkCap = round2(e.basic * (settingOn(settings, "perks.cap", onDate, e.cadre) / 100 || 0.35));
+  const perkCap = round2(e.basic * (settingOn(settings, "perks.cap", onDate, e.cadre, 35) / 100));
   const cafeteria = round2(e.basic * (e.cafeteriaPct / 100));
   const perks = Math.min(cafeteria, perkCap);
   const hra =
@@ -120,12 +131,12 @@ export function computeEmployeePay(args: {
       ? 0
       : round2(e.basic * (hraRate(e.locationId, daPct, settings, onDate) / 100));
   const otHours = attendance.reduce((s, d) => s + d.overtime, 0);
-  const otRate = settingOn(settings, "ot.hourly", onDate, e.cadre) || e.basic / 208;
+  const otRate = settingOn(settings, "ot.hourly", onDate, e.cadre, e.basic / 208);
   const ot = round2(otHours * otRate);
   const shiftDays = attendance.filter((d) => d.status === "present" && d.shiftId && d.shiftId !== "OFF").length;
   const shiftAll =
     e.crew && (e.cadre === "workman" || e.cadre === "executive")
-      ? round2(shiftDays * (settingOn(settings, "shift.allowance", onDate, e.cadre) || 180))
+      ? round2(shiftDays * (settingOn(settings, "shift.allowance", onDate, e.cadre, 180)))
       : 0;
   const approvedClaims = claims
     .filter((c) => c.employeeId === e.id && c.status === "approved")
@@ -155,17 +166,17 @@ export function computeEmployeePay(args: {
   const addBack = wageShare < 0.5 ? round2(gross * 0.5 - wageBase) : 0;
   const statutoryWages = round2(wageBase + addBack);
 
-  const pfRate = settingOn(settings, "pf.rate", onDate) || 12;
+  const pfRate = settingOn(settings, "pf.rate", onDate, undefined, 12);
   const pfEmp = round2(statutoryWages * (pfRate / 100));
   const pfEr = pfEmp;
-  const npsRate = e.cadre === "executive" || e.cadre === "trainee" ? settingOn(settings, "nps.rate", onDate) || 10 : 0;
+  const npsRate = e.cadre === "executive" || e.cadre === "trainee" ? settingOn(settings, "nps.rate", onDate, undefined, 10) : 0;
   const nps = round2((e.basic + da) * (npsRate / 100));
   const gratuityProv = round2((e.basic + da) * 0.0481);
   const prms = e.cadre === "executive" ? round2((e.basic + da) * 0.03) : 0;
   const employerSuper = pfEr + nps + gratuityProv + prms;
   const superBase = e.basic + da;
   const superPct = superBase > 0 ? (employerSuper / superBase) * 100 : 0;
-  const superCap = settingOn(settings, "super.cap", onDate, e.cadre) || 30;
+  const superCap = settingOn(settings, "super.cap", onDate, e.cadre, 30);
 
   const pt = professionalTax(e.locationId, gross);
   const tds = estimateTds(gross * 12);
@@ -195,7 +206,7 @@ export function computeEmployeePay(args: {
   if (cafeteria > perkCap + 0.5) {
     flags.push({
       code: "perks_over_35",
-      severity: "block",
+      severity: "warn",
       message: `Cafeteria perks ${pct(perkPct)} exceed the 35% DPE cap. Capped at ${perkCap.toFixed(0)} for this run.`,
     });
   }
@@ -272,7 +283,7 @@ export function computeRun(args: {
 }) {
   const t0 = typeof performance !== "undefined" ? performance.now() : Date.now();
   const payable = args.employees.filter(
-    (e) => (e.status === "active" || e.status === "probation") && e.cadre !== "contract",
+    (e) => (e.status === "active" || e.status === "probation" || e.status === "notice") && e.cadre !== "contract",
   );
   const attBy = groupBy(
     args.attendance.filter((a) => a.date.startsWith(args.month)),

@@ -68,15 +68,17 @@ export default function ContractorsPage() {
               {(role === "contract_labour_cell" || role === "contractor_supervisor") && (
                 <>
                   <div className="mt-3 flex flex-wrap gap-2">
+                    {role === "contract_labour_cell" && (
                     <Button
                       variant="secondary"
                       onClick={() => {
                         const n = bulkOnboard(c.id, 12);
-                        toast.success(`Onboarded ${n} of 300 shutdown workers`);
+                        toast.success(`Registered ${n} shutdown workers. Police verification and induction pending.`);
                       }}
                     >
                       Shutdown batch (12)
                     </Button>
+                    )}
                     <div className="min-w-[220px] flex-1">
                       <DropZone
                         label="Wage proof"
