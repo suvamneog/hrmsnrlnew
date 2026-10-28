@@ -115,7 +115,7 @@ export default function LoginPage() {
         </button>
 
         <div className="mt-14 flex flex-wrap items-center justify-center gap-4">
-          <LanguageSwitch className="bg-white/15 [&_button:not([aria-checked=true])]:text-white/80" />
+          <LanguageSwitch onDark />
           <Link href="/kiosk" className="text-sm font-semibold text-white/85 underline-offset-4 hover:text-white hover:underline">
             Open kiosk
           </Link>

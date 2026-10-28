@@ -4,6 +4,7 @@ import { AccountChip } from "@/components/layout/account-chip";
 import { ArrowCounterClockwise, Bell, MagnifyingGlass, SignOut } from "@phosphor-icons/react";
 import { useDesk } from "@/lib/desk";
 import { LanguageSwitch } from "@/components/i18n/language-switch";
+import { MobileNav } from "@/components/layout/mobile-nav";
 import { toast } from "sonner";
 import { commandHits } from "@/lib/search";
 import { useCurrentUser, useHrms } from "@/lib/store";
@@ -49,6 +50,7 @@ export function Topbar() {
 
   return (
     <header className="relative flex h-16 items-center gap-2 px-3 md:gap-3 md:px-7">
+      <MobileNav />
       <div className="relative hidden min-w-0 flex-1 md:block">
         <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
         <input
@@ -74,14 +76,14 @@ export function Topbar() {
         )}
       </div>
       <button
-        className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white text-ink"
+        className="relative ml-auto grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white text-ink md:ml-0"
         onClick={() => setOpen((v) => !v)}
         aria-label="Notifications"
       >
         <Bell size={18} weight="duotone" />
         {mine.length > 0 && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#e14b4b]" />}
       </button>
-      <LanguageSwitch />
+      <LanguageSwitch className="hidden sm:inline-flex" />
       <button
         type="button"
         onClick={() => {
@@ -101,7 +103,7 @@ export function Topbar() {
         <ArrowCounterClockwise size={16} />
         {confirmReset ? "Tap again to reset" : "Reset demo"}
       </button>
-      <div className="ml-auto md:ml-0">
+      <div className="min-w-0">
         <AccountChip />
       </div>
       <button
@@ -115,7 +117,7 @@ export function Topbar() {
         <SignOut size={18} />
       </button>
       {open && (
-        <div className="absolute right-20 top-16 z-40 w-80 rounded-2xl bg-white p-3 shadow-[0_16px_40px_rgba(45,64,180,0.12)]">
+        <div className="absolute inset-x-3 top-16 z-40 rounded-2xl sm:left-auto sm:right-20 sm:w-80 bg-white p-3 shadow-[0_16px_40px_rgba(45,64,180,0.12)]">
           <p className="px-2 pb-2 text-xs font-semibold text-muted">Inbox</p>
           {notes.filter((n) => n.userId === user.id).length === 0 && (
             <p className="px-2 py-6 text-sm text-muted">No new notifications.</p>
