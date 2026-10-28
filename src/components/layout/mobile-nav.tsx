@@ -1,6 +1,7 @@
 "use client";
 
 import { NavIcon } from "@/components/icons";
+import { Wordmark } from "@/components/brand/wordmark";
 import { LanguageSwitch } from "@/components/i18n/language-switch";
 import { cn } from "@/lib/cn";
 import { landingFor } from "@/lib/access";
@@ -82,7 +83,7 @@ export function MobileNav() {
                   onClick={() => setOpen(false)}
                 />
                 <motion.aside
-                  className="absolute inset-y-0 left-0 flex w-[min(84vw,300px)] flex-col bg-[#3d5afe] text-white shadow-[16px_0_48px_rgba(20,30,90,0.28)]"
+                  className="absolute inset-y-0 left-0 flex w-[min(84vw,300px)] flex-col border-r border-line bg-white text-ink"
                   initial={reduce ? { opacity: 0 } : { x: "-100%" }}
                   animate={reduce ? { opacity: 1 } : { x: 0 }}
                   exit={reduce ? { opacity: 0 } : { x: "-100%" }}
@@ -102,60 +103,41 @@ export function MobileNav() {
                   <div className="flex items-center justify-between px-4 pt-[max(16px,env(safe-area-inset-top))] pb-4">
                     <Link
                       href={landingFor(role)}
-                      className="flex items-center gap-3"
                     >
-                      <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/15 text-lg font-bold">
-                        N
-                      </span>
-                      <span className="text-base font-semibold">
-                        NRL People
-                      </span>
+                      <Wordmark sub="Numaligarh Refinery" />
                     </Link>
                     <button
                       type="button"
                       onClick={() => setOpen(false)}
                       aria-label="Close menu"
-                      className="grid h-10 w-10 place-items-center rounded-full bg-white/15"
+                      className="grid h-9 w-9 place-items-center rounded-lg text-muted hover:bg-[#f2f2f0]"
                     >
                       <X size={18} weight="bold" />
                     </button>
                   </div>
 
                   <nav className="flex-1 overflow-y-auto overscroll-contain px-3 pb-4">
-                    {items.map((item, i) => {
+                    {items.map((item) => {
                       const active = isActive(item, path);
                       return (
                         <motion.div
                           key={item.href}
-                          initial={reduce ? false : { opacity: 0, x: -12 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{
-                            duration: 0.35,
-                            ease: easeOut,
-                            delay: reduce ? 0 : 0.04 + i * 0.018,
-                          }}
+
                         >
                           <Link
                             href={item.href}
                             onClick={() => setOpen(false)}
                             className={cn(
-                              "relative flex h-12 items-center gap-3 rounded-2xl px-3 text-[15px] font-semibold transition-colors",
+                              "flex h-11 items-center gap-3 rounded-lg px-3 text-[15px] transition-colors",
                               active
-                                ? "text-brand"
-                                : "text-white/90 active:bg-white/10",
+                                ? "bg-[#f0f0ee] font-medium text-ink"
+                                : "text-muted active:bg-[#f7f7f5]",
                             )}
                           >
-                            {active && (
-                              <motion.span
-                                layoutId="mobile-nav-pill"
-                                transition={spring}
-                                className="absolute inset-0 rounded-2xl bg-white"
-                              />
-                            )}
-                            <span className="relative grid h-9 w-9 shrink-0 place-items-center">
+                            <span className={cn("grid h-6 w-6 shrink-0 place-items-center", active && "text-brand")}>
                               <NavIcon name={item.icon} />
                             </span>
-                            <span className="relative truncate">
+                            <span className="truncate">
                               {item.label}
                             </span>
                           </Link>
@@ -164,8 +146,8 @@ export function MobileNav() {
                     })}
                   </nav>
 
-                  <div className="border-t border-white/15 px-4 pt-4 pb-[max(16px,env(safe-area-inset-bottom))]">
-                    <LanguageSwitch onDark />
+                  <div className="border-t border-line px-4 pt-4 pb-[max(16px,env(safe-area-inset-bottom))]">
+                    <LanguageSwitch />
                   </div>
                 </motion.aside>
               </div>

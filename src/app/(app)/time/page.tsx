@@ -10,12 +10,11 @@ import { PageHeader } from "@/components/layout/page-header";
 import { HeroCard } from "@/components/ui/hero-card";
 import { AnimatedGroup } from "@/components/motion/animated-group";
 import { InView } from "@/components/motion/in-view";
-import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Field, Textarea } from "@/components/ui/input";
-import { SpotlightCard } from "@/components/ui/spotlight-card";
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DEMO_TODAY } from "@/lib/demo";
 import { formatClock, formatDay, formatWeekday } from "@/lib/format";
@@ -196,7 +195,7 @@ export default function TimePage() {
         </TabsList>
         <TabsContent value="month">
           <AnimatedGroup preset="slide" className="grid gap-5 md:grid-cols-[minmax(0,1.15fr)_minmax(280px,1fr)]">
-            <SpotlightCard className="p-4 sm:p-5">
+            <Card className="p-4 sm:p-5">
               <h2 className="mb-3 font-semibold">October 2026</h2>
               <StatusMonth selected={date} onSelect={setDate} marks={marks} month={parseISO("2026-10-01")} />
               <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-[11px] text-muted">
@@ -207,9 +206,9 @@ export default function TimePage() {
                   </li>
                 ))}
               </ul>
-            </SpotlightCard>
+            </Card>
             <div className="space-y-5">
-              <SpotlightCard className="p-5">
+              <Card className="p-5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted">{formatWeekday(date)}</p>
                 <div className="mt-2 flex items-center gap-2">
                   <h2 className="font-semibold">{formatDay(date)}</h2>
@@ -238,8 +237,8 @@ export default function TimePage() {
                   </div>
                 </div>
                 {inn?.readerId && <p className="mt-3 text-xs text-muted">Reader {inn.readerId}{row?.shiftId ? ` · shift ${row.shiftId}` : ""}</p>}
-              </SpotlightCard>
-              <SpotlightCard className="p-5">
+              </Card>
+              <Card className="p-5">
                 <h2 className="mb-3 font-semibold">Regularise a punch</h2>
                 <form
                   className="grid gap-3"
@@ -258,13 +257,13 @@ export default function TimePage() {
                   </Field>
                   <Button type="submit">Submit</Button>
                 </form>
-              </SpotlightCard>
+              </Card>
             </div>
           </AnimatedGroup>
         </TabsContent>
         <TabsContent value="log">
-          <ScrollReveal>
-          <SpotlightCard className="overflow-hidden">
+          <div>
+          <Card className="overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-[#f6f8fd] text-left text-xs text-muted">
                 <tr>
@@ -307,13 +306,13 @@ export default function TimePage() {
                 })}
               </tbody>
             </table>
-          </SpotlightCard>
-          </ScrollReveal>
+          </Card>
+          </div>
         </TabsContent>
         {team.length > 0 && (
           <TabsContent value="crew">
             <div className="grid gap-5 lg:grid-cols-2">
-              <SpotlightCard className="overflow-hidden">
+              <Card className="overflow-hidden">
                 <h2 className="px-4 pt-4 font-semibold">Crew today</h2>
                 <table className="mt-2 w-full text-sm">
                   <thead className="text-left text-xs text-muted">
@@ -341,8 +340,8 @@ export default function TimePage() {
                     ))}
                   </tbody>
                 </table>
-              </SpotlightCard>
-              <SpotlightCard className="p-5">
+              </Card>
+              <Card className="p-5">
                 <h2 className="mb-3 font-semibold">Overtime October</h2>
                 {otMonth.length === 0 ? (
                   <p className="text-sm text-muted">No overtime this month.</p>
@@ -356,7 +355,7 @@ export default function TimePage() {
                     ))}
                   </ul>
                 )}
-              </SpotlightCard>
+              </Card>
             </div>
           </TabsContent>
         )}

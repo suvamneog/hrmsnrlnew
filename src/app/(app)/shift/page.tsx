@@ -90,7 +90,7 @@ export default function ShiftDeskPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Shift desk" subtitle={`Who is in, late or missing at each changeover, ${formatDay(DEMO_TODAY)}.`} />
+      <PageHeader title="Shift desk" subtitle={`CDU / NDU crews A to D: who is in, late or missing at 06:00, 14:00 and 22:00, ${formatDay(DEMO_TODAY)}.`} />
 
       <Stats
         items={[

@@ -29,7 +29,8 @@ export default function SafetyPage() {
 
   return (
     <div>
-      <PageHeader title="Safety training" />
+      <PageHeader title="Safety training"
+        subtitle="OISD-STD-154 fire, H2S, height and confined space certificates for NRL and contract crews." />
       <SafetyCharts />
       <Card className="mb-5 px-5 py-2">
         <FileDownloadList>

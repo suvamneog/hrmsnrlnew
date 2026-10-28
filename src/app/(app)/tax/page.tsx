@@ -25,7 +25,8 @@ export default function TaxPage() {
 
   return (
     <div>
-      <PageHeader title="Tax declaration" />
+      <PageHeader title="Tax declaration"
+        subtitle="FY 2026-27 regime and proofs for Form 16 and the 24Q return." />
       <div className="grid gap-5 lg:grid-cols-2">
         <Card className="p-5">
           <form

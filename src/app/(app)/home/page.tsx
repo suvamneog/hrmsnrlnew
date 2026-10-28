@@ -2,7 +2,6 @@
 
 import { format, parseISO } from "date-fns";
 import { AttendanceStrip } from "@/components/ess/attendance-strip";
-import { RoleHero } from "@/components/home/role-hero";
 import { DashboardCharts } from "@/components/home/dashboard-charts";
 import { TodayList, useToday } from "@/components/home/today";
 import { insideNow } from "@/lib/gate";
@@ -12,13 +11,13 @@ import { KpiStrip, buildHomeKpis } from "@/components/home/kpi-strip";
 import { WorkBoard } from "@/components/home/work-board";
 import { AnimatedGroup } from "@/components/motion/animated-group";
 import { InView } from "@/components/motion/in-view";
-import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { canDecideFor, claimApproverRole, routeAllowed } from "@/lib/access";
 import { formatDay, inr } from "@/lib/format";
-import { positionTitle, unitName } from "@/lib/org";
+import { locationName, positionTitle, unitName } from "@/lib/org";
+import { DEMO_TODAY } from "@/lib/demo";
 import { cadreTone, requestTone } from "@/lib/status";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import Link from "next/link";
@@ -44,8 +43,6 @@ export default function HomePage() {
   const today = useToday();
   if (!me) return null;
 
-  const hour = new Date().getHours();
-  const hello = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
   const myBal = balances.filter((b) => b.employeeId === me.id);
   const team = employees.filter((e) => e.managerId === me.id);
   const teamIds = new Set(team.map((e) => e.id));
@@ -105,11 +102,9 @@ export default function HomePage() {
       <div className="space-y-5">
         <InView delay={0} className="flex flex-wrap items-end justify-between gap-3" viewOptions={{ amount: 0.01, margin: "0px" }}>
           <div>
-            <h1 className="text-[28px] font-semibold tracking-tight sm:text-[32px]">
-              {hello}, {me.preferredName}
-            </h1>
+            <h1 className="text-[28px] font-semibold tracking-tight">Home</h1>
             <p className="mt-1 text-sm text-muted">
-              {positionTitle(me.positionId)} · {unitName(me.unitId)}
+              {`${me.preferredName}, ${positionTitle(me.positionId)}, ${unitName(me.unitId)}, ${locationName(me.locationId)}. ${format(parseISO(DEMO_TODAY), "EEEE d MMMM")}.`}
             </p>
           </div>
           {canApprove && todoCount > 0 && (
@@ -126,7 +121,6 @@ export default function HomePage() {
         <DashboardCharts />
 
         <AnimatedGroup preset="slide" className="grid gap-4">
-          <RoleHero />
           {me.cadre !== "contract" && <AttendanceStrip />}
           {ess && (
             <div className="grid gap-4 xl:grid-cols-2">
@@ -159,7 +153,7 @@ export default function HomePage() {
         <WorkBoard />
 
         {ess && myOpen.length > 0 && (
-          <ScrollReveal>
+          <div>
             <Card className="p-5">
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="font-semibold">My requests</h2>
@@ -190,11 +184,11 @@ export default function HomePage() {
                   ))}
               </ul>
             </Card>
-          </ScrollReveal>
+          </div>
         )}
 
         {!supervisor && (team.length > 0 || routeAllowed("/people", role) || nearby.length > 0) && (
-          <ScrollReveal>
+          <div>
             <Card className="p-5">
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="font-semibold">{team.length ? "Your crew" : "People around you"}</h2>
@@ -218,7 +212,7 @@ export default function HomePage() {
                 ))}
               </div>
             </Card>
-          </ScrollReveal>
+          </div>
         )}
       </div>
       <HomeRightRail />

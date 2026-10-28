@@ -1,20 +1,17 @@
-"use client";
-
-import { GlowingEffect } from "@/components/aceternity/glowing-effect";
 import { ArrowUpRight } from "@phosphor-icons/react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-/* Lead card for a page: small brand eyebrow, a one-line headline, an optional link out, then the visual. */
+/* Lead card for a page: a one-line title, an optional link out, then the content.
+   `eyebrow` is kept for callers but not drawn; the title opens the card on its own. */
 export function HeroCard({
-  eyebrow,
   title,
   href,
   cta,
   action,
   children,
 }: {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   href?: string;
   cta?: string;
@@ -22,28 +19,18 @@ export function HeroCard({
   children: ReactNode;
 }) {
   return (
-    <div className="relative rounded-[20px] border border-line bg-white p-6 sm:p-7">
-      <GlowingEffect spread={42} glow disabled={false} proximity={72} inactiveZone={0.05} borderWidth={2} movementDuration={1.4} />
-      <div className="relative">
-      <div className="mb-6 flex items-start justify-between gap-4">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand">{eyebrow}</p>
-          <h2 className="mt-1.5 text-[22px] font-semibold tracking-[-0.02em] text-ink">{title}</h2>
-        </div>
+    <section className="rounded-xl border border-line bg-white p-5 sm:p-6">
+      <div className="mb-5 flex items-start justify-between gap-4">
+        <h2 className="text-[18px] font-semibold tracking-tight text-ink">{title}</h2>
         {action}
         {href && cta && (
-        <Link
-          href={href}
-          className="group inline-flex shrink-0 items-center gap-1 rounded-full bg-[#f3f5fb] px-3.5 py-1.5 text-[12px] font-semibold text-ink transition hover:bg-brand hover:text-white"
-        >
-          {cta}
-          <ArrowUpRight size={12} weight="bold" className="transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </Link>
+          <Link href={href} className="inline-flex shrink-0 items-center gap-1 text-[13px] font-medium text-brand hover:underline">
+            {cta}
+            <ArrowUpRight size={12} />
+          </Link>
         )}
       </div>
       {children}
-      </div>
-    </div>
+    </section>
   );
 }
-

@@ -64,6 +64,7 @@ export default function PayrollPage() {
     <div>
       <PageHeader
         title="October 2026 payroll"
+        subtitle="All NRL locations: Numaligarh, Siliguri, Paradip and Guwahati, with professional tax per state."
         actions={
           <div className="flex gap-2">
             {!run.lockedAttendance && (

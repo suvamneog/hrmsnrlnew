@@ -47,7 +47,7 @@ export function AnimatedFolder({ title, items, countLabel = "files", className }
         tabIndex={0}
         aria-label={`${title}, ${items.length} ${countLabel}`}
         className={cn(
-          "group relative flex cursor-pointer flex-col items-center justify-center rounded-[22px] bg-white px-8 pb-12 pt-24",
+          "group relative flex cursor-pointer flex-col items-center justify-center rounded-xl bg-white px-8 pb-12 pt-24",
           "ring-1 ring-[#e7eaf3] shadow-[0_6px_20px_rgba(27,33,64,0.06)] transition-[box-shadow,transform] duration-500 ease-out",
           "hover:shadow-[0_24px_60px_rgba(45,64,180,0.14)]",
           className,
@@ -61,7 +61,7 @@ export function AnimatedFolder({ title, items, countLabel = "files", className }
         }}
       >
         <div
-          className="absolute inset-0 rounded-[22px] transition-opacity duration-500"
+          className="absolute inset-0 rounded-xl transition-opacity duration-500"
           style={{ background: "radial-gradient(circle at 50% 70%, var(--brand) 0%, transparent 70%)", opacity: open ? 0.07 : 0 }}
         />
 
@@ -260,7 +260,7 @@ function Viewer({
             layoutId={`file-${items[index].id}`}
             transition={spring}
             onClick={(e) => e.stopPropagation()}
-            className="relative z-10 w-full max-w-2xl overflow-hidden rounded-[22px] bg-white shadow-[0_40px_100px_rgba(27,33,64,0.22)] ring-1 ring-[#e7eaf3]"
+            className="relative z-10 w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-[0_40px_100px_rgba(27,33,64,0.22)] ring-1 ring-[#e7eaf3]"
           >
             <div className="relative h-[min(62vh,520px)] overflow-hidden bg-[#f6f8fd]">
               <AnimatePresence initial={false} custom={dir} mode="popLayout">

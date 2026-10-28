@@ -47,7 +47,8 @@ export default function ContractorsPage() {
 
   return (
     <div>
-      <PageHeader title="Contract labour" />
+      <PageHeader title="Contract labour"
+        subtitle="L&T, Bridge & Roof and SIS crews at Numaligarh: licences, workers and wage proofs under the CLRA." />
       <ContractorCharts />
       <div className="grid gap-4">
         {contractors.map((c) => {

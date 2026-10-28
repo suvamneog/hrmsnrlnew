@@ -58,7 +58,7 @@ export function DropZone({
         }
         transition={{ type: "spring", stiffness: 420, damping: 28, mass: 0.6 }}
         className={cn(
-          "flex w-full flex-col items-center justify-center rounded-[22px] border border-dashed px-4 py-7 text-center",
+          "flex w-full flex-col items-center justify-center rounded-xl border border-dashed px-4 py-7 text-center",
           pull.over ? "border-brand bg-brand-soft" : "border-line bg-[#f6f8fd]",
         )}
       >

@@ -6,13 +6,12 @@ import { ATT_DOT, StatusMonth } from "@/components/calendar/status-month";
 import { PageHeader } from "@/components/layout/page-header";
 import { AnimatedGroup } from "@/components/motion/animated-group";
 import { InView } from "@/components/motion/in-view";
-import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Field, Input, Select, Textarea } from "@/components/ui/input";
-import { SpotlightCard } from "@/components/ui/spotlight-card";
+import { Card } from "@/components/ui/card";
 import { formatDay } from "@/lib/format";
 import { countLeaveDays, eachDate } from "@/lib/leave";
 import { requestTone } from "@/lib/status";
@@ -81,11 +80,12 @@ export default function LeavePage() {
 
   return (
     <div>
-      <PageHeader title="Leave" />
+      <PageHeader title="Leave"
+        subtitle="Balances and requests under NRL leave rules, approved by your reporting officer." />
       <LeaveCharts />
       <div className="grid gap-5 lg:grid-cols-[1.15fr_320px]">
         <InView>
-        <SpotlightCard className="p-5">
+        <Card className="p-5">
           <h2 className="mb-4 font-semibold">Apply</h2>
           <form
             className="grid gap-3 sm:grid-cols-2"
@@ -131,7 +131,7 @@ export default function LeavePage() {
                 if (iso < from) setFrom(iso);
               }} />
             </Field>
-            <div className="sm:col-span-2 rounded-[18px] border border-line bg-[#f8f9fd] p-3">
+            <div className="sm:col-span-2 rounded-xl border border-line bg-[#f8f9fd] p-3">
               <Calendar
                 mode="range"
                 selected={range}
@@ -175,19 +175,19 @@ export default function LeavePage() {
               ))}
             </ul>
           </div>
-        </SpotlightCard>
+        </Card>
         </InView>
         <AnimatedGroup preset="slide" className="space-y-3">
           {balances
             .filter((b) => b.employeeId === me.id)
             .map((b) => (
-              <SpotlightCard key={b.typeId} className="p-4">
+              <Card key={b.typeId} className="p-4">
                 <p className="text-xs text-muted">{types.find((t) => t.id === b.typeId)?.name}</p>
                 <p className="text-2xl font-semibold">{b.balance}</p>
-              </SpotlightCard>
+              </Card>
             ))}
-          <ScrollReveal>
-          <SpotlightCard className="p-4">
+          <div>
+          <Card className="p-4">
             <p className="mb-2 text-sm font-semibold">Plant calendar</p>
             <StatusMonth selected={from} onSelect={(iso) => {
               setFrom(iso);
@@ -199,12 +199,12 @@ export default function LeavePage() {
               <li className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${ATT_DOT.holiday}`} />Holiday</li>
               <li className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${ATT_DOT.weekly_off}`} />Weekly off</li>
             </ul>
-          </SpotlightCard>
-          </ScrollReveal>
+          </Card>
+          </div>
           <p className="text-xs text-muted">Approver: {employees.find((e) => e.id === me.managerId)?.name ?? "HR"}</p>
           {role === "hr_admin" && (
             <InView>
-            <SpotlightCard className="p-4">
+            <Card className="p-4">
               <p className="mb-2 text-sm font-semibold">Add leave type</p>
               <Input className="mb-2" value={newType} onChange={(e) => setNewType(e.target.value)} />
               <Input className="mb-2" value={newCode} onChange={(e) => setNewCode(e.target.value)} />
@@ -217,7 +217,7 @@ export default function LeavePage() {
               >
                 Save type
               </Button>
-            </SpotlightCard>
+            </Card>
             </InView>
           )}
         </AnimatedGroup>

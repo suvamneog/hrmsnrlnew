@@ -24,7 +24,8 @@ export default function PayslipsPage() {
 
   return (
     <div>
-      <PageHeader title="Payslips" />
+      <PageHeader title="Payslips"
+        subtitle="Monthly slips and Form 16 from the NRL payroll, Numaligarh." />
       {current.stage !== "publish" && (
         <Card className="p-6 text-sm text-muted">
           {monthLabel(current.month)} payroll is in {current.stage.replaceAll("_", " ")}.

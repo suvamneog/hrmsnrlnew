@@ -15,7 +15,7 @@ export function PassTicket({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-[22px] bg-white shadow-[0_12px_28px_rgba(45,64,180,0.1)]",
+        "relative overflow-hidden rounded-xl bg-white shadow-[0_12px_28px_rgba(45,64,180,0.1)]",
         className,
       )}
     >

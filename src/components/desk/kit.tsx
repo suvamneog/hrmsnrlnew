@@ -3,6 +3,7 @@
 import { AnimatedNumber } from "@/components/motion/animated-number";
 import { AnimatedGroup } from "@/components/motion/animated-group";
 import { InView } from "@/components/motion/in-view";
+import { TONES } from "@/components/ui/badge";
 import { cn } from "@/lib/cn";
 import { easeOut } from "@/lib/motion";
 import { AnimatePresence, motion } from "motion/react";
@@ -26,7 +27,7 @@ export function Panel({
 }) {
   return (
     <InView className={cn("min-w-0", className)}>
-      <section className="h-full rounded-[20px] border border-line bg-white p-5 sm:p-6">
+      <section className="h-full rounded-xl border border-line bg-white p-5 sm:p-6">
         <header className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <h2 className="text-[16px] font-semibold tracking-tight text-ink">{title}</h2>
@@ -42,14 +43,14 @@ export function Panel({
 
 export type Stat = { label: string; value: number | string; hint?: string; tone?: "ink" | "ok" | "warn" | "danger"; format?: (n: number) => string };
 
-const TONE = { ink: "text-ink", ok: "text-[#0f9f6e]", warn: "text-[#c47b00]", danger: "text-[#d13b3b]" };
+const TONE = { ink: "text-ink", ok: "text-[#148f5b]", warn: "text-[#9a6a12]", danger: "text-[#c4373c]" };
 
 /* Big numbers first. Each tile is flat; hairlines split them instead of nested cards. */
 export function Stats({ items }: { items: Stat[] }) {
   return (
     <AnimatedGroup
       preset="slide"
-      className="grid grid-cols-2 overflow-hidden rounded-[20px] border border-line bg-white lg:grid-cols-4"
+      className="grid grid-cols-2 overflow-hidden rounded-xl border border-line bg-white lg:grid-cols-4"
     >
       {items.map((s, i) => (
         <div
@@ -114,14 +115,7 @@ export function Field({ label, children, className }: { label: string; children:
 }
 
 export function Pill({ tone = "muted", children }: { tone?: "ok" | "warn" | "danger" | "muted" | "brand"; children: ReactNode }) {
-  const map = {
-    ok: "bg-[#e7f8ef] text-[#0b7f58]",
-    warn: "bg-[#fff4e0] text-[#9a5f00]",
-    danger: "bg-[#fdecec] text-[#b42f2f]",
-    muted: "bg-[#eef1f6] text-[#5b6478]",
-    brand: "bg-brand-soft text-brand",
-  };
-  return <span className={cn("inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[12px] font-medium", map[tone])}>{children}</span>;
+  return <span className={cn("inline-flex shrink-0 items-center rounded-md px-2 py-0.5 text-[12px] font-medium", TONES[tone])}>{children}</span>;
 }
 
 export const Grid2 = ({ children, className }: { children: ReactNode; className?: string }) => (

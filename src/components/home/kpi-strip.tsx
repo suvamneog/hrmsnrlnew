@@ -27,7 +27,7 @@ export function KpiStrip({ items }: { items: HomeKpi[] }) {
         return (
           <Link key={k.label} href={k.href} className="group block">
             <div
-              className={`h-full rounded-[20px] p-5 transition-colors duration-300 ${
+              className={`h-full rounded-xl p-5 transition-colors duration-300 ${
                 lead ? "bg-ink text-white" : "border border-line bg-white text-ink hover:bg-[#fbfbfa]"
               }`}
             >

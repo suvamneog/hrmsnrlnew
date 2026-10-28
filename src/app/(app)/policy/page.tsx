@@ -31,7 +31,8 @@ export default function PolicyPage() {
 
   return (
     <div>
-      <PageHeader title="Rules engine" />
+      <PageHeader title="Rules engine"
+        subtitle="DA, perks cap, HRA, PF, NPS, shift and overtime rates. Every change needs a second approver." />
       <div className="grid grid-cols-1 gap-3 *:min-w-0">
         {settings.map((s) => {
           const past = historyOf(s);

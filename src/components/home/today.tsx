@@ -151,7 +151,7 @@ const DOT = { danger: "bg-[#e5484d]", warn: "bg-[#d4a24c]", brand: "bg-ink", mut
 export function TodayList({ items, title = "Today", empty = "Nothing due today." }: { items: TodayItem[]; title?: string; empty?: string }) {
   const reduce = useReducedMotion();
   return (
-    <section className="rounded-[20px] border border-line bg-white p-5 sm:p-6">
+    <section className="rounded-xl border border-line bg-white p-5 sm:p-6">
       <h2 className="text-[16px] font-semibold tracking-tight text-ink">{title}</h2>
       {items.length === 0 ? (
         <p className="mt-3 text-sm text-muted">{empty}</p>

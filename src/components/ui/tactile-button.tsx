@@ -32,7 +32,7 @@ export function TactileButton({
       type={type}
       disabled={disabled}
       className={cn(
-        "group relative isolate inline-flex select-none rounded-[18px] pb-[6px] outline-none transition-[padding,transform] duration-75 ease-out",
+        "group relative isolate inline-flex select-none rounded-xl pb-[6px] outline-none transition-[padding,transform] duration-75 ease-out",
         "hover:pb-[5px] hover:translate-y-px",
         "active:pb-[2px] active:translate-y-[4px]",
         "focus-visible:ring-4 focus-visible:ring-brand/20",
@@ -44,7 +44,7 @@ export function TactileButton({
     >
       <span
         className={cn(
-          "relative flex min-h-12 w-full items-center justify-center gap-2 rounded-[18px] px-4 text-base font-semibold",
+          "relative flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-4 text-base font-semibold",
           FACE[variant],
         )}
       >

@@ -34,6 +34,7 @@ export default function RecruitmentPage() {
     <div>
       <PageHeader
         title="Recruitment"
+        subtitle="GATE 2026 engineer trainee and workmen intake, with the reservation roster for each post."
       />
       <PipelineBoard />
       <RecruitmentCharts />

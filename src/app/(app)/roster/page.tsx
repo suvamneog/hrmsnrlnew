@@ -6,11 +6,10 @@ import { SHIFT_TONE, StatusMonth } from "@/components/calendar/status-month";
 import { PageHeader } from "@/components/layout/page-header";
 import { AnimatedGroup } from "@/components/motion/animated-group";
 import { InView } from "@/components/motion/in-view";
-import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Select } from "@/components/ui/input";
-import { SpotlightCard } from "@/components/ui/spotlight-card";
+import { Card } from "@/components/ui/card";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import { Bars } from "@/components/home/viz";
 import { HeroCard } from "@/components/ui/hero-card";
@@ -80,6 +79,7 @@ export default function RosterPage() {
     <div>
       <PageHeader
         title="Roster"
+        subtitle="Crews A to D on the four-crew cycle: morning, afternoon, night and weekly off."
         actions={
           role === "line_manager" || role === "hr_admin" ? (
             <Button
@@ -165,8 +165,8 @@ export default function RosterPage() {
         </HeroCard>
       </InView>
       <RosterCharts />
-      <ScrollReveal>
-      <SpotlightCard className="overflow-x-auto p-4">
+      <div>
+      <Card className="overflow-x-auto p-4">
         <table className="min-w-max text-xs">
           <thead>
             <tr>
@@ -198,16 +198,16 @@ export default function RosterPage() {
             ))}
           </tbody>
         </table>
-      </SpotlightCard>
-      </ScrollReveal>
+      </Card>
+      </div>
       <AnimatedGroup preset="slide" className="mt-4 grid gap-4 lg:grid-cols-[1fr_1.1fr]">
         <InView>
-        <SpotlightCard className="p-4">
+        <Card className="p-4">
           <h2 className="mb-3 font-semibold">My shifts</h2>
           <StatusMonth selected={date} onSelect={setDate} marks={marks} month={parseISO("2026-10-01")} />
-        </SpotlightCard>
+        </Card>
         </InView>
-        <SpotlightCard className="flex flex-wrap items-end gap-3 p-4">
+        <Card className="flex flex-wrap items-end gap-3 p-4">
           <label className="min-w-[180px] flex-1 text-sm">
             Swap with
             <Select className="mt-1" value={toId} onChange={(e) => setToId(e.target.value)}>
@@ -233,7 +233,7 @@ export default function RosterPage() {
           >
             Request swap
           </Button>
-        </SpotlightCard>
+        </Card>
       </AnimatedGroup>
     </div>
   );

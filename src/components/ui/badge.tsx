@@ -1,14 +1,17 @@
 import { cn } from "@/lib/cn";
 
-const tones = {
+// One status palette for the app: green done, amber attention, red blocked, grey neutral, blue brand.
+// peach and lilac are kept as names for older callers and map onto amber and blue.
+export const TONES = {
   brand: "bg-brand-soft text-brand",
-  ok: "bg-[#e7f8ef] text-[#0f9f6e]",
-  warn: "bg-[#fff4e0] text-[#c47b00]",
-  danger: "bg-[#fdecec] text-[#d13b3b]",
-  muted: "bg-[#eef1f6] text-muted",
-  peach: "bg-[#fff1e6] text-[#e07a3d]",
-  lilac: "bg-[#eeeaff] text-[#5b5bd6]",
+  ok: "bg-[#eaf6ef] text-[#148f5b]",
+  warn: "bg-[#fbf3e3] text-[#9a6a12]",
+  danger: "bg-[#fdeded] text-[#c4373c]",
+  muted: "bg-[#f2f2f0] text-[#6e6e73]",
+  peach: "bg-[#fbf3e3] text-[#9a6a12]",
+  lilac: "bg-brand-soft text-brand",
 };
+const tones = TONES;
 
 export function Badge({
   children,
@@ -22,7 +25,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold tracking-wide",
+        "inline-flex items-center rounded-md px-2 py-0.5 text-[12px] font-medium",
         tones[tone],
         className,
       )}

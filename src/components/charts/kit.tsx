@@ -20,17 +20,17 @@ import {
   YAxis,
 } from "recharts";
 
-/* Notion-like palette: ink and greys carry the data; colour only where it means something
-   (red for a breach, amber for a warning, blue for the one thing to look at). */
+/* One colour rule for every chart: blue is the series that matters, greys are comparison,
+   amber asks for attention and red means blocked. Other keys are aliases kept for callers. */
 export const C = {
-  blue: "#1d1d1f",
+  blue: "#3d5afe",
+  green: "#3d5afe",
   sky: "#a1a1a6",
-  green: "#3a3a3c",
+  violet: "#6e6e73",
+  teal: "#c7c7cc",
+  slate: "#d2d2d7",
   amber: "#d4a24c",
   red: "#e5484d",
-  violet: "#6e6e73",
-  slate: "#d2d2d7",
-  teal: "#8e8e93",
   accent: "#3d5afe",
 } as const;
 
@@ -70,7 +70,7 @@ export function ChartCard({
 }) {
   return (
     <InView className={cn("min-w-0", className)}>
-      <div className="h-full rounded-[20px] border border-line bg-white p-5 sm:p-6">
+      <div className="h-full rounded-xl border border-line bg-white p-5 sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h3 className="flex items-center gap-2 text-[15px] font-semibold tracking-tight text-ink">
@@ -521,7 +521,7 @@ export function Timeline({
   const [tip, setTip] = useState<{ y: number; detail: string[]; label: string } | null>(null);
   const pct = (h: number) => `${((Math.min(to, Math.max(from, h)) - from) / (to - from)) * 100}%`;
   const width = (a: number, b: number) => `${((Math.min(to, b) - Math.max(from, a)) / (to - from)) * 100}%`;
-  const flagColor = { late: C.amber, early: C.violet, missing: C.red };
+  const flagColor = { late: C.amber, early: C.amber, missing: C.red };
   return (
     <div ref={ref} className="relative" onMouseLeave={() => setTip(null)}>
       <div className="mb-2 ml-[76px] flex justify-between text-[10px] text-muted">

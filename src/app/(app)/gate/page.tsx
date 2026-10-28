@@ -4,7 +4,6 @@ import { GateCharts } from "@/components/charts/page-charts";
 
 import { Avatar } from "@/components/ui/avatar";
 import { PassTicket } from "@/components/ui/pass-ticket";
-import { ScrambleText } from "@/components/ui/scramble-text";
 import { ScrollFade } from "@/components/ui/scroll-fade";
 import { TactileButton } from "@/components/ui/tactile-button";
 import { Input } from "@/components/ui/input";
@@ -142,7 +141,7 @@ export default function GatePage() {
                 </p>
                 <p className="font-mono text-xs text-muted">{maskAadhaar(worker.aadhaar)}</p>
                 <p className="mt-1 font-mono text-[11px] font-semibold text-brand">
-                  <ScrambleText value={pass.id.toUpperCase()} />
+                  <span>{pass.id.toUpperCase()}</span>
                 </p>
               </div>
             </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Areas, Bars, C, ChartCard, Donut, FunnelChart, HBars, Heatmap, Timeline } from "@/components/charts/kit";
+import { Areas, Bars, C, ChartCard, Donut, HBars, Heatmap, Timeline } from "@/components/charts/kit";
 import {
   ATTRITION_SAMPLE,
   ATTRITION_UNITS_SAMPLE,
@@ -30,7 +30,7 @@ import { useMemo } from "react";
 const Grid = ({ children }: { children: React.ReactNode }) => <div className="mb-6 grid gap-5 *:min-w-0 xl:grid-cols-2">{children}</div>;
 const lakh = (n: number) => (n >= 1e7 ? `₹${(n / 1e7).toFixed(2)} Cr` : `₹${(n / 1e5).toFixed(1)}L`);
 
-const SHIFT_COLOR: Record<string, string> = { M: C.green, A: C.amber, N: C.violet, G: C.blue, OFF: "#eef1f6" };
+const SHIFT_COLOR: Record<string, string> = { M: C.blue, A: C.violet, N: C.sky, G: C.slate, OFF: "#f2f2f0" };
 
 /* Attendance: heads present per shift each day, and my punches against my roster. */
 export function TimeCharts() {
@@ -44,9 +44,9 @@ export function TimeCharts() {
   if (!me) return null;
   const series = [
     { key: "M", label: "Morning", color: C.green },
-    { key: "A", label: "Afternoon", color: C.amber },
-    { key: "N", label: "Night", color: C.violet },
-    { key: "G", label: "General", color: C.blue },
+    { key: "A", label: "Afternoon", color: C.violet },
+    { key: "N", label: "Night", color: C.sky },
+    { key: "G", label: "General", color: C.slate },
   ];
   const flags = timeline.filter((t) => t.flag).length;
   return (
@@ -96,8 +96,8 @@ export function RosterCharts() {
         note={`Amber dot: swap on that day. Red dot: less than ${minRest} h rest before the shift. ${swapN} swap day(s).`}
         series={[
           { key: "M", label: "Morning", color: C.green },
-          { key: "A", label: "Afternoon", color: C.amber },
-          { key: "N", label: "Night", color: C.violet },
+          { key: "A", label: "Afternoon", color: C.violet },
+          { key: "N", label: "Night", color: C.sky },
           { key: "OFF", label: "Off", color: "#d8dde8" },
         ]}
       >
@@ -324,29 +324,18 @@ export function LeaveCharts() {
 export function RecruitmentCharts() {
   const openings = useHrms((s) => s.openings);
   const candidates = useHrms((s) => s.candidates);
-  const order = ["applied", "shortlist", "interview", "medical", "offer", "joined"] as const;
-  const reached = (st: (typeof order)[number]) => candidates.filter((c) => order.indexOf(c.stage) >= order.indexOf(st)).length;
   const status = reservationStatus(openings, candidates);
+  const open = status.reduce((n, r) => n + Number(r.open), 0);
+  // The stage-by-stage pipeline lives on the board above, so this chart covers only posts.
   return (
-    <Grid>
-      <ChartCard eyebrow="Pipeline" title="From application to joining" note="Hover a stage to see how many carried over.">
-        <FunnelChart
-          steps={[
-            { label: "Applied", value: reached("applied") },
-            { label: "Shortlisted", value: reached("shortlist") },
-            { label: "Interview", value: reached("interview") },
-            { label: "Medical", value: reached("medical") },
-            { label: "Offer", value: reached("offer") },
-            { label: "Joined", value: reached("joined") },
-          ]}
-        />
-      </ChartCard>
+    <div className="mb-6">
       <ChartCard
-        eyebrow="Reservation"
         title="Posts filled and open, per opening"
+        value={`${open} posts open`}
+        note={open ? "Open posts need more offers before the roster closes." : "Every post has an offer or a joiner."}
         series={[
-          { key: "filled", label: "Offered or joined", color: C.green },
-          { key: "open", label: "Still open", color: "#dfe5f7" },
+          { key: "filled", label: "Offered or joined", color: C.blue },
+          { key: "open", label: "Still open", color: C.slate },
         ]}
       >
         <HBars
@@ -354,12 +343,12 @@ export function RecruitmentCharts() {
           y="post"
           labelWidth={140}
           series={[
-            { key: "filled", label: "Offered or joined", color: C.green },
-            { key: "open", label: "Still open", color: "#dfe5f7" },
+            { key: "filled", label: "Offered or joined", color: C.blue },
+            { key: "open", label: "Still open", color: C.slate },
           ]}
         />
       </ChartCard>
-    </Grid>
+    </div>
   );
 }
 
@@ -367,8 +356,8 @@ export function RecruitmentCharts() {
 export function SeparationCharts() {
   const reasons = [
     { key: "superannuation", label: "Superannuation", color: C.blue },
-    { key: "resignation", label: "Resignation", color: C.amber },
-    { key: "vrs", label: "VRS", color: C.violet },
+    { key: "resignation", label: "Resignation", color: C.blue },
+    { key: "vrs", label: "VRS", color: C.sky },
     { key: "death", label: "Death in service", color: C.slate },
   ];
   const done = ATTRITION_UNITS_SAMPLE.reduce((n, u) => n + u.interviewed, 0);
@@ -416,7 +405,7 @@ export function TownshipCharts() {
         <Donut
           data={[
             { key: "held", label: "Held", value: held, color: C.blue },
-            { key: "vacant", label: "Vacant", value: vacant, color: C.green },
+            { key: "vacant", label: "Vacant", value: vacant, color: C.slate },
             { key: "repair", label: "Under repair", value: repair, color: C.amber },
           ]}
           center={`${Math.round((held / Math.max(1, held + vacant + repair)) * 100)}%`}

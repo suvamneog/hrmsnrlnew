@@ -69,6 +69,7 @@ export default function PerformancePage() {
     <div>
       <PageHeader
         title="Appraisal 2026-27"
+        subtitle="Key result areas, self rating, reporting and reviewing officer, as per the NRL PMS cycle."
       />
       <div className="space-y-5">
         <InView>
