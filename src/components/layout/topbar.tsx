@@ -3,6 +3,7 @@
 import { AccountChip } from "@/components/layout/account-chip";
 import { ArrowCounterClockwise, Bell, MagnifyingGlass, SignOut } from "@phosphor-icons/react";
 import { useDesk } from "@/lib/desk";
+import { LanguageSwitch } from "@/components/i18n/language-switch";
 import { toast } from "sonner";
 import { commandHits } from "@/lib/search";
 import { useCurrentUser, useHrms } from "@/lib/store";
@@ -80,6 +81,7 @@ export function Topbar() {
         <Bell size={18} weight="duotone" />
         {mine.length > 0 && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#e14b4b]" />}
       </button>
+      <LanguageSwitch />
       <button
         type="button"
         onClick={() => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { AccountChip } from "./account-chip";
+import { LanguageSwitch } from "@/components/i18n/language-switch";
 import { Guard } from "./guard";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
@@ -74,7 +75,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </Link>
             ))}
           </nav>
-          <AccountChip />
+          <div className="flex items-center gap-2">
+            <LanguageSwitch />
+            <AccountChip />
+          </div>
         </div>
         <Guard>{children}</Guard>
       </div>

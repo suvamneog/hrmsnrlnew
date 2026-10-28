@@ -1,6 +1,8 @@
 "use client";
 
 import { landingFor } from "@/lib/access";
+import { LanguageSwitch } from "@/components/i18n/language-switch";
+import Link from "next/link";
 import { LoginScene } from "@/components/login/login-scene";
 import { needsMfa, resolveDirectory, verifyMfa } from "@/lib/auth";
 import { useHrms } from "@/lib/store";
@@ -111,6 +113,13 @@ export default function LoginPage() {
           {pending ? "VERIFY" : "LOGIN"}
           <CaretRight size={11} weight="bold" />
         </button>
+
+        <div className="mt-14 flex flex-wrap items-center justify-center gap-4">
+          <LanguageSwitch className="bg-white/15 [&_button:not([aria-checked=true])]:text-white/80" />
+          <Link href="/kiosk" className="text-sm font-semibold text-white/85 underline-offset-4 hover:text-white hover:underline">
+            Open kiosk
+          </Link>
+        </div>
       </form>
 
       <div className="hidden min-h-[100dvh] flex-1 pt-1 md:block">

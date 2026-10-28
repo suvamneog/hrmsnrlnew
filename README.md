@@ -40,6 +40,9 @@ The walkthrough is in [docs/demo-script.md](docs/demo-script.md).
 - Helpdesk, grievance, discipline, transfer and medical cases.
 - Audit export with PII masked by default and a SHA-256 hash chain.
 - Charts on every operational page, and a read-only MD overview.
+- English, Hindi and Assamese across the app (switch in the top bar, login and kiosk).
+- A kiosk at `/kiosk` for staff without a phone or desk: employee number and birth year, large touch tiles, assisted mode, sign-out after a minute idle.
+- Installable on phones, and opens offline in plant areas with no signal; changes are kept on the device.
 
 ## Demo data
 
@@ -52,5 +55,6 @@ The on-roll headcount of 1,588 is a generated sample. NRL publishes 1,120 on rol
 - Tamper-proof, India-hosted, encrypted audit storage; backup; VAPT.
 - Live SAP, Saral Pravesh readers, SBI salary file, EPFO ECR and TRACES submission. Files download; nothing is submitted.
 - A parallel payroll run against the current system, and month-on-month variance (only October 2026 exists).
-- Full Assamese and Hindi UI, kiosk mode and offline mobile.
+- Hindi and Assamese wording is machine-drafted in `src/lib/i18n` and needs a native reviewer. Text built from data (names, units, toasts with numbers) stays in English.
+- Offline changes stay on the device; with no backend there is nothing to sync them to yet.
 - Confirmed shift pattern, overtime rates and NREP surge contractor split from NRL.

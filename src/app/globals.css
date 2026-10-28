@@ -37,7 +37,7 @@
   --color-brand: var(--brand);
   --color-brand-deep: var(--brand-deep);
   --color-brand-soft: var(--brand-soft);
-  --font-sans: var(--font-jakarta);
+  --font-sans: var(--font-jakarta), var(--font-deva), var(--font-beng);
   /* shadcn tokens, mapped onto the NRL palette */
   --color-background: var(--bg);
   --color-foreground: var(--ink);
@@ -72,7 +72,7 @@ html,
 body {
   background: var(--bg);
   color: var(--ink);
-  font-family: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-jakarta), var(--font-deva), var(--font-beng), ui-sans-serif, system-ui, sans-serif;
 }
 
 button,
