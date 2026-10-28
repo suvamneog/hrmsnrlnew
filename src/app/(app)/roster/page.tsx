@@ -1,5 +1,7 @@
 "use client";
 
+import { RosterCharts } from "@/components/charts/page-charts";
+
 import { SHIFT_TONE, StatusMonth } from "@/components/calendar/status-month";
 import { PageHeader } from "@/components/layout/page-header";
 import { AnimatedGroup } from "@/components/motion/animated-group";
@@ -162,6 +164,7 @@ export default function RosterPage() {
           </div>
         </HeroCard>
       </InView>
+      <RosterCharts />
       <ScrollReveal>
       <SpotlightCard className="overflow-x-auto p-4">
         <table className="min-w-max text-xs">

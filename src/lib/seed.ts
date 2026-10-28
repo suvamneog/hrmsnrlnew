@@ -1272,9 +1272,9 @@ export const ADVANCES: Advance[] = [
 ];
 
 export const CONTRACTORS: Contractor[] = [
-  { id: "c-lt", name: "Larsen & Toubro Ltd", workOrder: "NRL/WO/9MMT/2025/118", workOrderEnd: "2027-03-31", licenceNo: "AS/CL/2024/4412", licenceExpiry: "2027-02-18", pfCode: "AS/GHY/0054123", esiCode: "40001234560000999", area: "CDU revamp", supervisorName: "Vikram Rao", supervisorId: "e-vikram" },
-  { id: "c-br", name: "Bridge & Roof Co. (India) Ltd", workOrder: "NRL/WO/9MMT/2025/204", workOrderEnd: "2027-06-30", licenceNo: "AS/CL/2025/1180", licenceExpiry: "2026-11-12", pfCode: "AS/GHY/0021188", esiCode: "40009876120000111", area: "Crude tank farm", supervisorName: "Farhana Ahmed" },
-  { id: "c-sis", name: "SIS (India) Ltd", workOrder: "NRL/WO/SEC/2024/019", workOrderEnd: "2027-03-31", licenceNo: "AS/CL/2024/0901", licenceExpiry: "2029-01-31", pfCode: "AS/GHY/0008812", esiCode: "40005544330000222", area: "Gates 1-4", supervisorName: "Tej Bahadur Chetri" },
+  { id: "c-lt", name: "Larsen & Toubro Ltd", workOrder: "NRL/WO/9MMT/2025/118", workOrderEnd: "2027-03-31", licenceNo: "AS/CL/2024/4412", licenceExpiry: "2027-02-18", capacity: 120, pfCode: "AS/GHY/0054123", esiCode: "40001234560000999", area: "CDU revamp", supervisorName: "Vikram Rao", supervisorId: "e-vikram" },
+  { id: "c-br", name: "Bridge & Roof Co. (India) Ltd", workOrder: "NRL/WO/9MMT/2025/204", workOrderEnd: "2027-06-30", licenceNo: "AS/CL/2025/1180", licenceExpiry: "2026-11-12", capacity: 50, pfCode: "AS/GHY/0021188", esiCode: "40009876120000111", area: "Crude tank farm", supervisorName: "Farhana Ahmed" },
+  { id: "c-sis", name: "SIS (India) Ltd", workOrder: "NRL/WO/SEC/2024/019", workOrderEnd: "2027-03-31", licenceNo: "AS/CL/2024/0901", licenceExpiry: "2029-01-31", capacity: 40, pfCode: "AS/GHY/0008812", esiCode: "40005544330000222", area: "Gates 1-4", supervisorName: "Tej Bahadur Chetri" },
 ];
 
 const NAMED_WORKERS: ContractWorker[] = [

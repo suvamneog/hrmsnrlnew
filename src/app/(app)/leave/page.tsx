@@ -1,5 +1,7 @@
 "use client";
 
+import { LeaveCharts } from "@/components/charts/page-charts";
+
 import { ATT_DOT, StatusMonth } from "@/components/calendar/status-month";
 import { PageHeader } from "@/components/layout/page-header";
 import { AnimatedGroup } from "@/components/motion/animated-group";
@@ -80,6 +82,7 @@ export default function LeavePage() {
   return (
     <div>
       <PageHeader title="Leave" />
+      <LeaveCharts />
       <div className="grid gap-5 lg:grid-cols-[1.15fr_320px]">
         <InView>
         <SpotlightCard className="p-5">

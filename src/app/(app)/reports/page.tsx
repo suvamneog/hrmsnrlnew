@@ -1,5 +1,7 @@
 "use client";
 
+import { HeadcountCharts, ReservationCharts } from "@/components/charts/page-charts";
+
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -86,6 +88,10 @@ export default function ReportsPage() {
           <p className="text-xs text-muted">{t.train}</p>
           <p className="text-3xl font-semibold">{census.trainees}</p>
         </Card>
+      </div>
+      <div className="mt-5 grid gap-5 *:min-w-0 xl:grid-cols-2">
+        <HeadcountCharts />
+        <ReservationCharts />
       </div>
       <Card className="mt-5 p-5">
         <h2 className="mb-3 font-semibold">{t.res}</h2>

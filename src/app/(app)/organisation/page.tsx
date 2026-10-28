@@ -1,5 +1,7 @@
 "use client";
 
+import { HeadcountCharts } from "@/components/charts/page-charts";
+
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -52,6 +54,9 @@ export default function OrgPage() {
         title="Organisation"
         subtitle={`${onRoll.length.toLocaleString("en-IN")} on roll across Numaligarh, Siliguri, Paradip and Guwahati.`}
       />
+      <div className="mb-6">
+        <HeadcountCharts />
+      </div>
       {role === "hr_admin" && (
         <Card className="mb-5 grid gap-3 p-4 md:grid-cols-4">
           <Field label="New post">

@@ -1,5 +1,7 @@
 "use client";
 
+import { TownshipCharts } from "@/components/charts/page-charts";
+
 import { Fact, Ring } from "@/components/home/viz";
 import { PageHeader } from "@/components/layout/page-header";
 import { InView } from "@/components/motion/in-view";
@@ -69,6 +71,8 @@ export default function TownshipPage() {
   return (
     <div className="space-y-5">
       <PageHeader title="Township housing" subtitle="Numaligarh township · quarters, waiting list and upkeep" />
+
+      <TownshipCharts />
 
       <InView>
         <HeroCard eyebrow="Housing stock" title={`${occupied} of ${quarters.length} quarters occupied`}>

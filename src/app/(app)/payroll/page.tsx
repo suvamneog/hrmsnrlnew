@@ -1,5 +1,7 @@
 "use client";
 
+import { PayrollCharts } from "@/components/charts/page-charts";
+
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -169,6 +171,8 @@ export default function PayrollPage() {
           </Link>
         </Card>
       </div>
+
+      <PayrollCharts />
 
       {run.results.length === 0 && (
         <Card className="p-8 text-center text-sm text-muted">

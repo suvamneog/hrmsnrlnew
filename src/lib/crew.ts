@@ -73,11 +73,30 @@ export function expandPasses(workers: ContractWorker[], contractors: Contractor[
   });
 }
 
+// Induction for everyone who passed it, plus a trade certificate for most, with expiries spread
+// over the coming months so the safety due-lists have something real to show.
+const TRADE: Record<string, string> = {
+  Rigger: "height",
+  Scaffolder: "height",
+  "Crane operator": "height",
+  "Welder-6G": "fire",
+  Grinder: "fire",
+  Fitter: "confine",
+  "Pipe fitter": "confine",
+  Helper: "h2s",
+};
+
+function plusDays(days: number) {
+  const d = new Date(`${DEMO_TODAY}T00:00:00`);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
 export function expandCerts(workers: ContractWorker[], named: Certificate[]): Certificate[] {
   const extra: Certificate[] = [];
-  for (const w of workers) {
-    if (named.some((c) => c.personId === w.id)) continue;
-    if (!w.inductionPassed) continue;
+  workers.forEach((w, i) => {
+    if (named.some((c) => c.personId === w.id)) return;
+    if (!w.inductionPassed) return;
     extra.push({
       id: `ct-${w.id}`,
       personId: w.id,
@@ -86,24 +105,31 @@ export function expandCerts(workers: ContractWorker[], named: Certificate[]): Ce
       issued: "2026-02-11",
       expires: "2027-02-11",
     });
-  }
+    const course = TRADE[w.skill];
+    if (!course || i % 5 === 4) return;
+    // Spread from 20 days ago to about four months out.
+    const expires = plusDays(((i * 37) % 140) - 20);
+    extra.push({ id: `ct-${w.id}-${course}`, personId: w.id, personKind: "contract", courseId: course, issued: "2025-11-01", expires });
+  });
   return [...named, ...extra];
 }
 
+// A plant day at the gates: entries through the morning and the 14:00 change, exits after each shift.
 export function expandGateEvents(passes: GatePass[], named: GateEvent[]): GateEvent[] {
   const extra: GateEvent[] = [];
   let n = named.length;
-  const open = passes.filter((p) => !p.blocked);
-  const inside = open.slice(0, 92);
-  for (const p of inside) {
-    extra.push({
-      id: `ge-g-${++n}`,
-      passId: p.id,
-      gate: p.workerId.endsWith("1") ? "Gate 1" : p.workerId.endsWith("2") ? "Gate 3" : "Gate 2",
-      direction: "in",
-      time: `2026-10-27T0${6 + (n % 3)}:${String(10 + (n % 50)).padStart(2, "0")}:00+05:30`,
-    });
-  }
+  const at = (h: number, m: number) => `${DEMO_TODAY}T${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:00+05:30`;
+  const open = passes.filter((p) => !p.blocked).slice(0, 150);
+  open.forEach((p, i) => {
+    const gate = p.workerId.endsWith("1") ? "Gate 1" : p.workerId.endsWith("2") ? "Gate 3" : "Gate 2";
+    const afternoon = i % 4 === 3;
+    const inH = afternoon ? 13 : 6 + (i % 4);
+    extra.push({ id: `ge-g-${++n}`, passId: p.id, gate, direction: "in", time: at(inH, (i * 7) % 60) });
+    // About half the morning crew has left by evening.
+    if (!afternoon && i % 2 === 0) {
+      extra.push({ id: `ge-g-${++n}`, passId: p.id, gate, direction: "out", time: at(14 + (i % 4), (i * 11) % 60) });
+    }
+  });
   return [...named, ...extra];
 }
 

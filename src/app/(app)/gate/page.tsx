@@ -1,5 +1,7 @@
 "use client";
 
+import { GateCharts } from "@/components/charts/page-charts";
+
 import { Avatar } from "@/components/ui/avatar";
 import { PassTicket } from "@/components/ui/pass-ticket";
 import { ScrambleText } from "@/components/ui/scramble-text";
@@ -7,7 +9,7 @@ import { ScrollFade } from "@/components/ui/scroll-fade";
 import { TactileButton } from "@/components/ui/tactile-button";
 import { Input } from "@/components/ui/input";
 import { maskAadhaar } from "@/lib/format";
-import { passBlockReason } from "@/lib/gate";
+import { passBlockReason, insideNow } from "@/lib/gate";
 import { useHrms } from "@/lib/store";
 import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
@@ -41,14 +43,7 @@ export default function GatePage() {
       ? passes.filter((p) => workers.find((w) => w.id === p.workerId)?.contractorId === me?.contractorId)
       : passes;
 
-  const inside = useMemo(() => {
-    const last = new Map<string, "in" | "out">();
-    [...events].reverse().forEach((e) => {
-      const p = visiblePasses.find((x) => x.id === e.passId);
-      if (p) last.set(p.workerId, e.direction);
-    });
-    return [...last.entries()].filter(([, d]) => d === "in").length;
-  }, [events, visiblePasses]);
+  const inside = useMemo(() => insideNow(events, visiblePasses).size, [events, visiblePasses]);
 
   function scan(direction: "in" | "out") {
     const r = record(picked, "Gate 2", direction);
@@ -60,6 +55,7 @@ export default function GatePage() {
 
   return (
     <div className="mx-auto max-w-3xl">
+      <GateCharts />
       <div className="mb-6 flex items-end justify-between">
         <div>
           <p className="text-sm text-muted">Gate 2 · CDU west</p>

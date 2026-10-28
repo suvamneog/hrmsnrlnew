@@ -1,5 +1,7 @@
 "use client";
 
+import { TimeCharts } from "@/components/charts/page-charts";
+
 import { ATT_DOT, StatusMonth } from "@/components/calendar/status-month";
 import { PunchCard } from "@/components/ess/punch-card";
 import type { Punch } from "@/lib/types";
@@ -185,6 +187,7 @@ export default function TimePage() {
           <PunchCard />
         </InView>
       </div>
+      <TimeCharts />
       <Tabs defaultValue="month">
         <TabsList>
           <TabsTrigger value="month">Calendar</TabsTrigger>

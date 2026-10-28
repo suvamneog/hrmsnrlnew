@@ -1,5 +1,7 @@
 "use client";
 
+import { ContractorCharts } from "@/components/charts/page-charts";
+
 import { PageHeader } from "@/components/layout/page-header";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +14,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Field, Input, Select } from "@/components/ui/input";
 import { downloadText, oshReturn, prettySize } from "@/lib/files";
 import { maskAadhaar } from "@/lib/format";
-import { daysToLicence, passBlockReason } from "@/lib/gate";
+import { daysToLicence, passBlockReason, insideNow } from "@/lib/gate";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -46,14 +48,12 @@ export default function ContractorsPage() {
   return (
     <div>
       <PageHeader title="Contract labour" />
+      <ContractorCharts />
       <div className="grid gap-4">
         {contractors.map((c) => {
           const crew = workers.filter((w) => w.contractorId === c.id);
           const days = daysToLicence(c.licenceExpiry);
-          const inside = crew.filter((w) => {
-            const last = events.find((e) => passes.find((p) => p.id === e.passId)?.workerId === w.id);
-            return last?.direction === "in";
-          }).length;
+          const inside = insideNow(events, passes, new Set(crew.map((w) => w.id))).size;
           return (
             <Card key={c.id} className="p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">

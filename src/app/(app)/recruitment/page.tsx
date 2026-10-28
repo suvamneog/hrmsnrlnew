@@ -1,5 +1,7 @@
 "use client";
 
+import { RecruitmentCharts } from "@/components/charts/page-charts";
+
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,6 +47,7 @@ export default function RecruitmentPage() {
       <PageHeader
         title="Recruitment"
       />
+      <RecruitmentCharts />
       {canEdit && (
         <Card className="mb-5 p-5">
           <form

@@ -3,6 +3,8 @@
 import { format, parseISO } from "date-fns";
 import { AttendanceStrip } from "@/components/ess/attendance-strip";
 import { RoleHero } from "@/components/home/role-hero";
+import { DashboardCharts } from "@/components/home/dashboard-charts";
+import { insideNow } from "@/lib/gate";
 import { QuickActions } from "@/components/ess/quick-actions";
 import { HomeRightRail } from "@/components/home/right-rail";
 import { KpiStrip, buildHomeKpis } from "@/components/home/kpi-strip";
@@ -72,14 +74,7 @@ export default function HomePage() {
   const myWorkerIds = new Set(myWorkers.map((w) => w.id));
   const myPasses = supervisor ? passes.filter((p) => myWorkerIds.has(p.workerId)) : passes;
 
-  const inside = new Set(
-    myWorkers
-      .map((w) => w.id)
-      .filter((id) => {
-        const ev = events.filter((g) => passes.find((p) => p.id === g.passId)?.workerId === id);
-        return ev[0]?.direction === "in";
-      }),
-  );
+  const inside = insideNow(events, passes, myWorkerIds);
 
   const ess = routeAllowed("/leave", role);
   const canApprove = role === "line_manager" || role === "hr_admin" || role === "finance_approver";
@@ -123,6 +118,8 @@ export default function HomePage() {
         </InView>
 
         <KpiStrip items={kpis} />
+
+        <DashboardCharts />
 
         <AnimatedGroup preset="slide" className="grid gap-4">
           <RoleHero />

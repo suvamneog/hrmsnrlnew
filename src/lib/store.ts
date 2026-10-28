@@ -1440,7 +1440,7 @@ export const useHrms = create<HrmsState>()(
     }),
     {
       name: "nrl-people",
-      version: 11,
+      version: 12,
       migrate: () => ({ ...initial }),
       partialize: (s) => {
         const slice = { ...initial };

@@ -1,5 +1,5 @@
 import { DEMO_TODAY } from "./demo";
-import type { Certificate, Contractor, ContractWorker } from "./types";
+import type { Certificate, Contractor, ContractWorker, GateEvent, GatePass } from "./types";
 
 export function passBlockReason(args: {
   worker: ContractWorker;
@@ -25,4 +25,17 @@ export function daysToLicence(expiry: string, today = DEMO_TODAY) {
   const a = Date.parse(`${today}T00:00:00`);
   const b = Date.parse(`${expiry}T00:00:00`);
   return Math.round((b - a) / 86400000);
+}
+
+// Worker ids whose most recent gate event, by time, is an entry.
+export function insideNow(events: GateEvent[], passes: GatePass[], workerIds?: Set<string>) {
+  const passWorker = new Map(passes.map((p) => [p.id, p.workerId]));
+  const latest = new Map<string, GateEvent>();
+  for (const e of events) {
+    const w = passWorker.get(e.passId);
+    if (!w || (workerIds && !workerIds.has(w))) continue;
+    const prev = latest.get(w);
+    if (!prev || e.time > prev.time) latest.set(w, e);
+  }
+  return new Set([...latest].filter(([, e]) => e.direction === "in").map(([w]) => w));
 }

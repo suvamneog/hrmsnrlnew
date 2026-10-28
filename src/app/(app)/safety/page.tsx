@@ -1,5 +1,7 @@
 "use client";
 
+import { SafetyCharts } from "@/components/charts/page-charts";
+
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +30,7 @@ export default function SafetyPage() {
   return (
     <div>
       <PageHeader title="Safety training" />
+      <SafetyCharts />
       <Card className="mb-5 px-5 py-2">
         <FileDownloadList>
           <FileDownload

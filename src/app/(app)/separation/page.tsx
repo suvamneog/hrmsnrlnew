@@ -1,5 +1,7 @@
 "use client";
 
+import { SeparationCharts } from "@/components/charts/page-charts";
+
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { FileDownload, FileDownloadList } from "@/components/ui/file-download";
@@ -23,6 +25,7 @@ export default function SeparationPage() {
   return (
     <div>
       <PageHeader title="Separation" subtitle="Clearance across departments, then gratuity, leave encashment and final settlement" />
+      <SeparationCharts />
       {rows.map((s) => {
         const e = employees.find((x) => x.id === s.employeeId);
         const open = s.clearances.some((c) => !c.done);

@@ -360,6 +360,8 @@ export interface Contractor {
   workOrderEnd: string;
   licenceNo: string;
   licenceExpiry: string;
+  // Most workers the labour licence allows on site at once.
+  capacity?: number;
   pfCode: string;
   esiCode: string;
   area: string;

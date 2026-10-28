@@ -3,6 +3,7 @@
 import { HeroCard as Shell } from "@/components/ui/hero-card";
 import { canDecideFor } from "@/lib/access";
 import { liveCensus } from "@/lib/census";
+import { insideNow } from "@/lib/gate";
 import { DEMO_TODAY, openPair, punchesOn } from "@/lib/demo";
 import { inr, monthLabel } from "@/lib/format";
 import { PAYROLL_STAGES } from "@/lib/payroll";
@@ -234,12 +235,7 @@ function PlantHero({ me, role }: { me: Employee; role: Role }) {
   const workers = workersAll.filter((w) => ids.has(w.contractorId));
   const workerIds = new Set(workers.map((w) => w.id));
 
-  const last = new Map<string, "in" | "out">();
-  [...events].reverse().forEach((e) => {
-    const p = passes.find((x) => x.id === e.passId);
-    if (p && workerIds.has(p.workerId)) last.set(p.workerId, e.direction);
-  });
-  const insideIds = new Set([...last.entries()].filter(([, d]) => d === "in").map(([id]) => id));
+  const insideIds = insideNow(events, passes, workerIds);
   const byFirm = contractors.map((c) => ({
     label: c.name.replace(/ (Ltd|Limited|\(India\)).*$/, ""),
     value: workers.filter((w) => w.contractorId === c.id && insideIds.has(w.id)).length,
