@@ -1,20 +1,23 @@
 "use client";
 
-import { Avatar } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { HoldToConfirm } from "@/components/ui/hold-to-confirm";
-import { ScrollFade } from "@/components/ui/scroll-fade";
 import { TodayList, useToday } from "@/components/home/today";
+import { Badge } from "@/components/shadcn/badge";
+import { Checkbox } from "@/components/shadcn/checkbox";
+import { Input } from "@/components/shadcn/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/shadcn/tabs";
+import { ToggleGroup, ToggleGroupItem } from "@/components/shadcn/toggle-group";
+import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { HoldToConfirm } from "@/components/ui/hold-to-confirm";
+import { MagnifyingGlass, Tray } from "@phosphor-icons/react";
 import { canDecideFor, claimApproverRole } from "@/lib/access";
 import { formatDay, inr } from "@/lib/format";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
-type Kind = "all" | "leave" | "time" | "claim";
-type Scope = "todo" | "mine";
+type Kind = "all" | "leave" | "time" | "claim" | "change";
+type Scope = "todo" | "mine" | "desks";
 
 type Row = {
   id: string;
@@ -47,6 +50,8 @@ export default function ApprovalsPage() {
   const decideAdvance = useHrms((s) => s.decideAdvance);
   const role = useHrms((s) => s.actingRole);
   const [picked, setPicked] = useState<Scope | null>(null);
+  const [q, setQ] = useState("");
+  const [sel, setSel] = useState<Set<string>>(new Set());
   const today = useToday();
   const [kind, setKind] = useState<Kind>("all");
   const meId = me?.id;
@@ -131,7 +136,7 @@ export default function ApprovalsPage() {
     if (!own && !checker) continue;
     rows.push({
       id: ch.id,
-      kind: "claim",
+      kind: "change",
       title: `${ch.field} change`,
       sub: `${ch.from} → ${ch.to}`,
       who: nameOf(ch.employeeId),
@@ -159,105 +164,150 @@ export default function ApprovalsPage() {
 
   const todoN = rows.filter((r) => !r.own).length;
   const mineN = rows.filter((r) => r.own).length;
-  const scope: Scope = picked ?? (todoN > 0 ? "todo" : "mine");
-  const scoped = rows.filter((r) => (scope === "mine" ? r.own : !r.own));
-  const filtered = scoped.filter((r) => kind === "all" || r.kind === kind);
-  // Work from the other desks (cases, musters, permits, pay exceptions) that is not an approval.
-  const other = today.filter((t) => t.href !== "/approvals");
+  // Only work someone has to act on; status lines like the next shift stay on Home.
+  const desks = today.filter((t) => t.href !== "/approvals" && !["punch", "next-shift", "my-cases"].includes(t.id));
+  const scope: Scope = picked ?? (todoN > 0 ? "todo" : desks.length ? "desks" : "mine");
+  const term = q.trim().toLowerCase();
+  const visible = rows
+    .filter((r) => (scope === "mine" ? r.own : !r.own))
+    .filter((r) => kind === "all" || r.kind === kind)
+    .filter((r) => !term || `${r.who} ${r.title} ${r.sub}`.toLowerCase().includes(term));
+  // Bulk actions cover plain approvals; large claims still need a deliberate hold, one by one.
+  const bulkable = visible.filter((r) => !r.own && r.approve && !r.hold);
+  const chosen = bulkable.filter((r) => sel.has(r.id));
+  const toggle = (id: string) => setSel((prev) => {
+    const next = new Set(prev);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    return next;
+  });
+  function bulk(action: "approve" | "reject") {
+    chosen.forEach((r) => (action === "approve" ? r.approve?.() : r.reject?.()));
+    toast.success(`${chosen.length} ${action === "approve" ? "approved" : "rejected"}`);
+    setSel(new Set());
+  }
+
+  const KIND: Record<Exclude<Kind, "all">, string> = { leave: "Leave", time: "Attendance", claim: "Claim or advance", change: "Record change" };
+
+  const list = (
+    <div className="rounded-xl border border-line bg-white">
+      {scope === "todo" && bulkable.length > 0 && (
+        <div className="flex flex-wrap items-center gap-3 border-b border-line px-4 py-2.5">
+          <Checkbox
+            aria-label="Select all"
+            checked={chosen.length === bulkable.length ? true : chosen.length ? "indeterminate" : false}
+            onCheckedChange={(v) => setSel(v ? new Set(bulkable.map((r) => r.id)) : new Set())}
+          />
+          <span className="text-[13px] text-muted">{chosen.length ? `${chosen.length} selected` : "Select to approve or reject together"}</span>
+          {chosen.length > 0 && (
+            <span className="ml-auto flex gap-2">
+              <Button variant="secondary" className="h-8 px-3 text-[13px]" onClick={() => bulk("reject")}>
+                Reject
+              </Button>
+              <Button className="h-8 px-3 text-[13px]" onClick={() => bulk("approve")}>
+                {`Approve ${chosen.length}`}
+              </Button>
+            </span>
+          )}
+        </div>
+      )}
+      {visible.length === 0 ? (
+        <div className="grid place-items-center gap-2 px-6 py-14 text-center">
+          <Tray size={28} className="text-faint" />
+          <p className="text-sm font-medium text-ink">{term ? "Nothing matches that search." : scope === "todo" ? "Nothing waiting on you." : "No open requests of yours."}</p>
+          <p className="text-[13px] text-muted">{scope === "todo" ? "New requests from your team land here." : "Requests you raise show here until they are decided."}</p>
+        </div>
+      ) : (
+        <ul className="divide-y divide-line">
+          {visible.map((r) => {
+            const pickable = bulkable.includes(r);
+            return (
+              <li key={r.id} className={`flex flex-wrap items-center gap-3 px-4 py-3.5 transition-colors ${sel.has(r.id) ? "bg-brand-soft/40" : "hover:bg-subtle"}`}>
+                {scope === "todo" && (
+                  <Checkbox aria-label={`Select ${r.title}`} disabled={!pickable} checked={sel.has(r.id)} onCheckedChange={() => toggle(r.id)} className={pickable ? "" : "invisible"} />
+                )}
+                <Avatar name={r.who} size={36} />
+                <div className="min-w-0 flex-1 basis-[180px]">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-sm font-medium text-ink">{r.own ? "You" : r.who}</p>
+                    <Badge variant="secondary" className="rounded-md font-normal">
+                      {KIND[r.kind]}
+                    </Badge>
+                    {r.hold && (
+                      <Badge variant="outline" className="rounded-md border-warn/30 font-normal text-warn">
+                        Finance limit
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="mt-0.5 text-sm text-ink">{r.title}</p>
+                  <p className="truncate text-[13px] text-muted">{r.sub}</p>
+                </div>
+                {/* On a phone the actions drop below the request so its text keeps the full width. */}
+                <div className="flex shrink-0 gap-2 max-sm:w-full max-sm:justify-end">
+                  {r.own && r.kind === "leave" && r.reject && (
+                    <Button variant="secondary" className="h-8 px-3 text-[13px]" onClick={r.reject}>
+                      Withdraw
+                    </Button>
+                  )}
+                  {!r.own && r.reject && (
+                    <Button variant="secondary" className="h-8 px-3 text-[13px]" onClick={r.reject}>
+                      Reject
+                    </Button>
+                  )}
+                  {!r.own && r.approve && r.hold && <HoldToConfirm label="Hold to approve" doneLabel="Approved" onConfirm={r.approve} />}
+                  {!r.own && r.approve && !r.hold && (
+                    <Button className="h-8 px-3 text-[13px]" onClick={r.approve}>
+                      Approve
+                    </Button>
+                  )}
+                  {r.own && !r.reject && <Badge variant="outline" className="rounded-md font-normal text-muted">Waiting</Badge>}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
 
   return (
-    <div>
+    <div className="mx-auto max-w-4xl">
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-[28px] font-semibold tracking-tight">Inbox</h1>
+          <p className="mt-1 text-sm text-muted">
+            {`${todoN} waiting on you, ${mineN} of yours open, ${desks.length} from other desks.`}
+          </p>
         </div>
+        <label className="relative w-full sm:w-64">
+          <MagnifyingGlass size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name or request" className="h-9 bg-white pl-9" />
+        </label>
       </div>
 
-      {other.length > 0 && (
-        <div className="mb-6">
-          <TodayList items={other} title="Also waiting on you" />
+      <Tabs value={scope} onValueChange={(v) => { setPicked(v as Scope); setSel(new Set()); }}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <TabsList className="bg-fill">
+            <TabsTrigger value="todo">{`To do ${todoN}`}</TabsTrigger>
+            <TabsTrigger value="mine">{`Mine ${mineN}`}</TabsTrigger>
+            <TabsTrigger value="desks">{`Other desks ${desks.length}`}</TabsTrigger>
+          </TabsList>
+          {scope !== "desks" && (
+            <ToggleGroup type="single" value={kind} onValueChange={(v) => v && setKind(v as Kind)} className="flex-wrap">
+              {(["all", "leave", "time", "claim", "change"] as const).map((k) => (
+                <ToggleGroupItem key={k} value={k} className="h-8 rounded-md px-2.5 text-[13px] data-[state=on]:bg-fill">
+                  {k === "all" ? "All" : KIND[k]}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          )}
         </div>
-      )}
-
-      <div className="mb-4 flex gap-2">
-        {(
-          [
-            ["todo", `To-do ${todoN}`],
-            ["mine", `Mine ${mineN}`],
-          ] as const
-        ).map(([id, label]) => (
-          <button
-            key={id}
-            onClick={() => setPicked(id)}
-            className={`rounded-lg px-4 py-2 text-sm font-semibold ${
-              scope === id ? "bg-ink text-white" : "bg-white text-muted"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-      <div className="mb-4 flex gap-2 overflow-x-auto">
-        {(
-          [
-            ["all", "All"],
-            ["leave", "Leave"],
-            ["time", "Attendance"],
-            ["claim", "Claims"],
-          ] as const
-        ).map(([id, label]) => (
-          <button
-            key={id}
-            onClick={() => setKind(id)}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${
-              kind === id ? "bg-brand-soft text-brand" : "bg-white text-muted"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      <ScrollFade className="grid max-h-[min(70vh,720px)] gap-2 pr-1">
-        {filtered.length === 0 && (
-          <Card className="p-10 text-center text-sm text-muted">
-            {scope === "todo" ? "Nothing waiting on you." : "No open requests of yours."}
-          </Card>
-        )}
-        {filtered.map((r) => (
-          <Card key={r.id} className="flex flex-wrap items-center gap-3 p-3.5 sm:p-4">
-            <Avatar name={r.who} size={40} />
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="font-semibold">{r.own ? "You" : r.who}</p>
-                <Badge tone={r.kind === "claim" ? "peach" : r.kind === "leave" ? "lilac" : "muted"}>
-                  {r.kind === "time" ? "attendance" : r.kind}
-                </Badge>
-              </div>
-              <p className="text-sm">{r.title}</p>
-              <p className="truncate text-xs text-muted">{r.sub}</p>
-            </div>
-            <div className="flex gap-2">
-              {r.own && r.kind === "leave" && r.reject && (
-                <Button variant="secondary" onClick={r.reject}>
-                  Withdraw
-                </Button>
-              )}
-              {!r.own && r.reject && (
-                <Button variant="secondary" onClick={r.reject}>
-                  Reject
-                </Button>
-              )}
-              {!r.own && r.approve && r.hold && (
-                <HoldToConfirm label="Hold to approve" doneLabel="Approved" onConfirm={r.approve} />
-              )}
-              {!r.own && r.approve && !r.hold && (
-                <Button onClick={r.approve}>Approve</Button>
-              )}
-            </div>
-          </Card>
-        ))}
-      </ScrollFade>
+        <TabsContent value="todo" className="mt-3">{list}</TabsContent>
+        <TabsContent value="mine" className="mt-3">{list}</TabsContent>
+        <TabsContent value="desks" className="mt-3">
+          <TodayList items={desks} title="From other desks" empty="Nothing from other desks needs you." />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
