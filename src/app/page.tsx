@@ -3,7 +3,7 @@
 import { landingFor } from "@/lib/access";
 import { LanguageSwitch } from "@/components/i18n/language-switch";
 import Link from "next/link";
-import { LoginScene } from "@/components/login/login-scene";
+import Image from "next/image";
 import { needsMfa, resolveDirectory, verifyMfa } from "@/lib/auth";
 import { useHrms } from "@/lib/store";
 import type { Role } from "@/lib/types";
@@ -123,8 +123,8 @@ export default function LoginPage() {
       </form>
 
       <div className="hidden min-h-[100dvh] flex-1 pt-1 md:block">
-        <div className="relative h-full overflow-hidden rounded-l-[28px] bg-[#f5f7fb]">
-          <div className="absolute right-8 top-7 z-10 flex items-center gap-2.5">
+        <div className="relative h-full overflow-hidden rounded-l-[28px] bg-[#e3eef3]">
+          <div className="absolute right-8 top-7 z-10 flex items-center gap-2.5 rounded-full bg-white/80 px-4 py-2 backdrop-blur">
             <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden>
               <g fill="#3d5afe" transform="rotate(-38 16 16)">
                 <rect x="3" y="4" width="5" height="24" rx="2.5" />
@@ -135,7 +135,15 @@ export default function LoginPage() {
             </svg>
             <span className="text-[22px] font-normal tracking-tight text-[#1b2140]">NRL <b className="font-bold">People</b></span>
           </div>
-          <LoginScene />
+          {/* Refinery crew fills the panel; cropping keeps the people centred and the ground at the bottom. */}
+          <Image
+            src="/login-cover.webp"
+            alt="NRL plant staff in front of the refinery"
+            fill
+            priority
+            sizes="70vw"
+            className="select-none object-cover object-[50%_100%]"
+          />
         </div>
       </div>
     </div>
