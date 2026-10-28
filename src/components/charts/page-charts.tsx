@@ -232,7 +232,7 @@ export function SafetyCharts() {
         action={
           expired ? (
             <Link href="/gate" className="shrink-0 rounded-full bg-[#fdecec] px-3 py-1.5 text-[12px] font-semibold text-[#c43d3d] transition hover:bg-[#fbdcdc]">
-              Blocked at gate →
+              See blocked passes
             </Link>
           ) : undefined
         }

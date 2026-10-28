@@ -1,5 +1,9 @@
 import type { Employee } from "./types";
 
+/* The demo roll is a generated sample. NRL's published on-roll strength is shown beside it. */
+export const PUBLISHED_ON_ROLL = 1120;
+export const SAMPLE_NOTE = "Demo sample. NRL publishes 1,120 on roll.";
+
 export const CENSUS = {
   onRoll: 1588,
   executives: 412,

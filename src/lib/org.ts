@@ -106,6 +106,7 @@ export const STRENGTH_POSITIONS: Position[] = STRENGTH_UNITS.flatMap((u) =>
 );
 
 export const POSITIONS: Position[] = [
+  { id: "p-md", title: "Managing Director", unitId: "nrl", grade: "E9", cadre: "executive", vacant: false },
   { id: "p-cgm-tech", title: "CGM (Technical)", unitId: "tech", grade: "E6", cadre: "executive", vacant: false },
   { id: "p-gm-hr", title: "GM (HR)", unitId: "hr", grade: "E7", cadre: "executive", vacant: false },
   { id: "p-dgm-ops", title: "DGM (Operations)", unitId: "ops", grade: "E5", cadre: "executive", vacant: false },

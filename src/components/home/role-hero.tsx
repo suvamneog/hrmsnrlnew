@@ -152,6 +152,7 @@ function PeopleHero({ me }: { me: Employee }) {
           <p className="mt-5 text-[12px] text-muted">
             Women {census.women} · PwBD {census.pwbd} · {((census.women / Math.max(1, census.onRoll)) * 100).toFixed(1)}% women
           </p>
+          <p className="mt-1 text-[12px] text-muted">Demo sample. NRL publishes 1,120 on roll.</p>
         </div>
         <div>
           <Fact label="Changes to check" value={checker} tone={checker ? "warn" : "ok"} />

@@ -1,7 +1,9 @@
 "use client";
 
 import { AccountChip } from "@/components/layout/account-chip";
-import { Bell, MagnifyingGlass, SignOut } from "@phosphor-icons/react";
+import { ArrowCounterClockwise, Bell, MagnifyingGlass, SignOut } from "@phosphor-icons/react";
+import { useDesk } from "@/lib/desk";
+import { toast } from "sonner";
 import { commandHits } from "@/lib/search";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import Link from "next/link";
@@ -18,6 +20,9 @@ export function Topbar() {
   const types = useHrms((s) => s.leaveTypes);
   const notes = useHrms((s) => s.notifications);
   const logout = useHrms((s) => s.logout);
+  const resetDemo = useHrms((s) => s.resetDemo);
+  const resetDesk = useDesk((s) => s.resetDesk);
+  const [confirmReset, setConfirmReset] = useState(false);
   const markRead = useHrms((s) => s.markRead);
   const router = useRouter();
   const [q, setQ] = useState("");
@@ -74,6 +79,25 @@ export function Topbar() {
       >
         <Bell size={18} weight="duotone" />
         {mine.length > 0 && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#e14b4b]" />}
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          if (!confirmReset) {
+            setConfirmReset(true);
+            setTimeout(() => setConfirmReset(false), 3000);
+            return;
+          }
+          resetDemo();
+          resetDesk();
+          setConfirmReset(false);
+          toast.success("Demo data reset");
+        }}
+        className={`hidden h-11 shrink-0 items-center gap-2 rounded-full px-4 text-[13px] font-semibold transition-colors md:inline-flex ${confirmReset ? "bg-[#fdecec] text-[#b42f2f]" : "bg-white text-muted hover:text-ink"}`}
+        aria-label="Reset demo data"
+      >
+        <ArrowCounterClockwise size={16} />
+        {confirmReset ? "Tap again to reset" : "Reset demo"}
       </button>
       <div className="ml-auto md:ml-0">
         <AccountChip />

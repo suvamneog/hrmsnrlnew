@@ -104,7 +104,7 @@ export default function ReportsPage() {
           ))}
         </div>
         <p className="mt-4 text-sm text-muted">
-          {t.women} {census.women} · PwBD {census.pwbd} · on roll {census.onRoll.toLocaleString("en-IN")}
+          {t.women} {census.women} · PwBD {census.pwbd} · on roll {census.onRoll.toLocaleString("en-IN")} (demo sample; NRL publishes 1,120)
         </p>
       </Card>
       <Card className="mt-5 px-5 py-2">

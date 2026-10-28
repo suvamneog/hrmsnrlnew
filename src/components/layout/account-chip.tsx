@@ -2,7 +2,7 @@
 
 import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/cn";
-import { routeAllowed } from "@/lib/access";
+import { landingFor, routeAllowed } from "@/lib/access";
 import { positionTitle } from "@/lib/org";
 import { DEMOS } from "@/lib/seed";
 import { useCurrentUser, useHrms } from "@/lib/store";
@@ -68,11 +68,9 @@ export function AccountChip() {
                   aria-selected={active}
                   onClick={() => {
                     const dest =
-                      a.role === "gate_security"
-                        ? "/gate"
-                        : path === "/gate" || !routeAllowed(path, a.role)
-                          ? "/home"
-                          : null;
+                      a.role === "gate_security" || a.role === "md" || path === "/gate" || !routeAllowed(path, a.role)
+                        ? landingFor(a.role)
+                        : null;
                     login(a.employeeId, a.role);
                     setOpen(false);
                     if (dest) queueMicrotask(() => router.replace(dest));

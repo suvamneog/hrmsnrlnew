@@ -52,7 +52,7 @@ export default function OrgPage() {
     <div>
       <PageHeader
         title="Organisation"
-        subtitle={`${onRoll.length.toLocaleString("en-IN")} on roll across Numaligarh, Siliguri, Paradip and Guwahati.`}
+        subtitle={`${onRoll.length.toLocaleString("en-IN")} on roll across Numaligarh, Siliguri, Paradip and Guwahati. Demo sample; NRL publishes 1,120.`}
       />
       <div className="mb-6">
         <HeadcountCharts />

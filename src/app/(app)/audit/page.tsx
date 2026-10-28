@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, Input } from "@/components/ui/input";
+import { downloadText } from "@/lib/files";
 import { formatStamp } from "@/lib/format";
 import { useHrms } from "@/lib/store";
 import { useState } from "react";
@@ -19,10 +20,46 @@ export default function AuditPage() {
   const addRetention = useHrms((s) => s.addRetention);
   const [title, setTitle] = useState("");
   const [hold, setHold] = useState("");
+  const [digest, setDigest] = useState<string | null>(null);
+
+  // Long digit runs and PAN-shaped values are masked unless the auditor asks for them.
+  const mask = (v = "") => v.replace(/\b\d{6,}\b/g, (m) => `${"x".repeat(m.length - 4)}${m.slice(-4)}`).replace(/\b[A-Z]{5}\d{4}[A-Z]\b/g, "xxxxx####x");
+
+  async function exportHashed(withPii: boolean) {
+    const rows = [...audit].sort((x, y) => x.at.localeCompare(y.at));
+    const lines = ["at,actor,action,object,before,after,source,chain_sha256"];
+    let prev = "";
+    const enc = new TextEncoder();
+    const hex = (b: ArrayBuffer) => [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, "0")).join("");
+    for (const a of rows) {
+      const cells = [a.at, a.actorId, a.action, a.object, withPii ? a.before ?? "" : mask(a.before), withPii ? a.after ?? "" : mask(a.after), a.source].map((c) => `"${String(c).replace(/"/g, "'")}"`);
+      // Each row's hash covers the previous one, so editing any row breaks every hash after it.
+      prev = hex(await crypto.subtle.digest("SHA-256", enc.encode(prev + cells.join(","))));
+      lines.push([...cells, prev].join(","));
+    }
+    lines.push(`# rows ${rows.length}, final sha256 ${prev}, pii ${withPii ? "included" : "masked"}`);
+    downloadText(`nrl-audit-${withPii ? "full" : "masked"}.csv`, lines.join("\n"), "text/csv");
+    setDigest(prev);
+    if (withPii) addRetention("audit-export", "PII export by auditor", new Date().toISOString().slice(0, 10));
+    toast.success(`Exported ${rows.length} rows with a SHA-256 chain`);
+  }
 
   return (
     <div>
-      <PageHeader title="Audit trail" />
+      <PageHeader
+        title="Audit trail"
+        subtitle={digest ? `Last export ends in hash ${digest.slice(0, 16)}. Keep it to prove the file was not edited.` : "Exports hide PII by default and carry a SHA-256 hash chain."}
+        actions={
+          <>
+            <Button onClick={() => exportHashed(false)}>Export, PII masked</Button>
+            {role === "auditor" && (
+              <Button variant="secondary" onClick={() => exportHashed(true)}>
+                Export with PII
+              </Button>
+            )}
+          </>
+        }
+      />
       <Card className="overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-[#f6f8fd] text-left text-xs text-muted">

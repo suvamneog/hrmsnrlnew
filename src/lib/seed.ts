@@ -454,6 +454,41 @@ export const EMPLOYEES: Employee[] = [
     roles: ["employee", "auditor"],
   }),
   emp({
+    id: "e-md",
+    empNo: "NRL/E/1992/001",
+    name: "Devajit Barooah",
+    preferredName: "Devajit",
+    gender: "M",
+    dob: "1967-03-14",
+    doj: "1992-07-01",
+    confirmationDate: "1993-07-01",
+    email: "md.office@nrl.co.in",
+    phone: "+91 94350 00001",
+    category: "UR",
+    pwbd: false,
+    cadre: "executive",
+    grade: "E9",
+    basic: 180000,
+    cafeteriaPct: 35,
+    hardshipAllowance: 0,
+    locationId: "numaligarh",
+    unitId: "nrl",
+    positionId: "p-md",
+    status: "active",
+    bankAccount: "1002980001",
+    ifsc: "SBIN0003180",
+    pan: "ADBPB1001K",
+    aadhaar: "102938470001",
+    uan: "100102930001",
+    npsPran: "110100200001",
+    assignmentHistory: [
+      { positionId: "p-md", unitId: "nrl", locationId: "numaligarh", grade: "E9", cadre: "executive", validFrom: "2024-04-01" },
+    ],
+    family: [],
+    nominations: [],
+    roles: ["employee", "md"],
+  }),
+  emp({
     id: "e-meenakshi",
     empNo: "NRL/E/2015/166",
     name: "Meenakshi Devi",
@@ -1015,6 +1050,7 @@ export const DEMOS: { employeeId: string; role: Employee["roles"][number]; blurb
   { employeeId: "e-kaushik", role: "recruiter", blurb: "GATE pipeline and reservation roster." },
   { employeeId: "e-arup", role: "auditor", blurb: "Read-only records and the audit trail." },
   { employeeId: "e-vikram", role: "contractor_supervisor", blurb: "Own crew only. Wage proofs and passes." },
+  { employeeId: "e-md", role: "md", blurb: "Read-only plant and people dashboard." },
 ];
 
 export const SETTINGS: PolicySetting[] = [
@@ -1255,7 +1291,15 @@ export const ATTENDANCE: AttendanceDay[] = ROSTER.filter((r) => r.date <= TODAY)
   if (r.employeeId === "e-bikash" && r.date === "2026-10-16") {
     return { employeeId: r.employeeId, date: r.date, status: "leave", hours: 0, overtime: 0, shiftId: r.shiftId };
   }
-  const ot = r.shiftId === "N" && r.employeeId === "e-soneswar" && r.date.endsWith("12") ? 2.5 : 0;
+  // Workmen pick up overtime on about one duty in six, longer on nights.
+  const workman = EMPLOYEES.find((e) => e.id === r.employeeId)?.cadre === "workman";
+  const seed = [...`${r.employeeId}${r.date}`].reduce((n, c) => (n * 31 + c.charCodeAt(0)) % 9973, 7);
+  const ot =
+    r.shiftId === "N" && r.employeeId === "e-soneswar" && r.date.endsWith("12")
+      ? 2.5
+      : workman && seed % 6 === 0
+        ? [1.5, 2, 3, 4][seed % 4] + (r.shiftId === "N" ? 1 : 0)
+        : 0;
   return { employeeId: r.employeeId, date: r.date, status: "present", hours: 8 + ot, overtime: ot, shiftId: r.shiftId };
 });
 

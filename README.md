@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NRL People
 
-## Getting Started
+A working prototype of an HRMS for Numaligarh Refinery Limited. It runs entirely in the browser on demo data, so it can be shown without a server.
 
-First, run the development server:
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev -- -p 3100
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3100. Every demo account uses the password `Nrl@2026`. HR, payroll, finance, the auditor and the MD also need the authenticator code `246810`. The account switcher in the top bar moves between roles; **Reset demo** in the top bar puts all data back.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Role | Sign in as (the part of the email before @) | Lands on |
+| --- | --- | --- |
+| Employee | pallabi.gogoi | Home |
+| Line manager (CDU shift-in-charge) | hiren.kalita | Home, Shift desk |
+| HR administrator | bhaskar.baruah | Home |
+| Payroll officer | pranjal.sharma | Payroll |
+| Finance approver | rajib.dutta | Pay cost |
+| Contract Labour Cell | meenakshi.devi | Contract labour, Muster |
+| Safety officer | ritu.das | Safety, Permits |
+| Gate security | manoj.basumatary | Pass check, Visitors |
+| Recruiter | kaushik.hazarika | Recruitment, Interviews |
+| Auditor | arup.bora | Audit trail |
+| Contractor supervisor | vikram.rao (email at lntecc.com) | Home, Muster |
+| Managing Director (read only) | md.office | Overview |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The walkthrough is in [docs/demo-script.md](docs/demo-script.md).
 
-## Learn More
+## What the prototype does
 
-To learn more about Next.js, take a look at the following resources:
+- Payroll from attendance lock to bank file, with SAP HR reconciliation and statutory files (SBI, EPFO ECR, NPS, 24Q, PT).
+- Rules engine with versioned, maker-checker policy values.
+- Gate pass checks that block on police, medical, induction, licence or certificate; visitor and vehicle passes on three gates.
+- Shift desk for changeover exceptions, bulk approval, delegation, overtime and certificate-lapse impact on next week's roster.
+- Contract labour muster checked against gate entries, worker addition requests, EPF and ESI challan checks.
+- Work permits tied to certificate validity, incidents and near misses, an OISD-style export.
+- Interview scheduling, panel score sheets, document verification and offer letters.
+- Helpdesk, grievance, discipline, transfer and medical cases.
+- Audit export with PII masked by default and a SHA-256 hash chain.
+- Charts on every operational page, and a read-only MD overview.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Demo data
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The on-roll headcount of 1,588 is a generated sample. NRL publishes 1,120 on roll; screens that show the sample say so. Minimum crew manning (3), overtime rates and contractor scale are demo values to confirm with NRL.
 
-## Deploy on Vercel
+## Not in this build (Phase 0 and production work)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Backend, database and shared multi-user state. Data lives in each browser.
+- NRL Active Directory SSO and real MFA; server-side permissions.
+- Tamper-proof, India-hosted, encrypted audit storage; backup; VAPT.
+- Live SAP, Saral Pravesh readers, SBI salary file, EPFO ECR and TRACES submission. Files download; nothing is submitted.
+- A parallel payroll run against the current system, and month-on-month variance (only October 2026 exists).
+- Full Assamese and Hindi UI, kiosk mode and offline mobile.
+- Confirmed shift pattern, overtime rates and NREP surge contractor split from NRL.

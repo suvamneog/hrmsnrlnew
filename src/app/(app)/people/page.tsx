@@ -65,7 +65,7 @@ export default function PeoplePage() {
         subtitle={
           role === "line_manager"
             ? `${rows.length} in your reporting line`
-            : `${census.onRoll.toLocaleString("en-IN")} on roll`
+            : `${census.onRoll.toLocaleString("en-IN")} on roll (demo sample; NRL publishes 1,120)`
         }
         actions={
           role === "hr_admin" || role === "recruiter" ? (

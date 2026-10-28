@@ -43,7 +43,8 @@ const surface =
 
 const DURATION = 900;
 
-/* Card that frames every chart: eyebrow, title, a headline figure, legend, then the plot. */
+/* Card that frames every chart: title, a headline figure, legend, then the plot.
+   `eyebrow` is kept for callers but not drawn: the title opens the card on its own. */
 export function ChartCard({
   eyebrow,
   title,
@@ -70,11 +71,10 @@ export function ChartCard({
       <div className="h-full rounded-[22px] bg-white p-5 ring-1 ring-[#e9ecf4] shadow-[0_1px_2px_rgba(27,33,64,0.04),0_10px_28px_rgba(45,64,180,0.06)] sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            {eyebrow && <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-brand">{eyebrow}</p>}
-            <h3 className="mt-1 flex items-center gap-2 text-[15px] font-semibold tracking-tight text-ink">
+            <h3 className="flex items-center gap-2 text-[15px] font-semibold tracking-tight text-ink">
               {title}
               {sample && (
-                <span className="rounded-md bg-[#fff4dc] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#a86a00]">
+                <span className="rounded-md bg-[#fff4dc] px-1.5 py-0.5 text-[11px] font-medium text-[#8a5600]">
                   Sample
                 </span>
               )}

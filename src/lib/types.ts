@@ -9,7 +9,8 @@ export type Role =
   | "gate_security"
   | "contractor_supervisor"
   | "recruiter"
-  | "auditor";
+  | "auditor"
+  | "md";
 
 export type Cadre =
   | "executive"

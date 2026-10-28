@@ -1,6 +1,6 @@
 "use client";
 
-import { canSeePerson, routeAllowed } from "@/lib/access";
+import { canSeePerson, landingFor, routeAllowed } from "@/lib/access";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -10,7 +10,7 @@ export function Guard({ children }: { children: React.ReactNode }) {
   const role = useHrms((s) => s.actingRole);
   const me = useCurrentUser();
   const employees = useHrms((s) => s.employees);
-  const home = role === "gate_security" ? "/gate" : "/home";
+  const home = landingFor(role);
 
   if (path.startsWith("/payroll/") && path !== "/payroll") {
     const id = path.split("/")[2];

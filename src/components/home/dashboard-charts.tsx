@@ -6,9 +6,9 @@ import { useHrms } from "@/lib/store";
 import { useMemo } from "react";
 
 // Shown to HR admin and auditor only: plant-wide attendance, crew manning and gate flow.
-const MIN_MANNING = 3;
+export const MIN_MANNING = 3;
 
-export function DashboardCharts() {
+export function DashboardCharts({ force }: { force?: boolean } = {}) {
   const role = useHrms((s) => s.actingRole);
   const attendance = useHrms((s) => s.attendance);
   const punches = useHrms((s) => s.punches);
@@ -19,7 +19,7 @@ export function DashboardCharts() {
   const mix = useMemo(() => attendanceMix(attendance, punches, shifts), [attendance, punches, shifts]);
   const crews = useMemo(() => crewCoverage(employees, roster, attendance, punches), [employees, roster, attendance, punches]);
   const gate = useMemo(() => gateByHour(events), [events]);
-  if (role !== "hr_admin" && role !== "auditor") return null;
+  if (!force && role !== "hr_admin" && role !== "auditor") return null;
 
   const last = mix.at(-1);
   const short = crews.filter((c) => c.actual < MIN_MANNING && c.planned > 0).length;

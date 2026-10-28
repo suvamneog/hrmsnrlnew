@@ -5,9 +5,15 @@ export function isOnRoll(role: Role | null) {
   return !!role && ON_ROLL.includes(role);
 }
 
+export function landingFor(role: Role | null) {
+  if (role === "gate_security") return "/gate";
+  if (role === "md") return "/md";
+  return "/home";
+}
+
 export function routeAllowed(path: string, role: Role | null): boolean {
   if (!role) return false;
-  if (role === "gate_security") return path === "/gate" || path.startsWith("/gate/");
+  if (role === "gate_security") return path === "/gate" || path.startsWith("/gate/") || path === "/visitors";
   const item = NAV.filter((n) => path === n.href || path.startsWith(`${n.href}/`)).sort(
     (a, b) => b.href.length - a.href.length,
   )[0];
@@ -33,6 +39,11 @@ export function canDecideFor(role: Role | null, viewerId: string, subjectId: str
 
 export function canSeePii(role: Role | null): boolean {
   return role === "hr_admin" || role === "auditor" || role === "payroll_officer";
+}
+
+/* The MD sees everything the dashboards show and changes nothing. */
+export function isReadOnly(role: Role | null) {
+  return role === "md" || role === "auditor";
 }
 
 export function canMutateHr(role: Role | null): boolean {

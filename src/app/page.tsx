@@ -1,5 +1,6 @@
 "use client";
 
+import { landingFor } from "@/lib/access";
 import { LoginScene } from "@/components/login/login-scene";
 import { needsMfa, resolveDirectory, verifyMfa } from "@/lib/auth";
 import { useHrms } from "@/lib/store";
@@ -23,7 +24,7 @@ export default function LoginPage() {
   const [pending, setPending] = useState<{ id: string; role: Role } | null>(null);
 
   useEffect(() => {
-    if (hydrated && userId) router.replace("/home");
+    if (hydrated && userId) router.replace(landingFor(useHrms.getState().actingRole));
   }, [hydrated, userId, router]);
 
   function submit(e: React.FormEvent) {
@@ -39,7 +40,7 @@ export default function LoginPage() {
         return;
       }
       login(r.id, r.role);
-      router.push(r.role === "gate_security" ? "/gate" : "/home");
+      router.push(landingFor(r.role));
       return;
     }
     if (!verifyMfa(mfa)) {
@@ -47,7 +48,7 @@ export default function LoginPage() {
       return;
     }
     login(pending.id, pending.role);
-    router.push(pending.role === "gate_security" ? "/gate" : "/home");
+    router.push(landingFor(pending.role));
   }
 
   return (

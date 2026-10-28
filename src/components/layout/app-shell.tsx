@@ -4,7 +4,7 @@ import { AccountChip } from "./account-chip";
 import { Guard } from "./guard";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
-import { routeAllowed } from "@/lib/access";
+import { landingFor, routeAllowed } from "@/lib/access";
 import { useHrms } from "@/lib/store";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -12,6 +12,8 @@ import Link from "next/link";
 import { NavIcon } from "@/components/icons";
 import { cn } from "@/lib/cn";
 import type { NavItem } from "@/lib/nav";
+
+const GATE_DESK = ["/gate", "/visitors"];
 
 const ESS_TABS: NavItem[] = [
   { href: "/home", label: "Home", icon: "house", roles: "all" },
@@ -33,9 +35,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [hydrated, userId, router]);
 
   useEffect(() => {
-    if (role === "gate_security" && path !== "/gate") router.replace("/gate");
-    else if (role && role !== "gate_security" && path === "/gate" && !routeAllowed(path, role)) {
-      router.replace("/home");
+    if (role === "gate_security" && !GATE_DESK.includes(path)) router.replace("/gate");
+    else if (role && role !== "gate_security" && !routeAllowed(path, role)) {
+      router.replace(landingFor(role));
     }
   }, [role, path, router]);
 
@@ -48,7 +50,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   if (role === "gate_security") {
-    if (path !== "/gate") {
+    if (!GATE_DESK.includes(path)) {
       return (
         <div className="grid min-h-[100dvh] place-items-center bg-bg text-muted">
           Opening gate
@@ -57,7 +59,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
     return (
       <div className="min-h-[100dvh] bg-[#e8edf8]">
-        <div className="flex items-center justify-end px-4 py-3">
+        <div className="flex items-center justify-between gap-3 px-4 py-3">
+          <nav className="inline-flex rounded-full bg-white p-1">
+            {GATE_DESK.map((href) => (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  "rounded-full px-4 py-1.5 text-sm font-semibold transition-colors",
+                  path === href ? "bg-brand text-white" : "text-muted hover:text-ink",
+                )}
+              >
+                {href === "/gate" ? "Pass check" : "Visitors and vehicles"}
+              </Link>
+            ))}
+          </nav>
           <AccountChip />
         </div>
         <Guard>{children}</Guard>

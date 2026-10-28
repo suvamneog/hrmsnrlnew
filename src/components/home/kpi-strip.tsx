@@ -91,7 +91,7 @@ export function buildHomeKpis(args: {
 
   if (role === "hr_admin" || role === "auditor") {
     return [
-      { label: "On roll", value: CENSUS.onRoll, hint: `${CENSUS.executives} exec · ${CENSUS.workmen} workmen`, href: "/people", tone: "mint", count: true },
+      { label: "On roll", value: CENSUS.onRoll, hint: "Demo sample; NRL: 1,120", href: "/people", tone: "mint", count: true },
       { label: "Waiting on you", value: args.todoCount, hint: "Leave, claims, swaps", href: "/approvals", tone: "peach", count: true },
       { label: "On leave", value: CENSUS.onLeave, hint: "Approved today", href: "/leave", tone: "lilac", count: true },
       { label: "In plant", value: args.inside, hint: "Contract workmen at gate", href: "/contractors", tone: "sky", count: true },
@@ -100,7 +100,7 @@ export function buildHomeKpis(args: {
 
   if (role === "payroll_officer" || role === "finance_approver") {
     return [
-      { label: "On roll", value: CENSUS.onRoll, hint: "October 2026", href: "/people", tone: "mint", count: true },
+      { label: "On roll", value: CENSUS.onRoll, hint: "Demo sample; NRL: 1,120", href: "/people", tone: "mint", count: true },
       { label: "Payroll", value: (args.payrollStage ?? "draft").replace("_", " "), hint: "Current run", href: "/payroll", tone: "pink" },
       { label: "Waiting on you", value: args.todoCount, hint: "Claims and exceptions", href: "/approvals", tone: "peach", count: true },
       { label: "On leave", value: CENSUS.onLeave, hint: "Affects attendance", href: "/time", tone: "sky", count: true },
@@ -111,7 +111,7 @@ export function buildHomeKpis(args: {
     return [
       { label: "Openings", value: args.openings, hint: "Live posts", href: "/recruitment", tone: "mint", count: true },
       { label: "Interviews", value: args.interviews, hint: "Medical and interview", href: "/recruitment", tone: "lilac", count: true },
-      { label: "On roll", value: CENSUS.onRoll, hint: "Plant strength", href: "/people", tone: "sky", count: true },
+      { label: "On roll", value: CENSUS.onRoll, hint: "Demo sample; NRL: 1,120", href: "/people", tone: "sky", count: true },
       { label: "Waiting on you", value: args.todoCount, hint: "Inbox", href: "/approvals", tone: "peach", count: true },
     ];
   }
