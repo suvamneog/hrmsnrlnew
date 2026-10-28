@@ -73,7 +73,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 key={t.href}
                 href={t.href}
                 className={cn(
-                  "rounded-full px-3 py-1.5 text-sm font-semibold transition-colors sm:px-4",
+                  "rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors sm:px-4",
                   path === t.href || (t.href === "/self" && !["/gate", "/visitors"].includes(path))
                     ? "bg-brand text-white"
                     : "text-muted hover:text-ink",
