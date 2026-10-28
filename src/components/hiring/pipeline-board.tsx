@@ -61,6 +61,8 @@ export function PipelineBoard() {
   const interviews = useDesk((d) => d.interviews);
   const [opening, setOpening] = useState("all");
   const [picked, setPicked] = useState<Record<string, CandidateStage>>({});
+  // Hovering a step previews it in the line under the track; tapping keeps it there.
+  const [hovered, setHovered] = useState<{ cid: string; stage: CandidateStage } | null>(null);
   const canEdit = role === "recruiter" || role === "hr_admin";
 
   const pool = candidates.filter((c) => opening === "all" || c.openingId === opening);
@@ -117,7 +119,9 @@ export function PipelineBoard() {
         {list.map((c) => {
           const at = STEPS.findIndex((s) => s.id === c.stage);
           const next = STEPS[at + 1];
-          const show = picked[c.id] ?? c.stage;
+          const show = (hovered?.cid === c.id ? hovered.stage : undefined) ?? picked[c.id] ?? c.stage;
+          const si = STEPS.findIndex((s) => s.id === show);
+          const where = c.stage === "joined" || si < at ? "done" : si === at ? "current step" : "upcoming";
           const shown = STEPS.find((s) => s.id === show)!;
           return (
             <li key={c.id} className="py-4">
@@ -169,6 +173,11 @@ export function PipelineBoard() {
                           <button
                             type="button"
                             onClick={() => setPicked((p) => ({ ...p, [c.id]: s.id }))}
+                            onPointerEnter={(e) => e.pointerType === "mouse" && setHovered({ cid: c.id, stage: s.id })}
+                            onPointerLeave={() => setHovered(null)}
+                            onFocus={() => setHovered({ cid: c.id, stage: s.id })}
+                            onBlur={() => setHovered(null)}
+                            title={`${s.label}, step ${i + 1} of ${STEPS.length}`}
                             aria-pressed={show === s.id}
                             aria-label={`${s.label}, ${done ? "done" : current ? "current" : "upcoming"}`}
                             className={cn(
@@ -189,8 +198,9 @@ export function PipelineBoard() {
                     </li>
                   </ol>
 
-                  <p className="mt-2 text-[13px] text-ink">
-                    <span className="font-medium">{shown.label}.</span>{" "}
+                  <p className="mt-2 text-[13px] text-ink" aria-live="polite">
+                    <span className="font-medium">{shown.label}</span>
+                    <span className="text-muted">{`, step ${si + 1} of ${STEPS.length}, ${where}. `}</span>
                     <span className="text-muted">{stepDetail(c, show, interviews)}</span>
                   </p>
                 </div>
