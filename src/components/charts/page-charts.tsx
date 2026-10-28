@@ -97,7 +97,7 @@ export function RosterCharts() {
     () => employees.filter((e) => e.crew && (me?.crew ? e.crew === me.crew || e.managerId === me.id || e.id === me.id : true)).slice(0, 10),
     [employees, me],
   );
-  const grid = useMemo(() => rosterGrid(people, roster, shifts, swaps, minRest), [people, roster, shifts, swaps, minRest]);
+  const grid = useMemo(() => rosterGrid(people, roster, shifts, swaps, minRest, 14, 7), [people, roster, shifts, swaps, minRest]);
   if (!me) return null;
   let swapN = 0;
   let restN = 0;
@@ -105,8 +105,8 @@ export function RosterCharts() {
   grid.cells.forEach((c, k) => {
     if (c.swap) swapN += 1;
     if (c.rest !== undefined) restN += 1;
-    if (c.swap || c.rest !== undefined) {
-      const [pid, date] = k.split("|");
+    const [pid, date] = k.split("|");
+    if ((c.swap || c.rest !== undefined) && date >= DEMO_TODAY) {
       const who = people.find((p) => p.id === pid)?.preferredName ?? "";
       flaggedCells.push(`${who} ${format(parseISO(date), "d MMM")} ${c.rest !== undefined ? `${c.rest.toFixed(0)} h rest` : "swap"}`);
     }
@@ -115,7 +115,7 @@ export function RosterCharts() {
   return (
     <div className="mb-6">
       <ChartCard
-        title="Your crew's shifts, next 14 days"
+        title="Your crew's shifts, last week and the next 14 days"
         value={restN ? `${restN} shifts with short rest` : "Rest rule met on every shift"}
         note={
           flaggedCells.length

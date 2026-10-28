@@ -158,8 +158,9 @@ export function punchTimeline(employeeId: string, roster: RosterEntry[], shifts:
 }
 
 /* Shift per person for the next two weeks, with swaps and short rest flagged. */
-export function rosterGrid(people: Employee[], roster: RosterEntry[], shifts: ShiftPattern[], swaps: SwapRequest[], minRest: number, days = 14) {
-  const dates = Array.from({ length: days }, (_, i) => format(addDays(parseISO(DEMO_TODAY), i), "yyyy-MM-dd"));
+/* `back` days before today are included too, so a roster can show last week next to what is coming. */
+export function rosterGrid(people: Employee[], roster: RosterEntry[], shifts: ShiftPattern[], swaps: SwapRequest[], minRest: number, days = 14, back = 0) {
+  const dates = Array.from({ length: days + back }, (_, i) => format(addDays(parseISO(DEMO_TODAY), i - back), "yyyy-MM-dd"));
   const shiftOf = (e: Employee, date: string) =>
     roster.find((r) => r.employeeId === e.id && r.date === date)?.shiftId ?? (e.crew ? cycleShift(e.crew, date) : "G");
   const cells = new Map<string, { code: string; swap: boolean; rest?: number }>();

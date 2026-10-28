@@ -68,10 +68,11 @@ export default function RosterPage() {
   const minRest = settingOn(settings, "min.rest", DEMO_TODAY, undefined, 11);
   const pendingSwaps = swaps.filter((x) => x.status === "pending" && (x.fromId === me.id || x.approverId === me.id)).length;
   const color: Record<string, string> = {
-    M: "bg-ok-soft text-ok",
-    A: "bg-warn-soft text-warn",
-    N: "bg-brand-soft text-brand",
-    G: "bg-fill text-brand",
+    // Same colours as the roster grid: Morning blue, Afternoon light blue, Night black, General grey.
+    M: "bg-[#3d5afe] text-white",
+    A: "bg-[#8a9bff] text-white",
+    N: "bg-[#1d1d1f] text-white",
+    G: "bg-[#8e8e93] text-white",
     OFF: "bg-fill text-muted",
   };
 
@@ -164,41 +165,6 @@ export default function RosterPage() {
         </HeroCard>
       </InView>
       <RosterCharts />
-      <div>
-      <Card className="overflow-x-auto p-4">
-        <table className="min-w-max text-xs">
-          <thead>
-            <tr>
-              <th className="sticky left-0 bg-white px-2 py-2 text-left">Crew</th>
-              {days.map((d) => (
-                <th key={d} className={`px-1 py-2 font-medium ${d === DEMO_TODAY ? "text-brand" : "text-muted"}`}>
-                  <span className="block text-[9px]">{format(parseISO(d), "EEEEE")}</span>
-                  {d.slice(8)}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {grid.map((row) => (
-              <tr key={row.e.id}>
-                <td className="sticky left-0 bg-white px-2 py-1 font-semibold">{row.e.preferredName}</td>
-                {row.cells.map((c, i) => (
-                  <td key={i} className={`px-1 py-1 ${days[i] === DEMO_TODAY ? "bg-brand-soft/60" : ""}`}>
-                    <span
-                      className={`grid h-8 w-10 place-items-center rounded-lg font-semibold ${color[c] ?? "bg-white"} ${
-                        row.e.id === me.id ? "ring-1 ring-brand/40" : ""
-                      }`}
-                    >
-                      {c}
-                    </span>
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </Card>
-      </div>
       <AnimatedGroup preset="slide" className="mt-4 grid gap-4 lg:grid-cols-[1fr_1.1fr]">
         <InView>
         <Card className="p-4">

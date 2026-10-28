@@ -344,7 +344,6 @@ export function HBars({
   format = n0,
   labelWidth = 110,
   unit,
-  xUnit,
 }: {
   data: Row[];
   y: string;
