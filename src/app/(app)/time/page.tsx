@@ -141,12 +141,11 @@ export default function TimePage() {
       <div className="mb-5 grid gap-5 *:min-w-0 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,1fr)]">
         <InView>
           <HeroCard
-            eyebrow="October 2026"
             title={`${month.present} of ${month.working} working days present`}
             action={
               <span
-                className={`rounded-full px-3 py-1.5 text-[12px] font-semibold ${
-                  locked ? "bg-[#eef1f6] text-muted" : "bg-[#e7f8ef] text-[#0f9f6e]"
+                className={`rounded-lg px-3 py-1.5 text-[12px] font-semibold ${
+                  locked ? "bg-fill text-muted" : "bg-ok-soft text-ok"
                 }`}
               >
                 {locked ? "Locked for payroll" : "Open for corrections"}
@@ -209,34 +208,34 @@ export default function TimePage() {
             </Card>
             <div className="space-y-5">
               <Card className="p-5">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted">{formatWeekday(date)}</p>
+                <p className="text-xs font-semibold text-muted">{formatWeekday(date)}</p>
                 <div className="mt-2 flex items-center gap-2">
                   <h2 className="font-semibold">{formatDay(date)}</h2>
                   {row ? <Badge tone={attTone(row.status)}>{row.status.replace("_", " ")}</Badge> : <Badge>No record</Badge>}
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-                  <div className="rounded-2xl bg-[#f6f8fd] px-3 py-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">In</p>
+                  <div className="rounded-xl bg-subtle px-3 py-3">
+                    <p className="text-[11px] font-semibold text-muted">In</p>
                     <p className="mt-1 font-mono text-base tabular-nums">{inn ? formatClock(inn.time) : "—"}</p>
                   </div>
-                  <div className="rounded-2xl bg-[#f6f8fd] px-3 py-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Out</p>
+                  <div className="rounded-xl bg-subtle px-3 py-3">
+                    <p className="text-[11px] font-semibold text-muted">Out</p>
                     <p className="mt-1 font-mono text-base tabular-nums">{out ? formatClock(out.time) : "—"}</p>
                   </div>
-                  <div className="rounded-2xl bg-[#f6f8fd] px-3 py-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Hours</p>
+                  <div className="rounded-xl bg-subtle px-3 py-3">
+                    <p className="text-[11px] font-semibold text-muted">Hours</p>
                     <p className="mt-1 text-base font-semibold tabular-nums">{flags.hours || row?.hours || "—"}</p>
                   </div>
-                  <div className="rounded-2xl bg-[#f6f8fd] px-3 py-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">OT / late</p>
+                  <div className="rounded-xl bg-subtle px-3 py-3">
+                    <p className="text-[11px] font-semibold text-muted">OT / late</p>
                     <p className="mt-1 text-sm">
                       {flags.overtime || row?.overtime ? `${flags.overtime || row?.overtime}h OT` : "—"}
-                      {flags.lateMinutes ? ` · in +${flags.lateMinutes}m` : ""}
-                      {flags.earlyMinutes ? ` · out −${flags.earlyMinutes}m` : ""}
+                      {flags.lateMinutes ? `, in +${flags.lateMinutes}m` : ""}
+                      {flags.earlyMinutes ? `, out −${flags.earlyMinutes}m` : ""}
                     </p>
                   </div>
                 </div>
-                {inn?.readerId && <p className="mt-3 text-xs text-muted">Reader {inn.readerId}{row?.shiftId ? ` · shift ${row.shiftId}` : ""}</p>}
+                {inn?.readerId && <p className="mt-3 text-xs text-muted">Reader {inn.readerId}{row?.shiftId ? `, shift ${row.shiftId}` : ""}</p>}
               </Card>
               <Card className="p-5">
                 <h2 className="mb-3 font-semibold">Regularise a punch</h2>
@@ -265,7 +264,7 @@ export default function TimePage() {
           <div>
           <Card className="overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-[#f6f8fd] text-left text-xs text-muted">
+              <thead className="bg-subtle text-left text-xs text-muted">
                 <tr>
                   <th className="px-4 py-3">Date</th>
                   <th>Shift</th>

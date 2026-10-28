@@ -97,14 +97,14 @@ export default function ReportsPage() {
         <h2 className="mb-3 font-semibold">{t.res}</h2>
         <div className="grid grid-cols-5 gap-2">
           {Object.entries(census.category).map(([c, n]) => (
-            <div key={c} className="rounded-2xl bg-[#f6f8fd] p-3 text-center">
+            <div key={c} className="rounded-xl bg-subtle p-3 text-center">
               <p className="text-xs text-muted">{c}</p>
               <p className="text-2xl font-semibold">{n}</p>
             </div>
           ))}
         </div>
         <p className="mt-4 text-sm text-muted">
-          {t.women} {census.women} · PwBD {census.pwbd} · on roll {census.onRoll.toLocaleString("en-IN")} (demo sample; NRL publishes 1,120)
+          {t.women} {census.women}, PwBD {census.pwbd}, on roll {census.onRoll.toLocaleString("en-IN")} (demo sample; NRL publishes 1,120)
         </p>
       </Card>
       <Card className="mt-5 px-5 py-2">

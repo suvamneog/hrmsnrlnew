@@ -114,7 +114,7 @@ export default function MusterPage() {
             </div>
             <div className="grid max-h-72 gap-1 overflow-auto pr-1 sm:grid-cols-2">
               {crew.slice(0, 40).map((w) => (
-                <label key={w.id} className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-2 text-sm hover:bg-[#f7f8fc]">
+                <label key={w.id} className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-2 text-sm hover:bg-subtle">
                   <input
                     type="checkbox"
                     className="h-4 w-4 accent-[var(--brand)]"
@@ -154,7 +154,7 @@ export default function MusterPage() {
                   <>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-ink">{c.name}</p>
-                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#eef1f6]">
+                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-fill">
                         <div className="h-full rounded-full transition-[width] duration-700" style={{ width: `${Math.min(100, share * 100)}%`, background: share >= 0.9 ? "#d13b3b" : share >= 0.75 ? "#c47b00" : "var(--brand)" }} />
                       </div>
                     </div>
@@ -207,7 +207,7 @@ export default function MusterPage() {
           />
           {supervisor && (
             <form
-              className="mt-4 grid gap-4 border-t border-[#eef0f6] pt-4 sm:grid-cols-[minmax(0,1fr)_160px]"
+              className="mt-4 grid gap-4 border-t border-fill pt-4 sm:grid-cols-[minmax(0,1fr)_160px]"
               onSubmit={(e) => {
                 e.preventDefault();
                 if (req.name.trim().length < 3) return toast.error("Enter the worker's full name.");

@@ -67,10 +67,10 @@ export default function KioskPage() {
   }, [who, end]);
 
   return (
-    <div className="min-h-[100dvh] bg-[#eef1f8] text-ink">
+    <div className="min-h-[100dvh] bg-fill text-ink">
       <header className="flex flex-wrap items-center justify-between gap-4 px-6 py-5 md:px-10">
         <div className="flex items-center gap-3">
-          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-brand text-lg font-bold text-white">N</span>
+          <span className="grid h-12 w-12 place-items-center rounded-xl bg-brand text-lg font-bold text-white">N</span>
           <div>
             <p className="text-lg font-semibold leading-tight">NRL People</p>
             <p className="text-sm text-muted">Kiosk</p>
@@ -79,7 +79,7 @@ export default function KioskPage() {
         <div className="flex items-center gap-3">
           <LanguageSwitch large />
           {who && (
-            <button type="button" onClick={end} className="inline-flex h-12 items-center gap-2 rounded-full bg-white px-5 text-base font-semibold">
+            <button type="button" onClick={end} className="inline-flex h-12 items-center gap-2 rounded-lg bg-white px-5 text-base font-semibold">
               <SignOut size={20} />
               Done
             </button>
@@ -100,7 +100,7 @@ export default function KioskPage() {
                     {`Signs out in ${left} s if nobody touches the screen.`}
                   </p>
                 </div>
-                <label className="inline-flex cursor-pointer items-center gap-3 rounded-full bg-white px-5 py-3 text-base font-medium">
+                <label className="inline-flex cursor-pointer items-center gap-3 rounded-lg bg-white px-5 py-3 text-base font-medium">
                   <input type="checkbox" className="h-5 w-5 accent-[var(--brand)]" checked={assisted} onChange={(e) => setAssisted(e.target.checked)} />
                   Someone is helping me
                 </label>
@@ -109,7 +109,7 @@ export default function KioskPage() {
                 <Tiles onPick={setScreen} />
               ) : (
                 <div>
-                  <button type="button" onClick={() => setScreen("home")} className="mb-5 inline-flex h-12 items-center rounded-full bg-white px-6 text-base font-semibold">
+                  <button type="button" onClick={() => setScreen("home")} className="mb-5 inline-flex h-12 items-center rounded-lg bg-white px-6 text-base font-semibold">
                     Back
                   </button>
                   {screen === "attendance" && <Attendance who={who} />}
@@ -155,7 +155,7 @@ function SignIn({ employees, onIn }: { employees: Employee[]; onIn: (e: Employee
       <p className="mt-2 text-center text-base text-muted">{step === "id" ? "The last three digits, for example 077" : "Four digits, for example 1983"}</p>
       <div className="mt-8 flex justify-center gap-3" aria-live="polite">
         {Array.from({ length: max }, (_, i) => (
-          <span key={i} className="grid h-16 w-14 place-items-center rounded-2xl bg-white text-[28px] font-semibold tabular-nums">
+          <span key={i} className="grid h-16 w-14 place-items-center rounded-xl bg-white text-[28px] font-semibold tabular-nums">
             {step === "pin" ? (value[i] ? "•" : "") : value[i] ?? ""}
           </span>
         ))}
@@ -169,7 +169,7 @@ function SignIn({ employees, onIn }: { employees: Employee[]; onIn: (e: Employee
             transition={spring}
             onClick={() => (k === "back" ? set(value.slice(0, -1)) : k === "ok" ? next() : value.length < max && set(value + k))}
             aria-label={k === "back" ? "Delete" : k === "ok" ? "Next" : k}
-            className={`grid h-[76px] place-items-center rounded-2xl text-[28px] font-semibold ${k === "ok" ? "bg-brand text-white" : "bg-white"}`}
+            className={`grid h-[76px] place-items-center rounded-xl text-[28px] font-semibold ${k === "ok" ? "bg-brand text-white" : "bg-white"}`}
           >
             {k === "back" ? <Backspace size={28} /> : k === "ok" ? <span className="text-xl">{step === "id" ? "Next" : "Open"}</span> : k}
           </motion.button>
@@ -189,10 +189,10 @@ function SignIn({ employees, onIn }: { employees: Employee[]; onIn: (e: Employee
 
 function Tiles({ onPick }: { onPick: (s: Screen) => void }) {
   const tiles: { id: Screen; label: string; icon: React.ReactNode; tone: string }[] = [
-    { id: "attendance", label: "My attendance", icon: <Clock size={40} weight="duotone" />, tone: "bg-[#e7f8ef] text-[#0b7f58]" },
-    { id: "leave", label: "My leave", icon: <UmbrellaSimple size={40} weight="duotone" />, tone: "bg-[#eeeaff] text-[#5b5bd6]" },
-    { id: "payslip", label: "My payslip", icon: <FileText size={40} weight="duotone" />, tone: "bg-[#e8f4ff] text-[#2f7ec8]" },
-    { id: "help", label: "Ask HR for help", icon: <ChatCircleText size={40} weight="duotone" />, tone: "bg-[#fff1e6] text-[#c25f1f]" },
+    { id: "attendance", label: "My attendance", icon: <Clock size={40} weight="duotone" />, tone: "bg-ok-soft text-ok" },
+    { id: "leave", label: "My leave", icon: <UmbrellaSimple size={40} weight="duotone" />, tone: "bg-brand-soft text-brand" },
+    { id: "payslip", label: "My payslip", icon: <FileText size={40} weight="duotone" />, tone: "bg-brand-soft text-brand" },
+    { id: "help", label: "Ask HR for help", icon: <ChatCircleText size={40} weight="duotone" />, tone: "bg-warn-soft text-[#c25f1f]" },
   ];
   return (
     <div className="grid gap-4 sm:grid-cols-2">
@@ -205,7 +205,7 @@ function Tiles({ onPick }: { onPick: (s: Screen) => void }) {
           onClick={() => onPick(t.id)}
           className="flex min-h-[150px] items-center gap-5 rounded-xl bg-white p-7 text-left border border-line"
         >
-          <span className={`grid h-20 w-20 shrink-0 place-items-center rounded-3xl ${t.tone}`}>{t.icon}</span>
+          <span className={`grid h-20 w-20 shrink-0 place-items-center rounded-xl ${t.tone}`}>{t.icon}</span>
           <span className="text-[24px] font-semibold tracking-tight">{t.label}</span>
         </motion.button>
       ))}
@@ -221,11 +221,11 @@ function Attendance({ who }: { who: Employee }) {
   return (
     <Box>
       <h2 className="mb-4 text-[24px] font-semibold">Last 7 days</h2>
-      <ul className="divide-y divide-[#eef0f6]">
+      <ul className="divide-y divide-fill">
         {days.map((d) => (
           <li key={d.date} className="flex items-center justify-between gap-4 py-4 text-lg">
             <span>{format(parseISO(d.date), "EEE d MMM")}</span>
-            <span className={d.status === "present" ? "font-semibold text-[#0b7f58]" : d.status === "missing_punch" ? "font-semibold text-[#b42f2f]" : "text-muted"}>
+            <span className={d.status === "present" ? "font-semibold text-ok" : d.status === "missing_punch" ? "font-semibold text-danger" : "text-muted"}>
               {STATUS[d.status] ?? d.status}
             </span>
           </li>
@@ -271,7 +271,7 @@ function LeaveScreen({ who, assisted }: { who: Employee; assisted: boolean }) {
         <h2 className="mb-4 text-[24px] font-semibold">Leave left</h2>
         <div className="grid gap-3 sm:grid-cols-3">
           {mine.map((b) => (
-            <div key={b.typeId} className="rounded-2xl bg-[#f5f7fb] p-5">
+            <div key={b.typeId} className="rounded-xl bg-subtle p-5">
               <p className="text-base text-muted">{name(b.typeId)}</p>
               <p className="mt-1 text-[36px] font-semibold leading-none tabular-nums">{b.balance}</p>
             </div>
@@ -284,7 +284,7 @@ function LeaveScreen({ who, assisted }: { who: Employee; assisted: boolean }) {
             <h2 className="text-[24px] font-semibold">Casual leave, next working day</h2>
             <p className="mt-1 text-base text-muted">{`${formatDay(tomorrow)}. Goes to your manager.`}</p>
           </div>
-          <motion.button whileTap={{ scale: 0.96 }} transition={spring} type="button" onClick={casualTomorrow} className="inline-flex h-14 items-center gap-2 rounded-full bg-brand px-7 text-lg font-semibold text-white">
+          <motion.button whileTap={{ scale: 0.96 }} transition={spring} type="button" onClick={casualTomorrow} className="inline-flex h-14 items-center gap-2 rounded-lg bg-brand px-7 text-lg font-semibold text-white">
             <CalendarCheck size={22} />
             Apply
           </motion.button>
@@ -310,11 +310,11 @@ function Payslip({ who }: { who: Employee }) {
       <p className="mt-2 text-base text-muted">Net pay</p>
       <p className="text-[48px] font-semibold leading-none tracking-[-0.03em] tabular-nums">{inr(slip.net)}</p>
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-2xl bg-[#f5f7fb] p-5">
+        <div className="rounded-xl bg-subtle p-5">
           <p className="text-base text-muted">Earnings</p>
           <p className="mt-1 text-2xl font-semibold tabular-nums">{inr(slip.gross)}</p>
         </div>
-        <div className="rounded-2xl bg-[#f5f7fb] p-5">
+        <div className="rounded-xl bg-subtle p-5">
           <p className="text-base text-muted">Deductions</p>
           <p className="mt-1 text-2xl font-semibold tabular-nums">{inr(slip.deductions)}</p>
         </div>
@@ -334,7 +334,7 @@ function Payslip({ who }: { who: Employee }) {
             `Net pay ${inr(slip.net)}`,
           ])
         }
-        className="mt-6 inline-flex h-14 items-center gap-2 rounded-full bg-brand px-7 text-lg font-semibold text-white"
+        className="mt-6 inline-flex h-14 items-center gap-2 rounded-lg bg-brand px-7 text-lg font-semibold text-white"
       >
         <FileText size={22} />
         Print payslip
@@ -361,7 +361,7 @@ function Help({ who, assisted, onDone }: { who: Employee; assisted: boolean; onD
               toast.success("Sent to HR");
               onDone();
             }}
-            className="min-h-[76px] rounded-2xl bg-[#f5f7fb] px-5 text-left text-lg font-medium"
+            className="min-h-[76px] rounded-xl bg-subtle px-5 text-left text-lg font-medium"
           >
             {h}
           </motion.button>

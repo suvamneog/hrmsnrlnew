@@ -53,7 +53,7 @@ export default function RosterPage() {
     if (!me) return map;
     for (const r of roster) {
       if (r.employeeId !== me.id) continue;
-      map.set(r.date, { stamp: r.shiftId, stampClass: SHIFT_TONE[r.shiftId] ?? "bg-[#f6f8fd] text-muted" });
+      map.set(r.date, { stamp: r.shiftId, stampClass: SHIFT_TONE[r.shiftId] ?? "bg-subtle text-muted" });
     }
     return map;
   }, [roster, me]);
@@ -68,11 +68,11 @@ export default function RosterPage() {
   const minRest = settingOn(settings, "min.rest", DEMO_TODAY, undefined, 11);
   const pendingSwaps = swaps.filter((x) => x.status === "pending" && (x.fromId === me.id || x.approverId === me.id)).length;
   const color: Record<string, string> = {
-    M: "bg-[#e7f8ef] text-[#0f9f6e]",
-    A: "bg-[#fff1e6] text-[#e07a3d]",
-    N: "bg-[#eeeaff] text-[#5b5bd6]",
-    G: "bg-[#e8eefc] text-brand",
-    OFF: "bg-[#eef1f6] text-muted",
+    M: "bg-ok-soft text-ok",
+    A: "bg-warn-soft text-warn",
+    N: "bg-brand-soft text-brand",
+    G: "bg-fill text-brand",
+    OFF: "bg-fill text-muted",
   };
 
   return (
@@ -97,7 +97,7 @@ export default function RosterPage() {
       {(role === "line_manager" || role === "hr_admin") && (
         <div className="mb-4 flex flex-wrap gap-2">
           {shifts.filter((s) => s.code !== "OFF").map((s) => (
-            <label key={s.id} className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs">
+            <label key={s.id} className="flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-xs">
               {s.code}
               <input
                 className="w-14 rounded-md border border-line px-1"
@@ -115,9 +115,8 @@ export default function RosterPage() {
       )}
       <InView className="mb-5">
         <HeroCard
-          eyebrow={`Crew ${me.crew ?? "—"} · four-crew rotation`}
           title={`Today ${todayShift ? `you are on ${todayShift.label.toLowerCase()}` : "you are off"}`}
-          action={<span className="rounded-full bg-[#f3f5fb] px-3 py-1.5 text-[12px] font-semibold">Min rest {minRest} h</span>}
+          action={<span className="rounded-lg bg-subtle px-3 py-1.5 text-[12px] font-semibold">Min rest {minRest} h</span>}
         >
           <div className="grid gap-8 md:grid-cols-[1fr_1.2fr]">
             <div>
@@ -126,13 +125,13 @@ export default function RosterPage() {
                 rows={shifts
                   .filter((x) => x.code !== "OFF" && x.code !== "G")
                   .map((x) => ({
-                    label: `${x.label} · ${x.start}–${x.end}`,
+                    label: `${x.label}, ${x.start}–${x.end}`,
                     value: grid.filter((g) => g.cells[days.indexOf(DEMO_TODAY)] === x.id).length,
                     tone: x.code === "M" ? "#0f9f6e" : x.code === "A" ? "#e07a3d" : "#5b5bd6",
                   }))}
               />
               <p className="mt-3 text-[12px] text-muted">
-                Off today {grid.filter((g) => g.cells[days.indexOf(DEMO_TODAY)] === "OFF").length} · swaps waiting {pendingSwaps}
+                Off today {grid.filter((g) => g.cells[days.indexOf(DEMO_TODAY)] === "OFF").length}, swaps waiting {pendingSwaps}
               </p>
             </div>
             <div>
@@ -145,9 +144,9 @@ export default function RosterPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.04 * i, duration: 0.4 }}
-                    className={`flex flex-col items-center rounded-2xl px-1 py-2.5 ${color[d.code] ?? "bg-[#f6f8fd] text-muted"}`}
+                    className={`flex flex-col items-center rounded-xl px-1 py-2.5 ${color[d.code] ?? "bg-subtle text-muted"}`}
                   >
-                    <span className="text-[10px] font-semibold uppercase opacity-70">{format(parseISO(d.date), "EEE")}</span>
+                    <span className="text-[10px] font-semibold opacity-70">{format(parseISO(d.date), "EEE")}</span>
                     <span className="text-[15px] font-semibold tabular-nums">{d.date.slice(8)}</span>
                     <span className="mt-1 text-[11px] font-bold">{d.code}</span>
                   </motion.div>
@@ -155,7 +154,7 @@ export default function RosterPage() {
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
                 {shifts.filter((x) => x.code !== "OFF").map((x) => (
-                  <span key={x.id} className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${color[x.code]}`}>
+                  <span key={x.id} className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold ${color[x.code]}`}>
                     {x.code} {x.start}–{x.end}
                   </span>
                 ))}
@@ -173,7 +172,7 @@ export default function RosterPage() {
               <th className="sticky left-0 bg-white px-2 py-2 text-left">Crew</th>
               {days.map((d) => (
                 <th key={d} className={`px-1 py-2 font-medium ${d === DEMO_TODAY ? "text-brand" : "text-muted"}`}>
-                  <span className="block text-[9px] uppercase">{format(parseISO(d), "EEEEE")}</span>
+                  <span className="block text-[9px]">{format(parseISO(d), "EEEEE")}</span>
                   {d.slice(8)}
                 </th>
               ))}

@@ -62,7 +62,7 @@ export default function AuditPage() {
       />
       <Card className="overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-[#f6f8fd] text-left text-xs text-muted">
+          <thead className="bg-subtle text-left text-xs text-muted">
             <tr>
               <th className="px-4 py-3">When</th>
               <th>Who</th>
@@ -110,7 +110,7 @@ export default function AuditPage() {
             </Button>
             {breaches.map((b) => (
               <p key={b.id} className="mt-2 text-sm text-muted">
-                {b.title} · notified
+                {b.title}, notified
               </p>
             ))}
           </Card>

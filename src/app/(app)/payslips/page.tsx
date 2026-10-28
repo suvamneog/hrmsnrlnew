@@ -7,9 +7,7 @@ import { downloadPdf, form16Text, payslipText, prettySize } from "@/lib/files";
 import { inr, monthLabel } from "@/lib/format";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import Link from "next/link";
-import { InView } from "@/components/motion/in-view";
-import { AnimatedFolder } from "@/components/ui/3d-folder";
-import { FilePreview, PayslipPreview } from "@/components/ui/doc-preview";
+import { DocumentList } from "@/components/ui/document-list";
 
 export default function PayslipsPage() {
   const me = useCurrentUser();
@@ -32,30 +30,27 @@ export default function PayslipsPage() {
         </Card>
       )}
       {slips.length > 0 && (
-        <InView className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <AnimatedFolder
+        <div className="mt-4">
+          <DocumentList
             title="FY 2026-27"
-            countLabel="documents"
             items={[
               ...slips.map(({ run, row }) => ({
                 id: run.id,
                 title: monthLabel(run.month),
                 subtitle: `Net ${inr(row!.net)}`,
-                preview: <PayslipPreview employee={me} row={row!} label={monthLabel(run.month)} />,
                 onOpen: () => downloadPdf(`payslip-${me.empNo}-${run.month}.pdf`, payslipText(me, row!).split("\n")),
                 openLabel: "Download PDF",
               })),
               {
                 id: "form16",
                 title: "Form 16",
-                subtitle: "Part B · AY 2027-28",
-                preview: <FilePreview name={`form16-${me.empNo}.pdf`} content={form16Text(me, slips[0].row!)} kind="pdf" />,
+                subtitle: "Part B, AY 2027-28",
                 onOpen: () => downloadPdf(`form16-${me.empNo}.pdf`, form16Text(me, slips[0].row!).split("\n")),
                 openLabel: "Download PDF",
               },
             ]}
           />
-        </InView>
+        </div>
       )}
       <div className="mt-4 grid gap-3">
         {slips.map(({ run, row }) => (
@@ -63,7 +58,7 @@ export default function PayslipsPage() {
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="font-semibold">{monthLabel(run.month)}</p>
-                <p className="text-sm text-muted">Published · {inr(row!.net)}</p>
+                <p className="text-sm text-muted">Published, {inr(row!.net)}</p>
               </div>
               <Link href={`/payroll/${me.id}?month=${run.month}`} className="text-sm font-semibold text-brand">
                 Open slip

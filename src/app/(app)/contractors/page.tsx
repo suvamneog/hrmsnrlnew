@@ -61,10 +61,10 @@ export default function ContractorsPage() {
                 <div>
                   <h2 className="font-semibold">{c.name}</h2>
                   <p className="text-sm text-muted">
-                    {c.workOrder} · {c.area} · PF {c.pfCode} · {inside} in plant
+                    {c.workOrder}, {c.area}, PF {c.pfCode}, {inside} in plant
                   </p>
                 </div>
-                <Badge tone={days < 45 ? "danger" : "ok"}>Licence {c.licenceExpiry} · {days}d</Badge>
+                <Badge tone={days < 45 ? "danger" : "ok"}>Licence {c.licenceExpiry}, {days}d</Badge>
               </div>
               {(role === "contract_labour_cell" || role === "contractor_supervisor") && (
                 <>
@@ -113,12 +113,12 @@ export default function ContractorsPage() {
                 {crew.map((w) => {
                   const reason = passBlockReason({ worker: w, contractor: c, certs });
                   return (
-                    <div key={w.id} className="flex items-center gap-3 rounded-2xl bg-[#f6f8fd] p-3">
+                    <div key={w.id} className="flex items-center gap-3 rounded-xl bg-subtle p-3">
                       <Avatar name={w.name} size={40} />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold">{w.name}</p>
                         <p className="text-xs text-muted">
-                          {w.skill} · {maskAadhaar(w.aadhaar)}
+                          {w.skill}, {maskAadhaar(w.aadhaar)}
                         </p>
                         <Badge tone={reason ? "danger" : "ok"}>{reason ?? "Pass live"}</Badge>
                         {role === "contract_labour_cell" && !w.blacklisted && (

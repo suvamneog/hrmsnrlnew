@@ -18,7 +18,7 @@ export function Avatar({
       alt={name}
       width={size}
       height={size}
-      className={cn("rounded-full object-cover bg-[#efe9ff]", className)}
+      className={cn("rounded-full object-cover bg-brand-soft", className)}
       style={{ width: size, height: size }}
     />
   );

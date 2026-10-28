@@ -21,7 +21,7 @@ export default function PayslipLinePage() {
 
   return (
     <div>
-      <PageHeader title={e.name} subtitle={`Payslip · ${run.month} · ${e.grade} ${e.cadre}`} />
+      <PageHeader title={e.name} subtitle={`Payslip, ${run.month}, ${e.grade} ${e.cadre}`} />
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
         <Card className="p-5">
           <table className="w-full text-sm">
@@ -41,13 +41,13 @@ export default function PayslipLinePage() {
                   return (
                     <tr key={l.code} className="border-b border-line">
                       <td className="py-2">{l.label}</td>
-                      <td className={`py-2 text-right font-medium ${l.type === "deduction" ? "text-[#d13b3b]" : ""}`}>
+                      <td className={`py-2 text-right font-medium ${l.type === "deduction" ? "text-danger" : ""}`}>
                         {l.type === "deduction" ? "−" : ""}
                         {inrExact(l.amount)}
                       </td>
                       <td className="py-2 text-right text-muted">
                         {sap === undefined ? "—" : inrExact(sap)}
-                        {Math.abs(delta) > 0.5 ? ` · Δ ${inrExact(delta)}` : ""}
+                        {Math.abs(delta) > 0.5 ? `, Δ ${inrExact(delta)}` : ""}
                       </td>
                     </tr>
                   );

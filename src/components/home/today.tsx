@@ -2,7 +2,7 @@
 
 import { MIN_MANNING } from "@/components/home/dashboard-charts";
 import { canDecideFor, claimApproverRole } from "@/lib/access";
-import { DEMO_TODAY } from "@/lib/demo";
+import { DEMO_TODAY, openPair, punchesOn } from "@/lib/demo";
 import { CRITERIA, DOCS, useDesk } from "@/lib/desk";
 import { SHIFT_CHANGE, lapseImpact, musterVsGate, shiftExceptions } from "@/lib/desk-analytics";
 import { formatDay } from "@/lib/format";
@@ -56,6 +56,18 @@ export function useToday(): TodayItem[] {
         .sort((a, b) => a.date.localeCompare(b.date))[0];
       const shift = hrms.shifts.find((s) => s.id === next?.shiftId);
       add(next && shift, { id: "next-shift", label: `Next shift ${formatDay(next?.date ?? DEMO_TODAY)}`, detail: shift ? `${shift.label}, ${shift.start} to ${shift.end}` : undefined, href: "/roster", tone: "muted" });
+    }
+    // Today's punch, for anyone on the biometric roll: the attendance strip used to say this.
+    if (me.cadre !== "contract" && role !== "md") {
+      const p = openPair(punchesOn(hrms.punches, me.id));
+      const t = (iso?: string) => iso?.slice(11, 16);
+      add(true, {
+        id: "punch",
+        label: p.inside ? `In since ${t(p.inn?.time)}` : p.out ? `Day closed, in ${t(p.inn?.time)} out ${t(p.out?.time)}` : "Not punched in today",
+        detail: p.inside || p.out ? "Biometric punch at the gate reader" : "Punch at any gate reader, or regularise if the reader was down",
+        href: "/time",
+        tone: p.inside || p.out ? "muted" : "warn",
+      });
     }
     add(myCases.length, { id: "my-cases", label: myCases.length === 1 ? "1 of your cases is open" : `${myCases.length} of your cases are open`, detail: myCases[0]?.subject, href: "/cases", tone: "muted" });
 
@@ -146,7 +158,7 @@ export function useToday(): TodayItem[] {
   }, [me, role, hrms, desk]);
 }
 
-const DOT = { danger: "bg-[#e5484d]", warn: "bg-[#d4a24c]", brand: "bg-ink", muted: "bg-[#c7c7cc]" };
+const DOT = { danger: "bg-danger", warn: "bg-warn", brand: "bg-ink", muted: "bg-faint" };
 
 export function TodayList({ items, title = "Today", empty = "Nothing due today." }: { items: TodayItem[]; title?: string; empty?: string }) {
   const reduce = useReducedMotion();
@@ -164,7 +176,7 @@ export function TodayList({ items, title = "Today", empty = "Nothing due today."
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: easeOut, delay: reduce ? 0 : i * 0.04 }}
             >
-              <Link href={it.href} className="group flex items-center gap-3 rounded-xl px-2 py-3 transition-colors hover:bg-[#f7f7f5]">
+              <Link href={it.href} className="group flex items-center gap-3 rounded-xl px-2 py-3 transition-colors hover:bg-subtle">
                 <span className={`h-2 w-2 shrink-0 rounded-full ${DOT[it.tone]}`} aria-hidden />
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-medium text-ink">{it.label}</span>

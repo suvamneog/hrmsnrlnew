@@ -4,7 +4,7 @@ import type { NrlInterfaceId } from "@/lib/types";
 export function ConnectorLogo({ id, size = 44 }: { id: NrlInterfaceId; size?: number }) {
   return (
     <span
-      className="grid shrink-0 place-items-center overflow-hidden rounded-[12px] bg-white shadow-[0_1px_2px_rgba(27,33,64,0.08),0_6px_16px_rgba(27,33,64,0.06)] ring-1 ring-[#e7eaf3]"
+      className="grid shrink-0 place-items-center overflow-hidden rounded-[12px] bg-white ring-1 ring-line"
       style={{ width: size, height: size }}
       aria-hidden
     >

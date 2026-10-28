@@ -15,7 +15,7 @@ import { requestTone } from "@/lib/status";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import type { Advance, Claim } from "@/lib/types";
 import { Car, FirstAid, Gift, GraduationCap, House, Paperclip, Train, Wallet } from "@phosphor-icons/react";
-import { AnimatedBackground } from "@/components/motion-primitives/animated-background";
+import { AnimatedBackground } from "@/components/motion/animated-background";
 import { spring } from "@/lib/motion";
 import { motion } from "motion/react";
 import { useState } from "react";
@@ -72,10 +72,10 @@ export default function ClaimsPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Claims & advances" subtitle={`FY 2026-27 · ${me.grade} limits`} />
+      <PageHeader title="Claims & advances" subtitle={`FY 2026-27, ${me.grade} limits`} />
 
       <InView>
-        <HeroCard eyebrow="This financial year" title={`${inr(TYPES.reduce((n, t) => n + usedFor(t.id), 0))} claimed so far`}>
+        <HeroCard title={`${inr(TYPES.reduce((n, t) => n + usedFor(t.id), 0))} claimed so far`}>
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
             {TYPES.map((t) => {
               const lim = claimLimit(me.grade, t.id);
@@ -86,8 +86,8 @@ export default function ClaimsPage() {
                   key={t.id}
                   onClick={() => setType(t.id)}
                   className={cn(
-                    "flex flex-col items-center gap-3 rounded-2xl p-3 transition",
-                    type === t.id ? "bg-white shadow-[0_8px_24px_rgba(45,64,180,0.12)] ring-1 ring-brand/20" : "hover:bg-[#f6f8fd]",
+                    "flex flex-col items-center gap-3 rounded-xl p-3 transition",
+                    type === t.id ? "bg-white ring-1 ring-brand/20" : "hover:bg-subtle",
                   )}
                 >
                   <Ring value={u} max={Math.max(1, lim)} size={92} stroke={8} color={share > 0.85 ? "#e0a43d" : "var(--brand)"}>
@@ -123,7 +123,7 @@ export default function ClaimsPage() {
                   employeeId: me.id,
                   type,
                   amount: amt,
-                  description: `${description} · ${billName}`,
+                  description: `${description}, ${billName}`,
                   bills: 1,
                 });
                 if (!r.ok) toast.error(r.reason);
@@ -135,11 +135,11 @@ export default function ClaimsPage() {
                 }
               }}
             >
-              <div className="flex flex-wrap gap-1 rounded-full bg-[#f3f5fb] p-1 sm:w-fit">
+              <div className="flex flex-wrap gap-1 rounded-full bg-subtle p-1 sm:w-fit">
                 <AnimatedBackground
                   defaultValue={type}
                   onValueChange={(v) => v && setType(v as Claim["type"])}
-                  className="rounded-full bg-white shadow-[0_2px_8px_rgba(27,33,64,0.08)]"
+                  className="rounded-full bg-white"
                   transition={spring}
                 >
                   {TYPES.map((t) => (
@@ -147,7 +147,7 @@ export default function ClaimsPage() {
                       type="button"
                       key={t.id}
                       data-id={t.id}
-                      className="rounded-full px-3.5 py-1.5 text-[13px] font-semibold text-muted transition-colors data-[checked=true]:text-ink"
+                      className="rounded-lg px-3.5 py-1.5 text-[13px] font-semibold text-muted transition-colors data-[checked=true]:text-ink"
                     >
                       {t.label}
                     </button>
@@ -158,15 +158,15 @@ export default function ClaimsPage() {
                 <Field label="Amount (INR)">
                   <Input type="number" min={1} value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" required />
                 </Field>
-                <div className="rounded-2xl bg-[#f6f8fd] px-4 py-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Left this year</p>
-                  <p className={cn("mt-1 text-lg font-semibold tabular-nums", amt > left && "text-[#d13b3b]")}>{inr(left)}</p>
+                <div className="rounded-xl bg-subtle px-4 py-3">
+                  <p className="text-[11px] font-semibold text-muted">Left this year</p>
+                  <p className={cn("mt-1 text-lg font-semibold tabular-nums", amt > left && "text-danger")}>{inr(left)}</p>
                 </div>
               </div>
               <Field label="Description">
                 <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Hospital, travel dates, child's school…" required />
               </Field>
-              <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-line px-4 py-3 text-sm transition hover:border-brand hover:bg-brand-soft">
+              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-line px-4 py-3 text-sm transition hover:border-brand hover:bg-brand-soft">
                 <Paperclip size={18} className="text-brand" />
                 <span className="flex-1 truncate">{billName || "Attach bill (PDF or photo)"}</span>
                 <input type="file" accept="image/*,application/pdf" className="hidden" onChange={(e) => setBillName(e.target.files?.[0]?.name ?? "")} />
@@ -179,8 +179,8 @@ export default function ClaimsPage() {
                     <div key={who} className="flex flex-1 items-center gap-2">
                       <span
                         className={cn(
-                          "flex-1 rounded-full px-3 py-1.5 text-center text-[12px] font-semibold transition",
-                          i === step && amt > 0 ? "bg-brand text-white" : "bg-[#f3f5fb] text-muted",
+                          "flex-1 rounded-lg px-3 py-1.5 text-center text-[12px] font-semibold transition",
+                          i === step && amt > 0 ? "bg-brand text-white" : "bg-subtle text-muted",
                         )}
                       >
                         {who}
@@ -189,7 +189,7 @@ export default function ClaimsPage() {
                     </div>
                   ))}
                 </div>
-                <p className="mt-2 text-[11px] text-muted">Under ₹10,000 to your manager · ₹10,000–24,999 to HR · ₹25,000 and above to finance.</p>
+                <p className="mt-2 text-[11px] text-muted">Under ₹10,000 to your manager, ₹10,000–24,999 to HR, ₹25,000 and above to finance.</p>
               </div>
               <Button type="submit" className="justify-self-start">Submit claim</Button>
             </form>
@@ -208,17 +208,17 @@ export default function ClaimsPage() {
                     <span
                       className={cn(
                         "absolute -left-[26px] top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-white",
-                        c.status === "approved" ? "bg-[#0f9f6e]" : c.status === "rejected" ? "bg-[#d13b3b]" : "bg-[#e0a43d]",
+                        c.status === "approved" ? "bg-ok" : c.status === "rejected" ? "bg-danger" : "bg-warn",
                       )}
                     />
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="text-sm font-semibold">
-                          {TYPES.find((t) => t.id === c.type)?.label} · {inr(c.amount)}
+                          {TYPES.find((t) => t.id === c.type)?.label}, {inr(c.amount)}
                         </p>
                         <p className="truncate text-[12px] text-muted">{c.description}</p>
                         <p className="mt-0.5 text-[11px] text-muted">
-                          {formatDay(c.submittedAt.slice(0, 10))} · {c.bills} bill{c.bills === 1 ? "" : "s"} · to{" "}
+                          {formatDay(c.submittedAt.slice(0, 10))}, {c.bills} bill{c.bills === 1 ? "" : "s"}, to{" "}
                           {["line manager", "HR", "finance"][route(c.amount)]}
                         </p>
                       </div>
@@ -272,7 +272,7 @@ export default function ClaimsPage() {
                         setAdvN(String(ADVANCE_RULES[k].instalments));
                       }}
                       className={cn(
-                        "flex flex-col items-center gap-1.5 rounded-2xl border px-2 py-3 text-[12px] font-semibold transition",
+                        "flex flex-col items-center gap-1.5 rounded-xl border px-2 py-3 text-[12px] font-semibold transition",
                         advType === k ? "border-brand bg-brand-soft text-brand" : "border-line hover:border-brand/40",
                       )}
                     >
@@ -296,7 +296,7 @@ export default function ClaimsPage() {
                   </Select>
                 </Field>
               </div>
-              <div className="flex items-center justify-between rounded-2xl bg-[#f6f8fd] px-4 py-3 text-sm">
+              <div className="flex items-center justify-between rounded-xl bg-subtle px-4 py-3 text-sm">
                 <span className="text-muted">Monthly recovery</span>
                 <span className="font-semibold tabular-nums">{advMonthly ? inr(advMonthly) : "—"}</span>
               </div>
@@ -311,22 +311,22 @@ export default function ClaimsPage() {
                 const repaid = a.principal - a.outstanding;
                 const Icon = ADV_ICON[a.type];
                 return (
-                  <div key={a.id} className="rounded-2xl border border-line p-4">
+                  <div key={a.id} className="rounded-xl border border-line p-4">
                     <div className="flex items-center gap-3">
                       <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-soft text-brand">
                         <Icon size={20} weight="duotone" />
                       </span>
                       <div className="flex-1">
                         <p className="text-sm font-semibold">
-                          {ADVANCE_RULES[a.type].label} advance · {inr(a.principal)}
+                          {ADVANCE_RULES[a.type].label} advance, {inr(a.principal)}
                         </p>
                         <p className="text-[12px] text-muted">{inr(a.monthlyRecovery)} a month</p>
                       </div>
                       <Badge tone={requestTone(a.status ?? "approved")}>{a.status ?? "running"}</Badge>
                     </div>
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#eef1f8]">
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-fill">
                       <motion.div
-                        className="h-full rounded-full bg-[#0f9f6e]"
+                        className="h-full rounded-full bg-ok"
                         initial={{ width: 0 }}
                         whileInView={{ width: `${(repaid / a.principal) * 100}%` }}
                         viewport={{ once: true }}

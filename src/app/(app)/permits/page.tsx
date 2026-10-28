@@ -100,7 +100,7 @@ export default function PermitsPage() {
                           {formatDay(x.from)} to {formatDay(x.to)}. Needs {course(x.courseId)}. Crew: {x.workerIds.map(wname).join(", ")}
                         </p>
                         {bad.length > 0 && x.status === "active" && (
-                          <p className="mt-1 text-[12px] font-medium text-[#b42f2f]">
+                          <p className="mt-1 text-[12px] font-medium text-danger">
                             Blocked at gate: {bad.map(wname).join(", ")}
                           </p>
                         )}

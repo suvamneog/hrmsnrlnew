@@ -5,6 +5,7 @@ import { ArrowCounterClockwise, Bell, MagnifyingGlass, SignOut } from "@phosphor
 import { useDesk } from "@/lib/desk";
 import { LanguageSwitch } from "@/components/i18n/language-switch";
 import { MobileNav } from "@/components/layout/mobile-nav";
+import { locationName, unitName } from "@/lib/org";
 import { toast } from "sonner";
 import { commandHits } from "@/lib/search";
 import { useCurrentUser, useHrms } from "@/lib/store";
@@ -56,6 +57,11 @@ export function Topbar() {
   return (
     <header className="relative flex h-16 items-center gap-2 px-3 md:gap-3 md:px-7">
       <MobileNav />
+      {/* Where this person works, always in view: unit, crew and site. */}
+      <div className="hidden shrink-0 border-r border-line pr-4 lg:block">
+        <p className="text-[13px] font-medium text-ink">{unitName(user.unitId)}</p>
+        <p className="text-[12px] text-muted">{[user.crew ? `Crew ${user.crew}` : null, locationName(user.locationId)].filter(Boolean).join(", ")}</p>
+      </div>
       <div className="relative hidden min-w-0 flex-1 md:block">
         <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
         <input
@@ -65,7 +71,7 @@ export function Topbar() {
           className="h-11 w-full rounded-full border border-line bg-white pl-10 pr-4 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10"
         />
         {hits.length > 0 && (
-          <div className="absolute z-30 mt-2 w-full overflow-hidden rounded-2xl bg-white py-2 shadow-[0_16px_40px_rgba(45,64,180,0.12)]">
+          <div className="absolute z-30 mt-2 w-full overflow-hidden rounded-xl bg-white py-2 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
             {hits.map((h) => (
               <Link
                 key={h.href + h.label}
@@ -86,7 +92,7 @@ export function Topbar() {
         aria-label="Notifications"
       >
         <Bell size={18} weight="duotone" />
-        {mine.length > 0 && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#e14b4b]" />}
+        {mine.length > 0 && <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-danger" />}
       </button>
       <LanguageSwitch className="hidden sm:inline-flex" />
       <button
@@ -102,7 +108,7 @@ export function Topbar() {
           setConfirmReset(false);
           toast.success("Demo data reset");
         }}
-        className={`hidden h-11 shrink-0 items-center gap-2 rounded-full px-4 text-[13px] font-semibold transition-colors md:inline-flex ${confirmReset ? "bg-[#fdecec] text-[#b42f2f]" : "bg-white text-muted hover:text-ink"}`}
+        className={`hidden h-11 shrink-0 items-center gap-2 rounded-lg px-4 text-[13px] font-semibold transition-colors md:inline-flex ${confirmReset ? "bg-danger-soft text-danger" : "bg-white text-muted hover:text-ink"}`}
         aria-label="Reset demo data"
       >
         <ArrowCounterClockwise size={16} />
@@ -122,7 +128,7 @@ export function Topbar() {
         <SignOut size={18} />
       </button>
       {open && (
-        <div className="absolute inset-x-3 top-16 z-40 rounded-2xl sm:left-auto sm:right-20 sm:w-80 bg-white p-3 shadow-[0_16px_40px_rgba(45,64,180,0.12)]">
+        <div className="absolute inset-x-3 top-16 z-40 rounded-xl sm:left-auto sm:right-20 sm:w-80 bg-white p-3 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
           <p className="px-2 pb-2 text-xs font-semibold text-muted">Inbox</p>
           {notes.filter((n) => n.userId === user.id).length === 0 && (
             <p className="px-2 py-6 text-sm text-muted">No new notifications.</p>

@@ -4,11 +4,11 @@ import { cn } from "@/lib/cn";
 // peach and lilac are kept as names for older callers and map onto amber and blue.
 export const TONES = {
   brand: "bg-brand-soft text-brand",
-  ok: "bg-[#eaf6ef] text-[#148f5b]",
-  warn: "bg-[#fbf3e3] text-[#9a6a12]",
-  danger: "bg-[#fdeded] text-[#c4373c]",
-  muted: "bg-[#f2f2f0] text-[#6e6e73]",
-  peach: "bg-[#fbf3e3] text-[#9a6a12]",
+  ok: "bg-ok-soft text-ok",
+  warn: "bg-warn-soft text-warn",
+  danger: "bg-danger-soft text-danger",
+  muted: "bg-fill text-muted",
+  peach: "bg-warn-soft text-warn",
   lilac: "bg-brand-soft text-brand",
 };
 const tones = TONES;

@@ -6,21 +6,21 @@ import type { DayButtonProps } from "react-day-picker";
 import { format, parseISO } from "date-fns";
 
 export const ATT_DOT: Record<string, string> = {
-  present: "bg-[#0f9f6e]",
-  weekly_off: "bg-[#98a2b3]",
-  holiday: "bg-[#e07a3d]",
-  missing_punch: "bg-[#d13b3b]",
-  leave: "bg-[#5b5bd6]",
-  absent: "bg-[#d13b3b]",
-  od: "bg-[#2f7ec8]",
+  present: "bg-ok",
+  weekly_off: "bg-faint",
+  holiday: "bg-warn",
+  missing_punch: "bg-danger",
+  leave: "bg-brand",
+  absent: "bg-danger",
+  od: "bg-brand",
 };
 
 export const SHIFT_TONE: Record<string, string> = {
-  M: "bg-[#e7f8ef] text-[#0f9f6e]",
-  A: "bg-[#fff1e6] text-[#e07a3d]",
-  N: "bg-[#eeeaff] text-[#5b5bd6]",
-  G: "bg-[#e8eefc] text-brand",
-  OFF: "bg-[#eef1f6] text-muted",
+  M: "bg-ok-soft text-ok",
+  A: "bg-warn-soft text-warn",
+  N: "bg-brand-soft text-brand",
+  G: "bg-fill text-brand",
+  OFF: "bg-fill text-muted",
 };
 
 function StatusDayButton({
@@ -37,7 +37,7 @@ function StatusDayButton({
     <CalendarDayButton
       day={day}
       modifiers={modifiers}
-      className={cn("relative h-full w-full flex-col gap-0.5 rounded-2xl text-[13px]", className)}
+      className={cn("relative h-full w-full flex-col gap-0.5 rounded-xl text-[13px]", className)}
       {...props}
     >
       {children}

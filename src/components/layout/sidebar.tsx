@@ -32,7 +32,7 @@ export function Sidebar() {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "flex h-9 items-center gap-3 rounded-lg px-2.5 text-[14px] transition-colors",
-                  active ? "bg-[#f0f0ee] font-medium text-ink" : "text-muted hover:bg-[#f7f7f5] hover:text-ink",
+                  active ? "bg-fill font-medium text-ink" : "text-muted hover:bg-subtle hover:text-ink",
                 )}
               >
                 <span className={cn("grid h-5 w-5 shrink-0 place-items-center", active && "text-brand")}>

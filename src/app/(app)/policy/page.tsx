@@ -42,14 +42,14 @@ export default function PolicyPage() {
                 <div>
                   <p className="font-semibold">{s.label}</p>
                   <p className="break-words text-xs text-muted">
-                    {s.key} · {s.cadre ?? "all"} · from {formatDay(s.validFrom)}{" "}
-                    · {s.source}
-                    {s.approvedBy ? ` · approved ${who(s.approvedBy)}` : ""}
+                    {s.key}, {s.cadre ?? "all"}, from {formatDay(s.validFrom)}{" "}
+                   , {s.source}
+                    {s.approvedBy ? `, approved ${who(s.approvedBy)}` : ""}
                   </p>
                   {s.pendingValue !== undefined && (
                     <Badge tone="warn" className="mt-2">
                       Pending {String(s.pendingValue)}
-                      {s.pendingBy ? ` · ${who(s.pendingBy)}` : ""}
+                      {s.pendingBy ? `, ${who(s.pendingBy)}` : ""}
                     </Badge>
                   )}
                 </div>
@@ -110,7 +110,7 @@ export default function PolicyPage() {
               </div>
               {past.length > 0 && (
                 <div className="mt-4 overflow-x-auto border-t border-line pt-3">
-                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted">
+                  <p className="mb-2 text-[11px] font-semibold text-muted">
                     Earlier versions
                   </p>
                   <div className="-mx-1 overflow-x-auto px-1">

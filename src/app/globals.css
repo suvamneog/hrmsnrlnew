@@ -21,9 +21,16 @@
   --lilac-ink: #5b5bd6;
   --sky: #e8f4ff;
   --sky-ink: #2f7ec8;
-  --danger: #e14b4b;
-  --warn: #d8890c;
+  /* The whole palette: page, two fills, line, ink, grey, faint, brand, and three status pairs. */
+  --subtle: #f7f7f5;
+  --fill: #f0f0ee;
+  --faint: #a1a1a6;
+  --danger: #c4373c;
+  --danger-soft: #fdeded;
+  --warn: #9a6a12;
+  --warn-soft: #fbf3e3;
   --ok: #148f5b;
+  --ok-soft: #eaf6ef;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   --radius: 18px;
 }
@@ -37,6 +44,15 @@
   --color-brand: var(--brand);
   --color-brand-deep: var(--brand-deep);
   --color-brand-soft: var(--brand-soft);
+  --color-subtle: var(--subtle);
+  --color-fill: var(--fill);
+  --color-faint: var(--faint);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
   --font-sans: var(--font-jakarta), var(--font-deva), var(--font-beng);
   /* shadcn tokens, mapped onto the NRL palette */
   --color-background: var(--bg);
@@ -47,7 +63,7 @@
   --color-popover-foreground: var(--ink);
   --color-primary: var(--brand);
   --color-primary-foreground: #ffffff;
-  --color-secondary: #f3f5fb;
+  --color-secondary: var(--fill);
   --color-secondary-foreground: var(--ink);
   --color-muted-foreground: var(--muted);
   --color-accent: var(--brand-soft);

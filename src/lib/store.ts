@@ -811,7 +811,7 @@ export const useHrms = create<HrmsState>()(
           gateOffline: false,
           interfaces: s.interfaces.map((row) =>
             row.id === "saral"
-              ? { ...row, status: "online" as const, lastRun: stamp(), lastAck: `Gate 2 synced · ${s.gateQueue.length} queued events sent` }
+              ? { ...row, status: "online" as const, lastRun: stamp(), lastAck: `Gate 2 synced, ${s.gateQueue.length} queued events sent` }
               : row,
           ),
           audit: log(s.audit, s.currentUserId ?? "system", "sync_gate", `${s.gateQueue.length} events`, "gate"),
@@ -1021,8 +1021,8 @@ export const useHrms = create<HrmsState>()(
               id: uid("ch"),
               employeeId: id,
               field: "promotion",
-              from: `${e.grade} · ₹${e.basic.toLocaleString("en-IN")}`,
-              to: `${grade} · ₹${basic.toLocaleString("en-IN")} from ${validFrom}`,
+              from: `${e.grade}, ₹${e.basic.toLocaleString("en-IN")}`,
+              to: `${grade}, ₹${basic.toLocaleString("en-IN")} from ${validFrom}`,
               status: "pending",
               makerId: s.currentUserId ?? undefined,
               promotion: { grade, positionId, basic, validFrom },

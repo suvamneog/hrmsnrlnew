@@ -106,7 +106,7 @@ export function Bars({
               {r.hint ? <span className="ml-1 text-[11px]">{r.hint}</span> : null}
             </span>
           </div>
-          <div className="h-2 overflow-hidden rounded-full bg-[#eef1f8]">
+          <div className="h-2 overflow-hidden rounded-full bg-fill">
             <motion.div
               className="h-full rounded-full"
               style={{ background: r.tone ?? color }}
@@ -192,7 +192,7 @@ export function StageTrack({ stages, current }: { stages: { id: string; label: s
     <div>
       <div className="flex gap-1.5">
         {stages.map((s, i) => (
-          <div key={s.id} className="h-1.5 flex-1 overflow-hidden rounded-full bg-[#eef1f8]">
+          <div key={s.id} className="h-1.5 flex-1 overflow-hidden rounded-full bg-fill">
             <motion.div
               className="h-full rounded-full"
               style={{ background: i < at ? "var(--brand)" : i === at ? "#8fa0ff" : "transparent" }}
@@ -215,7 +215,7 @@ export function StageTrack({ stages, current }: { stages: { id: string; label: s
 
 /* Small label-value line for the facts beside a visual. */
 export function Fact({ label, value, tone }: { label: string; value: ReactNode; tone?: "warn" | "ok" | "danger" }) {
-  const color = tone === "warn" ? "text-[#c47b00]" : tone === "danger" ? "text-[#d13b3b]" : tone === "ok" ? "text-[#0f9f6e]" : "text-ink";
+  const color = tone === "warn" ? "text-warn" : tone === "danger" ? "text-danger" : tone === "ok" ? "text-ok" : "text-ink";
   return (
     <div className="flex items-baseline justify-between gap-3 border-b border-line py-2.5 text-[13px] last:border-0">
       <span className="shrink-0 text-muted">{label}</span>

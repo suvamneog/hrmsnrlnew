@@ -142,7 +142,7 @@ export const PAGES: Record<string, [string, string]> = {
 
   // Township
   "Township housing": ["टाउनशिप आवास", "টাউনশ্বিপ আৱাস"],
-  "Numaligarh township · quarters, waiting list and upkeep": ["नुमालीगढ़ टाउनशिप · क्वार्टर, प्रतीक्षा सूची और रखरखाव", "নুমলীগড় টাউনশ্বিপ · কোৱাৰ্টাৰ, অপেক্ষাৰ তালিকা আৰু ৰক্ষণাবেক্ষণ"],
+  "Numaligarh township, quarters, waiting list and upkeep": ["नुमालीगढ़ टाउनशिप, क्वार्टर, प्रतीक्षा सूची और रखरखाव", "নুমলীগড় টাউনশ্বিপ, কোৱাৰ্টাৰ, অপেক্ষাৰ তালিকা আৰু ৰক্ষণাবেক্ষণ"],
   "Held against vacant": ["आवंटित बनाम रिक्त", "আবণ্টিত বনাম খালী"],
   "Licence fee once allotted": ["आवंटन के बाद लाइसेंस शुल्क", "আবণ্টনৰ পিছত অনুজ্ঞা মাচুল"],
   "Licence fee to payroll, per month": ["वेतन में लाइसेंस शुल्क, प्रति माह", "দৰমহাত অনুজ্ঞা মাচুল, প্ৰতিমাহে"],
@@ -414,7 +414,7 @@ export const PAGES: Record<string, [string, string]> = {
   "Sign-in, roles and outbound alerts on NRL's own infrastructure.": ["NRL के अपने ढाँचे पर साइन-इन, भूमिकाएँ और सूचनाएँ।", "NRLৰ নিজা আন্তঃগাঁথনিত ছাইন-ইন, ভূমিকা আৰু জাননী।"],
   "Last ack": ["अंतिम पावती", "শেষ প্ৰাপ্তি স্বীকাৰ"],
   "Last file": ["अंतिम फ़ाइल", "শেষ ফাইল"],
-  "Phase 0 · to confirm": ["चरण 0 · पुष्टि करनी है", "পৰ্যায় ০ · নিশ্চিত কৰিব লাগে"],
+  "Phase 0, to confirm": ["चरण 0, पुष्टि करनी है", "পৰ্যায় ০, নিশ্চিত কৰিব লাগে"],
   "Reservation status": ["आरक्षण स्थिति", "সংৰক্ষণ স্থিতি"],
   "Women employees": ["महिला कर्मचारी", "মহিলা কৰ্মচাৰী"],
   // Kiosk

@@ -102,7 +102,7 @@ export default function InterviewsPage() {
                     </span>
                   </button>
                   <Collapse open={open === i.id}>
-                    <div className="mt-4 grid gap-6 border-t border-[#eef0f6] pt-4 md:grid-cols-2">
+                    <div className="mt-4 grid gap-6 border-t border-fill pt-4 md:grid-cols-2">
                       <div>
                         <p className="mb-2 text-[13px] text-muted">Panel: {i.panel.map(ename).join(", ")}</p>
                         <div className="space-y-2.5">

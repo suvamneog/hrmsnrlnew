@@ -2,8 +2,7 @@ import { ArrowUpRight } from "@phosphor-icons/react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-/* Lead card for a page: a one-line title, an optional link out, then the content.
-   `eyebrow` is kept for callers but not drawn; the title opens the card on its own. */
+/* Lead card for a page: a one-line title, an optional link out, then the content. */
 export function HeroCard({
   title,
   href,
@@ -11,7 +10,6 @@ export function HeroCard({
   action,
   children,
 }: {
-  eyebrow?: string;
   title: string;
   href?: string;
   cta?: string;

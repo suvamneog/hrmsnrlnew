@@ -110,7 +110,7 @@ export function MobileNav() {
                       type="button"
                       onClick={() => setOpen(false)}
                       aria-label="Close menu"
-                      className="grid h-9 w-9 place-items-center rounded-lg text-muted hover:bg-[#f2f2f0]"
+                      className="grid h-9 w-9 place-items-center rounded-lg text-muted hover:bg-fill"
                     >
                       <X size={18} weight="bold" />
                     </button>
@@ -130,8 +130,8 @@ export function MobileNav() {
                             className={cn(
                               "flex h-11 items-center gap-3 rounded-lg px-3 text-[15px] transition-colors",
                               active
-                                ? "bg-[#f0f0ee] font-medium text-ink"
-                                : "text-muted active:bg-[#f7f7f5]",
+                                ? "bg-fill font-medium text-ink"
+                                : "text-muted active:bg-subtle",
                             )}
                           >
                             <span className={cn("grid h-6 w-6 shrink-0 place-items-center", active && "text-brand")}>

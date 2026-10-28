@@ -72,7 +72,7 @@ export default function MdPage() {
         <Panel title="Net pay, latest run" note={run ? `${run.month} run, ${run.results.length.toLocaleString("en-IN")} employees.` : undefined}>
           <p className="text-[34px] font-semibold leading-none tracking-[-0.03em] tabular-nums">{lakh(net)}</p>
           <p className="mt-6 text-[13px] text-muted">Government reports this month</p>
-          <ul className="mt-2 divide-y divide-[#eef0f6]">
+          <ul className="mt-2 divide-y divide-fill">
             {REPORTS.map((r) => (
               <li key={r.name} className="flex items-center justify-between gap-3 py-3">
                 <div className="min-w-0">

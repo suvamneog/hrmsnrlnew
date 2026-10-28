@@ -1,5 +1,6 @@
 import { COMMON } from "./common";
 import { PAGES } from "./pages";
+import { RECENT } from "./recent";
 
 export type Locale = "en" | "hi" | "as";
 
@@ -9,12 +10,17 @@ export const LOCALES: { id: Locale; label: string; native: string }[] = [
   { id: "as", label: "Assamese", native: "অসমীয়া" },
 ];
 
-const DICT: Record<string, [string, string]> = { ...COMMON, ...PAGES };
+const DICT: Record<string, [string, string]> = { ...COMMON, ...PAGES, ...RECENT };
 const col = (l: Locale) => (l === "hi" ? 0 : 1);
 
 // Text that carries a name or a number: translate the fixed part, keep the rest.
 const PATTERNS: { re: RegExp; to: (m: RegExpMatchArray, l: Locale) => string }[] = [
   { re: /^(Good morning|Good afternoon|Good evening), (.+)$/, to: (m, l) => `${DICT[m[1]][col(l)]}, ${m[2]}` },
+  { re: /^(\d+) approvals? waiting$/, to: (m, l) => (l === "hi" ? `${m[1]} स्वीकृतियाँ लंबित` : `${m[1]}টা অনুমোদন বাকী`) },
+  { re: /^Next shift (.+)$/, to: (m, l) => (l === "hi" ? `अगली शिफ्ट ${m[1]}` : `পৰৱৰ্তী শ্বিফ্ট ${m[1]}`) },
+  { re: /^In since (\d\d:\d\d)$/, to: (m, l) => (l === "hi" ? `${m[1]} से अंदर` : `${m[1]}ৰ পৰা ভিতৰত`) },
+  { re: /^(\d+) of (\d+)$/, to: (m, l) => (l === "hi" ? `${m[2]} में से ${m[1]}` : `${m[2]}ৰ ভিতৰত ${m[1]}`) },
+  { re: /^(\d+) candidates, (\d+) still to join\.$/, to: (m, l) => (l === "hi" ? `${m[1]} उम्मीदवार, ${m[2]} का कार्यभार ग्रहण बाकी।` : `${m[1]} জন প্ৰাৰ্থী, ${m[2]} জনৰ যোগদান বাকী।`) },
   { re: /^Namaskar, (.+)$/, to: (m, l) => (l === "hi" ? `नमस्कार, ${m[1]}` : `নমস্কাৰ, ${m[1]}`) },
   { re: /^Signs out in (\d+) s if nobody touches the screen\.$/, to: (m, l) => (l === "hi" ? `कोई न छुए तो ${m[1]} सेकंड में साइन आउट।` : `কোনেও নুচুলে ${m[1]} ছেকেণ্ডত ছাইন আউট হ'ব।`) },
   { re: /^(\d+) waiting for approval$/, to: (m, l) => (l === "hi" ? `${m[1]} स्वीकृति की प्रतीक्षा में` : `${m[1]}টা অনুমোদনৰ অপেক্ষাত`) },

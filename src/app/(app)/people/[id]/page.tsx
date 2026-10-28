@@ -45,10 +45,10 @@ export default function PersonPage() {
     <div>
       <PageHeader
         title={e.name}
-        subtitle={`${e.empNo} · ${positionTitle(e.positionId)} · ${unitName(e.unitId)}`}
+        subtitle={`${e.empNo}, ${positionTitle(e.positionId)}, ${unitName(e.unitId)}`}
         actions={
           <div className="flex gap-2">
-            <Badge tone={cadreTone(e.cadre)}>{e.cadre} · {e.grade}</Badge>
+            <Badge tone={cadreTone(e.cadre)}>{e.cadre}, {e.grade}</Badge>
             <Badge tone={empStatus(e.status)}>{e.status}</Badge>
           </div>
         }
@@ -72,7 +72,7 @@ export default function PersonPage() {
                 <dt className="text-muted">Category</dt>
                 <dd>
                   {e.category}
-                  {e.pwbd ? " · PwBD" : ""}
+                  {e.pwbd ? ", PwBD" : ""}
                 </dd>
               </div>
               <div>
@@ -86,7 +86,7 @@ export default function PersonPage() {
               <div>
                 <dt className="text-muted">Bank</dt>
                 <dd className="font-mono text-xs">
-                  {e.ifsc} · {canSee && reveal ? e.bankAccount : maskBank(e.bankAccount)}
+                  {e.ifsc}, {canSee && reveal ? e.bankAccount : maskBank(e.bankAccount)}
                 </dd>
               </div>
               <div>
@@ -110,9 +110,9 @@ export default function PersonPage() {
             <h2 className="mb-3 font-semibold">Assignment history</h2>
             <ul className="space-y-2 text-sm">
               {e.assignmentHistory.map((a) => (
-                <li key={a.validFrom} className="flex justify-between rounded-xl bg-[#f6f8fd] px-3 py-2">
+                <li key={a.validFrom} className="flex justify-between rounded-xl bg-subtle px-3 py-2">
                   <span>
-                    {positionTitle(a.positionId)} · {a.grade}
+                    {positionTitle(a.positionId)}, {a.grade}
                   </span>
                   <span className="text-muted">
                     from {formatDay(a.validFrom)}
@@ -131,7 +131,7 @@ export default function PersonPage() {
                     .filter((p, i, all) => all.findIndex((x) => x.title === p.title && x.unitId === p.unitId && x.grade === p.grade) === i)
                     .map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.title} · {unitName(p.unitId)} · {p.grade}
+                        {p.title}, {unitName(p.unitId)}, {p.grade}
                       </option>
                     ))}
                 </Select>
@@ -185,7 +185,7 @@ export default function PersonPage() {
               {e.family.length === 0 && <p className="text-sm text-muted">No dependents on file.</p>}
               {e.family.map((f) => (
                 <p key={f.id} className="text-sm">
-                  {f.name} · {f.relation}
+                  {f.name}, {f.relation}
                 </p>
               ))}
               <p className="mt-3 text-xs text-muted">

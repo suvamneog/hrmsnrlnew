@@ -45,10 +45,8 @@ const surface =
 
 const DURATION = 900;
 
-/* Card that frames every chart: title, a headline figure, legend, then the plot.
-   `eyebrow` is kept for callers but not drawn: the title opens the card on its own. */
+/* Card that frames every chart: title, a headline figure, the so-what line, legend, then the plot. */
 export function ChartCard({
-  eyebrow,
   title,
   value,
   note,
@@ -58,7 +56,6 @@ export function ChartCard({
   className,
   children,
 }: {
-  eyebrow?: string;
   title: string;
   value?: ReactNode;
   note?: string;
@@ -133,7 +130,7 @@ function Tip({
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.18, ease: easeOut }}
-      className="min-w-[168px] rounded-xl bg-white px-3 py-2.5 text-[12px] shadow-[0_8px_24px_rgba(0,0,0,0.08)] ring-1 ring-[#ebebea]"
+      className="min-w-[168px] rounded-xl bg-white px-3 py-2.5 text-[12px] ring-1 ring-[#ebebea]"
     >
       <p className="mb-1.5 font-semibold text-ink">{labelFormat ? labelFormat(String(label ?? ""), row) : label}</p>
       {payload.map((p) => {
@@ -379,7 +376,7 @@ export function Donut({
           >
             <p className="text-[22px] font-semibold tabular-nums tracking-tight">{shown ? format(shown.value) : center}</p>
             <p className="text-[11px] text-muted">
-              {shown ? `${shown.label} · ${total ? Math.round((shown.value / total) * 100) : 0}%` : centerLabel}
+              {shown ? `${shown.label}, ${total ? Math.round((shown.value / total) * 100) : 0}%` : centerLabel}
             </p>
           </motion.div>
         </AnimatePresence>
@@ -408,7 +405,7 @@ export function Heatmap({
           <span />
           {cols.map((c) => (
             <span key={c.key} className={cn("pb-1 text-center text-[10px] leading-tight", c.today ? "font-semibold text-brand" : "text-muted")}>
-              {c.sub && <span className="block uppercase">{c.sub}</span>}
+              {c.sub && <span className="block">{c.sub}</span>}
               {c.label}
             </span>
           ))}

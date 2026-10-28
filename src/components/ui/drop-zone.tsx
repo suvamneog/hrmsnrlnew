@@ -59,7 +59,7 @@ export function DropZone({
         transition={{ type: "spring", stiffness: 420, damping: 28, mass: 0.6 }}
         className={cn(
           "flex w-full flex-col items-center justify-center rounded-xl border border-dashed px-4 py-7 text-center",
-          pull.over ? "border-brand bg-brand-soft" : "border-line bg-[#f6f8fd]",
+          pull.over ? "border-brand bg-brand-soft" : "border-line bg-subtle",
         )}
       >
         <p className="text-sm font-semibold">{label}</p>

@@ -22,8 +22,8 @@ const STATUS: Record<NrlInterfaceStatus, { label: string; tone: "ok" | "warn" | 
   awaiting_ack: { label: "Awaiting ack", tone: "warn" },
   idle: { label: "Idle", tone: "muted" },
   online: { label: "Online", tone: "ok" },
-  queued: { label: "Offline · queued", tone: "warn" },
-  phase0: { label: "Phase 0 · to confirm", tone: "muted" },
+  queued: { label: "Offline, queued", tone: "warn" },
+  phase0: { label: "Phase 0, to confirm", tone: "muted" },
 };
 
 const GROUPS: { id: NrlInterfaceGroup; title: string; note: string }[] = [
@@ -48,7 +48,7 @@ export default function InterfacesPage() {
 
   return (
     <div>
-      <PageHeader title="Interfaces" subtitle={`${interfaces.length} connectors · every exchange logged, retried and reconciled`} />
+      <PageHeader title="Interfaces" subtitle={`${interfaces.length} connectors, every exchange logged, retried and reconciled`} />
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {GROUPS.map((g) => {
           const rows = interfaces.filter((x) => (NRL_INTERFACES.find((c) => c.id === x.id)?.group ?? "record") === g.id);
@@ -94,15 +94,15 @@ export default function InterfacesPage() {
               <p className="mt-1 text-xs text-muted">{cat.channel}</p>
               <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
                 <div>
-                  <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted">Last file</dt>
+                  <dt className="text-[11px] font-semibold text-muted">Last file</dt>
                   <dd className="mt-1 font-medium">{row.lastFile ?? "—"}</dd>
                 </div>
                 <div>
-                  <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted">Last ack</dt>
+                  <dt className="text-[11px] font-semibold text-muted">Last ack</dt>
                   <dd className="mt-1 font-medium">{row.lastAck ?? "—"}</dd>
                 </div>
                 <div>
-                  <dt className="text-[11px] font-semibold uppercase tracking-wide text-muted">Last run</dt>
+                  <dt className="text-[11px] font-semibold text-muted">Last run</dt>
                   <dd className="mt-1 font-medium">{row.lastRun ? formatStamp(row.lastRun) : "—"}</dd>
                 </div>
               </dl>
@@ -154,7 +154,7 @@ export default function InterfacesPage() {
                       file.text().then((text) => {
                         const r = importSapCsv(text);
                         if (!r.ok) toast.error(r.reason);
-                        else toast.success(`Imported ${r.imported} · ${r.mismatches} differences`);
+                        else toast.success(`Imported ${r.imported}, ${r.mismatches} differences`);
                       });
                     }}
                   />
@@ -162,7 +162,7 @@ export default function InterfacesPage() {
                   {mismatches.slice(0, 12).map((m) => (
                     <div key={m.s.empNo} className="flex items-center justify-between py-1 text-sm">
                       <span>
-                        {m.s.name} · {m.issue}
+                        {m.s.name}, {m.issue}
                       </span>
                       {m.e && (
                         <button
@@ -178,7 +178,7 @@ export default function InterfacesPage() {
                     </div>
                   ))}
                   {mismatches.length > 12 && (
-                    <p className="mt-2 text-xs text-muted">{mismatches.length - 12} more · Accept all to apply</p>
+                    <p className="mt-2 text-xs text-muted">{mismatches.length - 12} more, Accept all to apply</p>
                   )}
                 </div>
               )}

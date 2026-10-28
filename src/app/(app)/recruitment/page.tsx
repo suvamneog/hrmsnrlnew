@@ -84,20 +84,20 @@ export default function RecruitmentPage() {
               <div>
                 <h2 className="font-semibold">{o.post}</h2>
                 <p className="text-sm text-muted">
-                  {o.grade} · {o.vacancies} posts
+                  {o.grade}, {o.vacancies} posts
                 </p>
               </div>
               <Badge tone="lilac">{o.status}</Badge>
             </div>
             <div className="mt-3 flex flex-wrap gap-2 text-xs">
               {Object.entries(o.split).map(([k, v]) => (
-                <span key={k} className="rounded-full bg-[#f6f8fd] px-2 py-1 font-semibold">
+                <span key={k} className="rounded-lg bg-subtle px-2 py-1 font-semibold">
                   {k} {v}
                 </span>
               ))}
             </div>
             <p className="mt-2 text-xs text-muted">
-              Roster points: {points.filter((p) => p.openingId === o.id).map((p) => `${p.category}→${p.nextPoint}`).join(" · ") || "—"}
+              Roster points: {points.filter((p) => p.openingId === o.id).map((p) => `${p.category}→${p.nextPoint}`).join(", ") || "—"}
             </p>
             {/* Stage moves live on the pipeline board above; here only onboarding for offers and joiners. */}
             <ul className="mt-4 space-y-2">
@@ -107,8 +107,8 @@ export default function RecruitmentPage() {
                   <li key={c.id}>
                     <ExpandableCard
                       icon={<IdentificationBadge size={20} weight="duotone" />}
-                      title={`Onboarding · ${c.name}`}
-                      subtitle={`${o.post} · ${o.grade}`}
+                      title={`Onboarding, ${c.name}`}
+                      subtitle={`${o.post}, ${o.grade}`}
                       items={c.checklist.map((item) => ({
                         label: item.item,
                         done: item.done,

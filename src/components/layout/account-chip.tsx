@@ -56,7 +56,7 @@ export function AccountChip() {
           />
           <div
             role="listbox"
-            className="absolute right-0 top-[calc(100%+8px)] z-40 max-h-[min(70vh,420px)] w-72 overflow-auto rounded-2xl bg-white p-1.5 shadow-[0_16px_40px_rgba(45,64,180,0.12)]"
+            className="absolute right-0 top-[calc(100%+8px)] z-40 max-h-[min(70vh,420px)] w-72 overflow-auto rounded-xl bg-white p-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.08)]"
           >
             {accounts.map((a) => {
               const active = a.person.id === user.id;

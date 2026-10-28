@@ -117,11 +117,11 @@ export default function OrgPage() {
                     { exec: 0, work: 0, train: 0 },
                   );
                   return (
-                    <div key={d.id} className="rounded-2xl bg-[#f6f8fd] p-3">
+                    <div key={d.id} className="rounded-xl bg-subtle p-3">
                       <p className="text-sm font-semibold">{d.name}</p>
                       <p className="mt-1 text-xs text-muted">
                         {count.toLocaleString("en-IN")} on roll
-                        {count > 0 ? ` · ${mix.exec} E · ${mix.work} W · ${mix.train} T` : ""}
+                        {count > 0 ? `, ${mix.exec} E, ${mix.work} W, ${mix.train} T` : ""}
                       </p>
                       <ul className="mt-2 space-y-1">
                         {posts.map((p) => {

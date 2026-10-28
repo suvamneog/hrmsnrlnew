@@ -13,10 +13,10 @@ const LIP: Record<Variant, string> = {
 };
 
 const FACE: Record<Variant, string> = {
-  primary: "bg-brand text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]",
-  secondary: "bg-white text-ink shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]",
-  danger: "bg-[#e14b4b] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]",
-  mint: "bg-[#12a56f] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]",
+  primary: "bg-brand text-white",
+  secondary: "bg-white text-ink",
+  danger: "bg-danger text-white",
+  mint: "bg-ok text-white",
 };
 
 export function TactileButton({

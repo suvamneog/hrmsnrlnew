@@ -67,8 +67,8 @@ export default function ApprovalsPage() {
     rows.push({
       id: l.id,
       kind: "leave",
-      title: `${types.find((t) => t.id === l.typeId)?.name ?? "Leave"} · ${l.days}d`,
-      sub: `${formatDay(l.from)}${l.from !== l.to ? ` – ${formatDay(l.to)}` : ""} · ${l.reason}`,
+      title: `${types.find((t) => t.id === l.typeId)?.name ?? "Leave"}, ${l.days}d`,
+      sub: `${formatDay(l.from)}${l.from !== l.to ? ` – ${formatDay(l.to)}` : ""}, ${l.reason}`,
       who: nameOf(l.employeeId),
       own,
       approve: own ? undefined : () => { decideLeave(l.id, "approved"); toast.success("Approved"); },
@@ -83,7 +83,7 @@ export default function ApprovalsPage() {
     rows.push({
       id: s.id,
       kind: "time",
-      title: `Shift swap · ${formatDay(s.date)}`,
+      title: `Shift swap, ${formatDay(s.date)}`,
       sub: `${nameOf(s.fromId)} with ${nameOf(s.toId)}`,
       who: nameOf(s.fromId),
       own,
@@ -97,7 +97,7 @@ export default function ApprovalsPage() {
     rows.push({
       id: r.id,
       kind: "time",
-      title: `Regularisation · ${formatDay(r.date)}`,
+      title: `Regularisation, ${formatDay(r.date)}`,
       sub: r.reason,
       who: nameOf(r.employeeId),
       own,
@@ -113,8 +113,8 @@ export default function ApprovalsPage() {
     rows.push({
       id: c.id,
       kind: "claim",
-      title: `${c.type.toUpperCase()} · ${inr(c.amount)}`,
-      sub: `${c.description}${c.bills ? ` · ${c.bills} bill${c.bills > 1 ? "s" : ""}` : ""}`,
+      title: `${c.type.toUpperCase()}, ${inr(c.amount)}`,
+      sub: `${c.description}${c.bills ? `, ${c.bills} bill${c.bills > 1 ? "s" : ""}` : ""}`,
       who: nameOf(c.employeeId),
       own,
       approve: own || !claimDecide ? undefined : () => { decideClaim(c.id, "approved"); toast.success("Approved"); },
@@ -148,7 +148,7 @@ export default function ApprovalsPage() {
     rows.push({
       id: a.id,
       kind: "claim",
-      title: `${a.type === "hba" ? "House building" : a.type === "vehicle" ? "Vehicle" : "Festival"} advance · ${inr(a.principal)}`,
+      title: `${a.type === "hba" ? "House building" : a.type === "vehicle" ? "Vehicle" : "Festival"} advance, ${inr(a.principal)}`,
       sub: `Recover ${inr(a.monthlyRecovery)} a month over ${a.instalments ?? "—"} instalments`,
       who: nameOf(a.employeeId),
       own,
@@ -189,7 +189,7 @@ export default function ApprovalsPage() {
           <button
             key={id}
             onClick={() => setPicked(id)}
-            className={`rounded-full px-4 py-2 text-sm font-semibold ${
+            className={`rounded-lg px-4 py-2 text-sm font-semibold ${
               scope === id ? "bg-ink text-white" : "bg-white text-muted"
             }`}
           >
@@ -209,7 +209,7 @@ export default function ApprovalsPage() {
           <button
             key={id}
             onClick={() => setKind(id)}
-            className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
+            className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${
               kind === id ? "bg-brand-soft text-brand" : "bg-white text-muted"
             }`}
           >

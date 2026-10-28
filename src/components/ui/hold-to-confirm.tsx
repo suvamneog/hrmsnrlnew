@@ -73,12 +73,12 @@ export function HoldToConfirm({
       onPointerCancel={up}
       onContextMenu={(e) => e.preventDefault()}
       className={cn(
-        "relative isolate h-11 min-w-[11rem] touch-none overflow-hidden rounded-full px-4 text-sm font-semibold select-none",
+        "relative isolate h-11 min-w-[11rem] touch-none overflow-hidden rounded-lg px-4 text-sm font-semibold select-none",
         "outline-none focus-visible:ring-4 focus-visible:ring-brand/20",
         "disabled:pointer-events-none",
         variant === "danger"
-          ? "border border-[#f3c1c1] bg-white text-[#c93c3c]"
-          : "bg-brand text-white shadow-[0_8px_18px_rgba(61,90,254,0.28)]",
+          ? "border border-[#f3c1c1] bg-white text-danger"
+          : "bg-brand text-white ",
         className,
       )}
     >

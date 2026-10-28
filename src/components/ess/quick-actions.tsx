@@ -6,11 +6,11 @@ import { Calculator, CalendarBlank, ClockCounterClockwise, FileText, Receipt } f
 import Link from "next/link";
 
 const ACTIONS = [
-  { href: "/leave", label: "Leave", Icon: CalendarBlank, bg: "bg-[#e7f8ef]", ink: "text-[#0f9f6e]" },
-  { href: "/payslips", label: "Payslip", Icon: FileText, bg: "bg-[#eeeaff]", ink: "text-[#5b5bd6]" },
-  { href: "/claims", label: "Claim", Icon: Receipt, bg: "bg-[#fff1e6]", ink: "text-[#e07a3d]" },
+  { href: "/leave", label: "Leave", Icon: CalendarBlank, bg: "bg-ok-soft", ink: "text-ok" },
+  { href: "/payslips", label: "Payslip", Icon: FileText, bg: "bg-brand-soft", ink: "text-brand" },
+  { href: "/claims", label: "Claim", Icon: Receipt, bg: "bg-warn-soft", ink: "text-warn" },
   { href: "/tax", label: "Tax", Icon: Calculator, bg: "bg-[#fdeef4]", ink: "text-[#d4537e]" },
-  { href: "/time", label: "Regularise", Icon: ClockCounterClockwise, bg: "bg-[#e8f4ff]", ink: "text-[#2f7ec8]" },
+  { href: "/time", label: "Regularise", Icon: ClockCounterClockwise, bg: "bg-brand-soft", ink: "text-brand" },
 ] as const;
 
 export function QuickActions() {
@@ -24,9 +24,9 @@ export function QuickActions() {
         <Link
           key={href}
           href={href}
-          className="flex flex-col items-center gap-2 rounded-2xl px-1 py-2 transition hover:bg-white"
+          className="flex flex-col items-center gap-2 rounded-xl px-1 py-2 transition hover:bg-white"
         >
-          <span className={`grid h-12 w-12 place-items-center rounded-2xl ${bg} ${ink}`}>
+          <span className={`grid h-12 w-12 place-items-center rounded-xl ${bg} ${ink}`}>
             <Icon size={22} weight="duotone" />
           </span>
           <span className="text-[11px] font-semibold">{label}</span>

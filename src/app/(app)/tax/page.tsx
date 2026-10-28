@@ -70,10 +70,10 @@ export default function TaxPage() {
           {mine.map((t) => (
             <Card key={t.id} className="p-4">
               <div className="flex justify-between">
-                <p className="font-semibold">{t.fy} · {t.regime} regime</p>
+                <p className="font-semibold">{t.fy}, {t.regime} regime</p>
                 <Badge tone={requestTone(t.status)}>{t.status}</Badge>
               </div>
-              <p className="mt-2 text-sm text-muted">80C {inr(t.section80C)} · rent {inr(t.rent)} · {t.proofs} proof(s)</p>
+              <p className="mt-2 text-sm text-muted">80C {inr(t.section80C)}, rent {inr(t.rent)}, {t.proofs} proof(s)</p>
             </Card>
           ))}
         </div>

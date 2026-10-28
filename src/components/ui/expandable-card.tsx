@@ -11,10 +11,10 @@ export type ChecklistItem = { label: string; done: boolean; hint?: string; onTog
 export type Pill = { label: string; tone: "danger" | "warn" | "ok" | "muted" | "brand" };
 
 const PILL: Record<Pill["tone"], string> = {
-  danger: "bg-[#fdecec] text-[#c43d3d]",
-  warn: "bg-[#fff4dc] text-[#a86a00]",
-  ok: "bg-[#e7f8ef] text-[#0f8a5f]",
-  muted: "bg-[#eef1f6] text-muted",
+  danger: "bg-danger-soft text-danger",
+  warn: "bg-warn-soft text-warn",
+  ok: "bg-ok-soft text-[#0f8a5f]",
+  muted: "bg-fill text-muted",
   brand: "bg-brand-soft text-brand",
 };
 
@@ -54,8 +54,8 @@ export function ExpandableCard({
           <div
         style={{ borderRadius: 22 }}
         className={cn(
-          "overflow-hidden bg-white ring-1 ring-[#e7eaf3] transition-shadow duration-500",
-          open ? "shadow-[0_24px_60px_rgba(27,33,64,0.12)]" : "shadow-[0_6px_20px_rgba(27,33,64,0.06)] hover:shadow-[0_12px_32px_rgba(27,33,64,0.1)]",
+          "overflow-hidden bg-white ring-1 ring-line transition-shadow duration-500",
+          open ? "" : " ",
         )}
       >
         <button
@@ -65,7 +65,7 @@ export function ExpandableCard({
           className="block w-full p-4 text-left sm:p-5"
         >
           <div className="flex items-center gap-3">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#f3f5fb] text-ink ring-1 ring-[#e7eaf3]">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-subtle text-ink ring-1 ring-line">
               {icon}
             </span>
             <div className="min-w-0 flex-1">
@@ -92,13 +92,13 @@ export function ExpandableCard({
             <div className="flex items-center gap-4 pt-3 text-[13px] text-muted">
               {priority && (
                 <span className="inline-flex items-center gap-1.5">
-                  <Flag size={14} weight="fill" className="text-[#b8c0d0]" />
+                  <Flag size={14} weight="fill" className="text-faint" />
                   {priority.label}
                 </span>
               )}
               {status && (
                 <span className="inline-flex items-center gap-1.5">
-                  <Hourglass size={14} weight="fill" className="text-[#b8c0d0]" />
+                  <Hourglass size={14} weight="fill" className="text-faint" />
                   {status.label}
                 </span>
               )}
@@ -118,9 +118,9 @@ export function ExpandableCard({
             <Collapse key="body" reduce={!!reduce}>
             <div className="px-4 pb-5 sm:px-5">
               <div
-                className="inline-flex items-center gap-2.5 rounded-full bg-white px-3 py-1.5 text-[13px] ring-1 ring-[#e7eaf3]"
+                className="inline-flex items-center gap-2.5 rounded-lg bg-white px-3 py-1.5 text-[13px] ring-1 ring-line"
               >
-                <span className="grid h-4 w-4 place-items-center rounded-full ring-1 ring-[#c3c9d6]">
+                <span className="grid h-4 w-4 place-items-center rounded-full ring-1 ring-faint">
                   <Check size={9} weight="bold" className="text-muted" />
                 </span>
                 <span className="tabular-nums text-muted">
@@ -130,7 +130,7 @@ export function ExpandableCard({
                 <span className="tabular-nums text-muted">{pct}%</span>
               </div>
 
-              <ul className="relative ml-[22px] mt-1 border-l border-[#dfe3ec] pt-1">
+              <ul className="relative ml-[22px] mt-1 border-l border-line pt-1">
                 {items.map((it, i) => (
                   <motion.li
                     key={it.label}
@@ -139,14 +139,14 @@ export function ExpandableCard({
                     transition={reduce ? { duration: 0 } : { delay: 0.08 + i * 0.04, duration: 0.28 }}
                     className="relative flex items-center gap-3 py-2 pl-6"
                   >
-                    <span className="absolute left-0 top-1/2 h-px w-4 bg-[#dfe3ec]" />
+                    <span className="absolute left-0 top-1/2 h-px w-4 bg-line" />
                     <button
                       type="button"
                       disabled={!it.onToggle || it.done}
                       onClick={it.onToggle}
                       className={cn(
                         "grid h-5 w-5 shrink-0 place-items-center rounded-full transition",
-                        it.done ? "bg-ink text-white" : "ring-[1.5px] ring-[#b8c0d0]",
+                        it.done ? "bg-ink text-white" : "ring-[1.5px] ring-faint",
                         it.onToggle && !it.done && "hover:ring-brand",
                       )}
                       aria-label={it.done ? `${it.label} done` : `Mark ${it.label} done`}
@@ -164,7 +164,7 @@ export function ExpandableCard({
                   {priority && (
                     <>
                       <span className="inline-flex items-center gap-2 text-muted">
-                        <Flag size={15} weight="fill" className="text-[#b8c0d0]" /> Priority
+                        <Flag size={15} weight="fill" className="text-faint" /> Priority
                       </span>
                       <span className={cn("justify-self-start rounded-lg px-2.5 py-1 text-[13px] font-medium", PILL[priority.tone])}>{priority.label}</span>
                     </>
@@ -172,7 +172,7 @@ export function ExpandableCard({
                   {status && (
                     <>
                       <span className="inline-flex items-center gap-2 text-muted">
-                        <Hourglass size={15} weight="fill" className="text-[#b8c0d0]" /> Status
+                        <Hourglass size={15} weight="fill" className="text-faint" /> Status
                       </span>
                       <span className={cn("justify-self-start rounded-lg px-2.5 py-1 text-[13px] font-medium", PILL[status.tone])}>{status.label}</span>
                     </>
@@ -185,7 +185,7 @@ export function ExpandableCard({
                   {people.map((n) => (
                     <span
                       key={n}
-                      className="inline-flex items-center gap-2 rounded-full bg-white py-1 pl-1 pr-3 text-[13px] font-medium ring-1 ring-[#e7eaf3]"
+                      className="inline-flex items-center gap-2 rounded-full bg-white py-1 pl-1 pr-3 text-[13px] font-medium ring-1 ring-line"
                     >
                       <Avatar name={n} size={24} />
                       {n.split(" ")[0]}

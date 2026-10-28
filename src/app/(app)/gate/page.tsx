@@ -57,13 +57,13 @@ export default function GatePage() {
       <GateCharts />
       <div className="mb-6 flex items-end justify-between">
         <div>
-          <p className="text-sm text-muted">Gate 2 · CDU west</p>
+          <p className="text-sm text-muted">Gate 2, CDU west</p>
           <h1 className="text-3xl font-semibold tracking-tight">Pass check</h1>
         </div>
         <div className="flex items-center gap-3">
           {role === "gate_security" && (
           <button
-            className="rounded-full bg-white px-3 py-2 text-xs font-semibold"
+            className="rounded-lg bg-white px-3 py-2 text-xs font-semibold"
             onClick={() => {
               if (offline) flushGateQueue();
               else setGateOffline(true);
@@ -72,13 +72,13 @@ export default function GatePage() {
             {offline ? `Sync ${queue.length}` : "Work offline"}
           </button>
           )}
-          <div className="rounded-2xl bg-white px-4 py-3 text-right border border-line">
+          <div className="rounded-xl bg-white px-4 py-3 text-right border border-line">
             <p className="text-xs text-muted">Headcount inside</p>
             <p className="text-2xl font-semibold">{inside}</p>
           </div>
           {role === "gate_security" && (
             <button
-              className="rounded-full bg-white px-3 py-2 text-xs font-semibold"
+              className="rounded-lg bg-white px-3 py-2 text-xs font-semibold"
               onClick={() => {
                 logout();
                 router.push("/");
@@ -104,7 +104,7 @@ export default function GatePage() {
           placeholder="Search worker or scan pass"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          className="mb-4 h-14 rounded-2xl text-lg"
+          className="mb-4 h-14 rounded-xl text-lg"
         />
         <ScrollFade className="mb-5 grid max-h-40 grid-cols-2 gap-2">
           {visiblePasses
@@ -119,7 +119,7 @@ export default function GatePage() {
                 <button
                   key={p.id}
                   onClick={() => setPicked(p.id)}
-                  className={`flex items-center gap-2 rounded-2xl px-3 py-2 text-left ${picked === p.id ? "bg-brand-soft" : "bg-[#f6f8fd]"}`}
+                  className={`flex items-center gap-2 rounded-xl px-3 py-2 text-left ${picked === p.id ? "bg-brand-soft" : "bg-subtle"}`}
                 >
                   <Avatar name={w.name} size={32} />
                   <span className="min-w-0">
@@ -137,7 +137,7 @@ export default function GatePage() {
               <div>
                 <p className="text-xl font-semibold">{worker.name}</p>
                 <p className="text-sm text-muted">
-                  {worker.skill} · {contractor?.name}
+                  {worker.skill}, {contractor?.name}
                 </p>
                 <p className="font-mono text-xs text-muted">{maskAadhaar(worker.aadhaar)}</p>
                 <p className="mt-1 font-mono text-[11px] font-semibold text-brand">
@@ -146,7 +146,7 @@ export default function GatePage() {
               </div>
             </div>
             <div className="my-4 border-t border-dashed border-line" />
-            <p className={`text-lg font-semibold ${passBlockReason({ worker, contractor, certs }) ? "text-[#d13b3b]" : "text-[#0f9f6e]"}`}>
+            <p className={`text-lg font-semibold ${passBlockReason({ worker, contractor, certs }) ? "text-danger" : "text-ok"}`}>
               {passBlockReason({ worker, contractor, certs }) ?? "All checks valid. Allow entry."}
             </p>
             {role === "gate_security" && (

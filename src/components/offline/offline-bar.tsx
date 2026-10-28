@@ -52,11 +52,11 @@ export function OfflineBar() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 40, opacity: 0 }}
           transition={{ duration: 0.35, ease: easeOut }}
-          className="fixed inset-x-3 bottom-20 z-50 mx-auto flex max-w-xl items-center gap-3 rounded-2xl bg-ink px-4 py-3 text-[13px] text-white shadow-[0_16px_40px_rgba(20,30,90,0.25)] md:bottom-5"
+          className="fixed inset-x-3 bottom-20 z-50 mx-auto flex max-w-xl items-center gap-3 rounded-xl bg-ink px-4 py-3 text-[13px] text-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] md:bottom-5"
         >
           <CloudSlash size={18} className="shrink-0" />
           <span className="min-w-0 flex-1">You are offline. Your changes are kept on this device.</span>
-          {pending > 0 && <span className="shrink-0 rounded-full bg-white/15 px-2.5 py-0.5 tabular-nums">{pending}</span>}
+          {pending > 0 && <span className="shrink-0 rounded-lg bg-white/15 px-2.5 py-0.5 tabular-nums">{pending}</span>}
         </motion.div>
       )}
     </AnimatePresence>

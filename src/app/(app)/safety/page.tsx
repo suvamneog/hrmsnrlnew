@@ -48,7 +48,7 @@ export default function SafetyPage() {
           return (
             <Card key={t.id} className="p-4">
               <p className="font-semibold">{course?.name}</p>
-              <p className="text-sm text-muted">{t.date} · {t.enrolled.length}/{t.seats} seats</p>
+              <p className="text-sm text-muted">{t.date}, {t.enrolled.length}/{t.seats} seats</p>
               {me && (
                 <button
                   className="mt-2 text-xs font-semibold text-brand"
@@ -84,13 +84,13 @@ export default function SafetyPage() {
         </div>
         {inductions.slice(0, 4).map((i) => (
           <p key={i.id} className="mt-2 text-xs text-muted">
-            {workers.find((w) => w.id === i.workerId)?.name} · {i.score} · {i.passed ? "pass" : "fail"}
+            {workers.find((w) => w.id === i.workerId)?.name}, {i.score}, {i.passed ? "pass" : "fail"}
           </p>
         ))}
       </Card>
       <Card className="overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-[#f6f8fd] text-left text-xs text-muted">
+          <thead className="bg-subtle text-left text-xs text-muted">
             <tr>
               <th className="px-4 py-3">Person</th>
               <th>Course</th>

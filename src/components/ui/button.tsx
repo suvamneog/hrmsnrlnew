@@ -11,9 +11,9 @@ type Variant = "primary" | "secondary" | "ghost" | "danger" | "white";
 // Flat fills and an 8px radius, in line with the cards: no gradients, no glow.
 const styles: Record<Variant, string> = {
   primary: "bg-brand text-white hover:bg-brand-deep",
-  secondary: "border border-line bg-white text-ink hover:bg-[#f7f7f5]",
-  ghost: "bg-transparent text-ink hover:bg-[#f2f2f0]",
-  danger: "bg-[#e5484d] text-white hover:bg-[#d23c41]",
+  secondary: "border border-line bg-white text-ink hover:bg-subtle",
+  ghost: "bg-transparent text-ink hover:bg-fill",
+  danger: "bg-danger text-white hover:bg-danger",
   white: "border border-white/25 bg-white/15 text-white hover:bg-white/25",
 };
 

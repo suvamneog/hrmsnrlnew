@@ -15,21 +15,13 @@ import { PAYROLL_STAGES } from "@/lib/payroll";
 import { useHrms } from "@/lib/store";
 import { motion } from "motion/react";
 import Link from "next/link";
-import { InView } from "@/components/motion/in-view";
-import { AnimatedFolder } from "@/components/ui/3d-folder";
-import { FilePreview } from "@/components/ui/doc-preview";
-import type { StatutoryFile } from "@/lib/types";
+
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 const PAGE = 40;
 
 // Statutory outputs grouped the way the payroll cell hands them off.
-const FILE_GROUPS: { title: string; kinds: StatutoryFile["kind"][] }[] = [
-  { title: "Bank & PF", kinds: ["bank", "ecr", "nps"] },
-  { title: "Tax", kinds: ["tds24q", "pt"] },
-  { title: "Finance & claims", kinds: ["sapfi", "claims"] },
-];
 
 function statutoryTitle(name: string) {
   return name.replace(/\.[^.]+$/, "").replaceAll("_", " ");
@@ -186,7 +178,7 @@ export default function PayrollPage() {
       {run.results.length > 0 && (
         <Card className="overflow-x-auto">
           <table className="min-w-[720px] w-full text-sm">
-            <thead className="bg-[#f6f8fd] text-left text-xs text-muted">
+            <thead className="bg-subtle text-left text-xs text-muted">
               <tr>
                 <th className="px-4 py-3">Employee</th>
                 <th>Cadre</th>
@@ -243,28 +235,6 @@ export default function PayrollPage() {
       )}
       {blockers > 0 && (
         <p className="mt-3 text-sm text-muted">{blockers} rows fail DPE 35/30/50, bank or net-pay checks. Finance cannot release until they clear.</p>
-      )}
-      {(run.files ?? []).length > 0 && (
-        <InView className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {FILE_GROUPS.map((g) => {
-            const files = run.files!.filter((f) => g.kinds.includes(f.kind));
-            if (!files.length) return null;
-            return (
-              <AnimatedFolder
-                key={g.title}
-                title={g.title}
-                countLabel={files.length === 1 ? "file" : "files"}
-                items={files.map((f) => ({
-                  id: f.name,
-                  title: statutoryTitle(f.name),
-                  subtitle: prettySize(f.content),
-                  preview: <FilePreview name={f.name} content={f.content} kind={fileKindFromName(f.name)} />,
-                  onOpen: () => downloadText(f.name, f.content, fileMime(f.kind)),
-                }))}
-              />
-            );
-          })}
-        </InView>
       )}
       {(run.files ?? []).length > 0 && (
         <Card className="mt-5 px-5 py-2">

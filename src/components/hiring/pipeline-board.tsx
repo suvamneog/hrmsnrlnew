@@ -88,7 +88,7 @@ export function PipelineBoard() {
               onClick={() => setOpening(o.id)}
               className={cn(
                 "shrink-0 rounded-lg px-3 py-1.5 text-[13px] transition-colors",
-                opening === o.id ? "bg-[#f0f0ee] font-medium text-ink" : "text-muted hover:text-ink",
+                opening === o.id ? "bg-fill font-medium text-ink" : "text-muted hover:text-ink",
               )}
             >
               {o.post}
@@ -169,7 +169,7 @@ export function PipelineBoard() {
                       const Icon = s.icon;
                       return (
                         <li key={s.id} className="flex shrink-0 items-center">
-                          {i > 0 && <span className={cn("mx-1 block h-px w-4 sm:w-6", i <= at ? "bg-[#148f5b]" : "bg-line")} />}
+                          {i > 0 && <span className={cn("mx-1 block h-px w-4 sm:w-6", i <= at ? "bg-ok" : "bg-line")} />}
                           <button
                             type="button"
                             onClick={() => setPicked((p) => ({ ...p, [c.id]: s.id }))}
@@ -182,9 +182,9 @@ export function PipelineBoard() {
                             aria-label={`${s.label}, ${done ? "done" : current ? "current" : "upcoming"}`}
                             className={cn(
                               "grid h-8 w-8 place-items-center rounded-full border transition-colors",
-                              done && "border-[#148f5b] bg-[#eaf6ef] text-[#148f5b]",
+                              done && "border-ok bg-ok-soft text-ok",
                               current && "border-brand bg-brand-soft text-brand",
-                              !done && !current && "border-line bg-white text-[#a1a1a6]",
+                              !done && !current && "border-line bg-white text-faint",
                               show === s.id && "ring-2 ring-ink/15 ring-offset-1",
                             )}
                           >

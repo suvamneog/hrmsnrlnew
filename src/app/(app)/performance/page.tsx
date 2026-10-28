@@ -15,11 +15,11 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 const RATINGS = [
-  { value: 5, label: "5 · Outstanding" },
-  { value: 4, label: "4 · Very good" },
-  { value: 3, label: "3 · Good" },
-  { value: 2, label: "2 · Fair" },
-  { value: 1, label: "1 · Poor" },
+  { value: 5, label: "5, Outstanding" },
+  { value: 4, label: "4, Very good" },
+  { value: 3, label: "3, Good" },
+  { value: 2, label: "2, Fair" },
+  { value: 1, label: "1, Poor" },
 ];
 
 const STAGE: Record<string, string> = {
@@ -74,12 +74,11 @@ export default function PerformancePage() {
       <div className="space-y-5">
         <InView>
           <HeroCard
-            eyebrow={`APAR cycle ${mine?.cycle ?? "2026-27"}`}
             title={mine ? `You are at ${STAGE[mine.stage].toLowerCase()}` : "No appraisal issued"}
             action={
               mine?.finalRating ? (
-                <span className="rounded-full bg-[#e7f8ef] px-3 py-1.5 text-[12px] font-semibold text-[#0f9f6e]">
-                  Final {mine.finalRating} · PRP {inr(mine.prpAmount ?? 0)}
+                <span className="rounded-lg bg-ok-soft px-3 py-1.5 text-[12px] font-semibold text-ok">
+                  Final {mine.finalRating}, PRP {inr(mine.prpAmount ?? 0)}
                 </span>
               ) : undefined
             }
@@ -101,7 +100,7 @@ export default function PerformancePage() {
               </div>
               <div>
                 {mine && (mine.stage === "goal_setting" || mine.stage === "mid_year") && (
-                  <div className="rounded-2xl bg-[#f6f8fd] p-4">
+                  <div className="rounded-xl bg-subtle p-4">
                     <p className="text-sm font-semibold">{mine.stage === "mid_year" ? "Mid-year review is open" : "Your KRAs are ready"}</p>
                     <p className="mt-1 text-[12px] text-muted">
                       {mine.stage === "mid_year" ? "Close the review to open self-appraisal." : "Accept the goals your reporting officer set."}
@@ -119,7 +118,7 @@ export default function PerformancePage() {
                   </div>
                 )}
                 {mine?.stage === "self" && (
-                  <div className="rounded-2xl bg-[#f6f8fd] p-4">
+                  <div className="rounded-xl bg-subtle p-4">
                     <p className="text-sm font-semibold">Rate your year</p>
                     <div className="mt-3 flex gap-2">
                       {RATINGS.slice().reverse().map((x) => (
@@ -163,7 +162,7 @@ export default function PerformancePage() {
                   <div key={g.id}>
                     <div className="flex items-baseline justify-between gap-3">
                       <p className="text-sm font-semibold">{g.title}</p>
-                      <span className="rounded-full bg-[#f3f5fb] px-2 py-0.5 text-[11px] font-semibold text-muted">{g.weight}%</span>
+                      <span className="rounded-lg bg-subtle px-2 py-0.5 text-[11px] font-semibold text-muted">{g.weight}%</span>
                     </div>
                     <p className="mt-0.5 text-[12px] text-muted">Target {g.target}</p>
                     <Bars rows={[{ label: "Achieved at mid-year", value: g.achievement }]} format={(n) => `${n}%`} max={100} />
@@ -182,7 +181,7 @@ export default function PerformancePage() {
                 <Fact label="Ratings this cycle" value={mine?.finalRating ?? "Pending"} />
                 <Fact label="Vigilance clearance" value="Clear" tone="ok" />
               </div>
-              <div className="mt-5 rounded-2xl bg-[#f6f8fd] p-4 text-[12px] leading-relaxed text-muted">
+              <div className="mt-5 rounded-xl bg-subtle p-4 text-[12px] leading-relaxed text-muted">
                 Final ratings set performance-related pay, capped at 100% of basic. There is no forced share of below-par ratings
                 (dropped in DPE&apos;s 2017 method).
               </div>
@@ -259,7 +258,7 @@ export default function PerformancePage() {
                 <Card key={a.employeeId} className="p-4">
                   <p className="font-semibold">{e?.name}</p>
                   <p className="text-sm text-muted">
-                    Self {a.selfRating ?? "—"} · Reporting {a.reportingRating ?? "—"}
+                    Self {a.selfRating ?? "—"}, Reporting {a.reportingRating ?? "—"}
                   </p>
                   <div className="mt-3 flex max-w-sm flex-col gap-3">
                     <Field label="Reviewing officer rating">
@@ -291,7 +290,7 @@ export default function PerformancePage() {
                         else toast.success(`Closed ${e?.preferredName}. PRP computed.`);
                       }}
                     >
-                      Close APAR · {formatDay(DEMO_TODAY)}
+                      Close APAR, {formatDay(DEMO_TODAY)}
                     </Button>
                   </div>
                 </Card>

@@ -18,7 +18,7 @@ export function SectionTabs() {
   if (!section) return null;
   return (
     <nav aria-label={section.label} className="-mx-4 mb-5 overflow-x-auto px-4 [scrollbar-width:none] md:mx-0 md:px-0">
-      <div className="inline-flex min-w-max rounded-full bg-[#efefed] p-1">
+      <div className="inline-flex min-w-max rounded-full bg-fill p-1">
         {section.pages.map((p) => {
           const on = path === p.href || path.startsWith(`${p.href}/`);
           return (
@@ -26,13 +26,13 @@ export function SectionTabs() {
               key={p.href}
               href={p.href}
               aria-current={on ? "page" : undefined}
-              className={cn("relative rounded-full px-4 py-1.5 text-sm font-semibold transition-colors", on ? "text-ink" : "text-muted hover:text-ink")}
+              className={cn("relative rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors", on ? "text-ink" : "text-muted hover:text-ink")}
             >
               {on && (
                 <motion.span
                   layoutId={`section-${section.id}`}
                   transition={spring}
-                  className="absolute inset-0 rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.04)]"
+                  className="absolute inset-0 rounded-full bg-white"
                 />
               )}
               <span className="relative whitespace-nowrap">{p.label}</span>

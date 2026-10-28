@@ -51,11 +51,10 @@ export function TimeCharts() {
   const flags = timeline.filter((t) => t.flag).length;
   return (
     <Grid>
-      <ChartCard eyebrow="Attendance by shift" title={`Present heads, last ${byShift.length} days`} series={series} note="Staff on the biometric roster.">
+      <ChartCard title={`Present heads, last ${byShift.length} days`} series={series} note="Staff on the biometric roster.">
         <Bars data={byShift} x="day" series={series} />
       </ChartCard>
       <ChartCard
-        eyebrow="Your punches"
         title="Last 14 days against your roster"
         value={flags ? `${flags} flagged` : "All on time"}
         note="Dashed box is the rostered shift; the bar is your punch. Amber late, violet early, red missing."
@@ -90,7 +89,6 @@ export function RosterCharts() {
   return (
     <div className="mb-6">
       <ChartCard
-        eyebrow="Coverage, next 14 days"
         title="Who works which shift"
         value={restN ? `${restN} short-rest turns` : "No rest violations"}
         note={`Amber dot: swap on that day. Red dot: less than ${minRest} h rest before the shift. ${swapN} swap day(s).`}
@@ -112,7 +110,7 @@ export function RosterCharts() {
               color: SHIFT_COLOR[c.code] ?? C.slate,
               text: c.code === "OFF" ? "" : c.code,
               mark: c.rest !== undefined ? "rest" : c.swap ? "swap" : undefined,
-              title: `${who} · ${format(parseISO(col), "EEE d MMM")}`,
+              title: `${who}, ${format(parseISO(col), "EEE d MMM")}`,
               detail: [
                 c.code === "OFF" ? "Weekly off" : `${sh?.label} ${sh?.start}–${sh?.end}`,
                 ...(c.rest !== undefined ? [`Only ${c.rest.toFixed(1)} h rest`] : []),
@@ -139,8 +137,8 @@ export function GateCharts() {
   return (
     <Grid>
       <ChartCard
-        eyebrow="In plant"
         title="Heads inside by hour, today"
+        note={`Peak ${peak} inside. Muster points and canteen should plan for that many.`}
         value={`Peak ${peak}`}
         series={[
           { key: "contract", label: "Contract workers", color: C.blue },
@@ -157,7 +155,7 @@ export function GateCharts() {
           ]}
         />
       </ChartCard>
-      <ChartCard eyebrow="Blocked passes" title="Why workers can't enter" value={blocked.reduce((n, b) => n + b.count, 0)} note="Each pass counted once, by the first check that fails.">
+      <ChartCard title="Why workers can't enter" value={blocked.reduce((n, b) => n + b.count, 0)} note="Each pass counted once, by the first check that fails.">
         <HBars data={blocked} y="reason" labelWidth={86} series={[{ key: "count", label: "Passes", color: C.red }]} />
       </ChartCard>
     </Grid>
@@ -181,17 +179,20 @@ export function ContractorCharts() {
   const series = [
     { key: "expired", label: "Expired", color: C.red },
     { key: "d7", label: "In 7 days", color: C.amber },
-    { key: "d14", label: "In 14 days", color: "#f0c674" },
+    { key: "d14", label: "In 14 days", color: "#e8c98a" },
     { key: "d30", label: "In 30 days", color: C.slate },
   ];
   return (
     <Grid>
       <ChartCard
-        eyebrow="Capacity"
         title="Inside now against licensed capacity"
+        note={(() => {
+          const tight = load.filter((l) => Number(l.inside) >= 0.9 * (Number(l.inside) + Number(l.headroom)));
+          return tight.length ? `${tight.map((l) => l.name).join(", ")} near the licence limit. Hold new passes.` : "Every contractor is inside its labour licence limit.";
+        })()}
         series={[
           { key: "inside", label: "Inside now", color: C.blue },
-          { key: "headroom", label: "Licence headroom", color: "#dfe5f7" },
+          { key: "headroom", label: "Licence headroom", color: C.slate },
         ]}
       >
         <HBars
@@ -199,11 +200,18 @@ export function ContractorCharts() {
           y="name"
           series={[
             { key: "inside", label: "Inside now", color: C.blue },
-            { key: "headroom", label: "Licence headroom", color: "#dfe5f7" },
+            { key: "headroom", label: "Licence headroom", color: C.slate },
           ]}
         />
       </ChartCard>
-      <ChartCard eyebrow="Expiry" title="Licences and certificates running out" series={series}>
+      <ChartCard
+        title="Licences and certificates running out"
+        note={(() => {
+          const now = windows.reduce((n, w) => n + Number(w.expired) + Number(w.d7), 0);
+          return now ? `${now} lapse within a week. Renew them or the gate blocks the holders.` : "Nothing lapses this week.";
+        })()}
+        series={series}
+      >
         <HBars data={windows} y="label" labelWidth={90} series={series} />
       </ChartCard>
     </Grid>
@@ -219,19 +227,22 @@ export function SafetyCharts() {
   const series = [
     { key: "expired", label: "Expired", color: C.red },
     { key: "d30", label: "0–30 days", color: C.amber },
-    { key: "d60", label: "31–60 days", color: "#f0c674" },
+    { key: "d60", label: "31–60 days", color: "#e8c98a" },
     { key: "d90", label: "61–90 days", color: C.slate },
   ];
   return (
     <div className="mb-6">
       <ChartCard
-        eyebrow="Certificate expiry"
         title="Next 90 days, by course"
         value={`${expired} expired`}
+        note={(() => {
+          const worst = [...rows].sort((a, b) => Number(b.expired) + Number(b.d30) - (Number(a.expired) + Number(a.d30)))[0];
+          return worst ? `${worst.course} needs the next training batch first.` : "No certificates due.";
+        })()}
         series={series}
         action={
           expired ? (
-            <Link href="/gate" className="shrink-0 rounded-full bg-[#fdecec] px-3 py-1.5 text-[12px] font-semibold text-[#c43d3d] transition hover:bg-[#fbdcdc]">
+            <Link href="/gate" className="shrink-0 rounded-lg bg-danger-soft px-3 py-1.5 text-[12px] font-semibold text-danger transition hover:bg-danger-soft">
               See blocked passes
             </Link>
           ) : undefined
@@ -253,7 +264,14 @@ export function HeadcountCharts() {
     { key: "trainees", label: "Trainees", color: C.teal },
   ];
   return (
-    <ChartCard eyebrow="Headcount" title="By location and cadre" series={series}>
+    <ChartCard
+      title="By location and cadre"
+      note={(() => {
+        const top = [...rows].sort((a, b) => Number(b.executives) + Number(b.workmen) + Number(b.trainees) - (Number(a.executives) + Number(a.workmen) + Number(a.trainees)))[0];
+        return top ? `${top.location} holds most of the roll; the other sites are small offices and terminals.` : undefined;
+      })()}
+      series={series}
+    >
       <HBars data={rows} y="location" labelWidth={96} series={series} />
     </ChartCard>
   );
@@ -264,7 +282,7 @@ export function ReservationCharts() {
   const census = liveCensus(employees);
   const cats = ["UR", "OBC", "SC", "ST", "EWS"].map((k) => ({ category: k, people: census.category[k] ?? 0 }));
   return (
-    <ChartCard eyebrow="Representation" title="By category" note={`Women ${census.women} · PwBD ${census.pwbd}`}>
+    <ChartCard title="By category" note={`Women ${census.women}, PwBD ${census.pwbd}`}>
       <Bars data={[...cats, { category: "Women", people: census.women }, { category: "PwBD", people: census.pwbd }]} x="category" stacked={false} series={[{ key: "people", label: "Employees", color: C.blue }]} />
     </ChartCard>
   );
@@ -280,7 +298,6 @@ export function PayrollCharts() {
   return (
     <div className="mb-6">
       <ChartCard
-        eyebrow="Pay components"
         title={`${format(parseISO(`${run.month}-01`), "MMMM yyyy")} run${run.id === current.id ? "" : " (last published, current not computed)"}`}
         value={lakh(parts.at(-1)!.amount)}
         note={`Net pay across ${run.results.length.toLocaleString("en-IN")} employees.`}
@@ -308,10 +325,9 @@ export function LeaveCharts() {
   return (
     <div className="mb-6">
       <ChartCard
-        eyebrow="Leave"
         title={plant ? "Plant, days by leave type" : "Your days by leave type"}
         value={`${balance.toLocaleString("en-IN")} days left`}
-        note={rows.map((r) => `${r.type} ${r.balance}`).join(" · ")}
+        note={rows.map((r) => `${r.type} ${r.balance}`).join(", ")}
         series={series}
       >
         <Bars data={rows} x="type" stacked={false} series={series} height={200} />
@@ -356,7 +372,7 @@ export function RecruitmentCharts() {
 export function SeparationCharts() {
   const reasons = [
     { key: "superannuation", label: "Superannuation", color: C.blue },
-    { key: "resignation", label: "Resignation", color: C.blue },
+    { key: "resignation", label: "Resignation", color: C.violet },
     { key: "vrs", label: "VRS", color: C.sky },
     { key: "death", label: "Death in service", color: C.slate },
   ];
@@ -364,17 +380,17 @@ export function SeparationCharts() {
   const total = ATTRITION_UNITS_SAMPLE.reduce((n, u) => n + u.leavers, 0);
   return (
     <Grid>
-      <ChartCard eyebrow="Attrition" title="Leavers by reason, last 12 months" sample series={reasons} note="Illustrative: the demo data holds one separation.">
+      <ChartCard title="Leavers by reason, last 12 months" sample series={reasons} note="Illustrative: the demo data holds one separation.">
         <Bars data={ATTRITION_SAMPLE} x="month" series={reasons} />
       </ChartCard>
       <ChartCard
-        eyebrow="Exit interviews"
         title="By unit"
         sample
+        note="Units below the line owe exit interviews before final settlement."
         value={`${Math.round((done / total) * 100)}% completed`}
         series={[
           { key: "interviewed", label: "Interviewed", color: C.green },
-          { key: "pending", label: "Not interviewed", color: "#dfe5f7" },
+          { key: "pending", label: "Not interviewed", color: C.slate },
         ]}
       >
         <HBars
@@ -383,7 +399,7 @@ export function SeparationCharts() {
           labelWidth={92}
           series={[
             { key: "interviewed", label: "Interviewed", color: C.green },
-            { key: "pending", label: "Not interviewed", color: "#dfe5f7" },
+            { key: "pending", label: "Not interviewed", color: C.slate },
           ]}
         />
       </ChartCard>
@@ -401,7 +417,7 @@ export function TownshipCharts() {
   const fee = rows.reduce((n, r) => n + r.fee, 0);
   return (
     <Grid>
-      <ChartCard eyebrow="Occupancy" title="Held against vacant" note="Hover a slice for the count.">
+      <ChartCard title="Held against vacant" note="Hover a slice for the count.">
         <Donut
           data={[
             { key: "held", label: "Held", value: held, color: C.blue },
@@ -412,7 +428,7 @@ export function TownshipCharts() {
           centerLabel="occupied"
         />
       </ChartCard>
-      <ChartCard eyebrow="Recovery" title="Licence fee to payroll, per month" value={inr(fee)} note="Deducted from residents' pay; HRA stops while a quarter is held.">
+      <ChartCard title="Licence fee to payroll, per month" value={inr(fee)} note="Deducted from residents' pay; HRA stops while a quarter is held.">
         <Bars data={rows} x="type" stacked={false} format={(n) => inr(n)} series={[{ key: "fee", label: "Licence fee", color: C.blue }]} height={200} />
       </ChartCard>
     </Grid>

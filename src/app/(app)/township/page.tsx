@@ -17,7 +17,7 @@ import { settingOn } from "@/lib/payroll";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import type { Quarter } from "@/lib/types";
 import { HouseLine, Wrench } from "@phosphor-icons/react";
-import { AnimatedBackground } from "@/components/motion-primitives/animated-background";
+import { AnimatedBackground } from "@/components/motion/animated-background";
 import { spring } from "@/lib/motion";
 import { motion } from "motion/react";
 import { useState } from "react";
@@ -70,12 +70,12 @@ export default function TownshipPage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Township housing" subtitle="Numaligarh township · quarters, waiting list and upkeep" />
+      <PageHeader title="Township housing" subtitle="Numaligarh township, quarters, waiting list and upkeep" />
 
       <TownshipCharts />
 
       <InView>
-        <HeroCard eyebrow="Housing stock" title={`${occupied} of ${quarters.length} quarters occupied`}>
+        <HeroCard title={`${occupied} of ${quarters.length} quarters occupied`}>
           <div className="grid gap-8 md:grid-cols-[auto_1fr]">
             <Ring value={occupied} max={quarters.length}>
               <div>
@@ -91,10 +91,10 @@ export default function TownshipPage() {
                     <div className="mb-1.5 flex items-baseline justify-between text-[13px]">
                       <span className="font-medium">Type {t}</span>
                       <span className="tabular-nums text-muted">
-                        {rows.filter((q) => q.status === "vacant").length} vacant · {waiting.filter((w) => w.type === t).length} waiting
+                        {rows.filter((q) => q.status === "vacant").length} vacant, {waiting.filter((w) => w.type === t).length} waiting
                       </span>
                     </div>
-                    <div className="flex h-2.5 gap-0.5 overflow-hidden rounded-full bg-[#eef1f8]">
+                    <div className="flex h-2.5 gap-0.5 overflow-hidden rounded-full bg-fill">
                       {(["occupied", "maintenance", "vacant"] as const).map((st) => {
                         const n = rows.filter((q) => q.status === st).length;
                         if (!n) return null;
@@ -131,7 +131,7 @@ export default function TownshipPage() {
         <InView delay={0.05}>
           <Card className="h-full p-6">
             <div className="flex items-center gap-3">
-              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-brand-soft text-brand">
+              <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-soft text-brand">
                 <HouseLine size={22} weight="duotone" />
               </span>
               <div>
@@ -197,7 +197,7 @@ export default function TownshipPage() {
                   return (
                     <li
                       key={w.id}
-                      className={cn("flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm", mineRow ? "bg-brand-soft" : "bg-[#f6f8fd]")}
+                      className={cn("flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm", mineRow ? "bg-brand-soft" : "bg-subtle")}
                     >
                       <span className="grid h-7 w-7 place-items-center rounded-full bg-white text-[12px] font-semibold tabular-nums">{place}</span>
                       <span className="flex-1 truncate">
@@ -229,11 +229,11 @@ export default function TownshipPage() {
         <Card className="p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-lg font-semibold tracking-tight">Quarters</h2>
-            <div className="flex gap-1 rounded-full bg-[#f3f5fb] p-1">
+            <div className="flex gap-1 rounded-full bg-subtle p-1">
               <AnimatedBackground
                 defaultValue={filter}
                 onValueChange={(v) => v && setFilter(v as Quarter["type"] | "all")}
-                className="rounded-full bg-white shadow-[0_2px_8px_rgba(27,33,64,0.08)]"
+                className="rounded-full bg-white"
                 transition={spring}
               >
                 {(["all", ...TYPES] as const).map((t) => (
@@ -241,7 +241,7 @@ export default function TownshipPage() {
                     key={t}
                     data-id={t}
                     type="button"
-                    className="rounded-full px-3 py-1 text-[12px] font-semibold text-muted transition-colors data-[checked=true]:text-ink"
+                    className="rounded-lg px-3 py-1 text-[12px] font-semibold text-muted transition-colors data-[checked=true]:text-ink"
                   >
                     {t === "all" ? "All" : `Type ${t}`}
                   </button>
@@ -251,7 +251,7 @@ export default function TownshipPage() {
           </div>
           <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-5">
             {shown.map((q) => (
-              <div key={q.id} className={cn("rounded-2xl border p-3", q.employeeId === me.id ? "border-brand bg-brand-soft" : "border-line")}>
+              <div key={q.id} className={cn("rounded-xl border p-3", q.employeeId === me.id ? "border-brand bg-brand-soft" : "border-line")}>
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold">{q.number}</p>
                   <span className="h-2 w-2 rounded-full" style={{ background: STATUS_TONE[q.status] }} />
@@ -269,7 +269,7 @@ export default function TownshipPage() {
       <InView delay={0.05}>
         <Card className="p-6">
           <div className="flex items-center gap-3">
-            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#fff1e6] text-[#e07a3d]">
+            <span className="grid h-11 w-11 place-items-center rounded-xl bg-warn-soft text-warn">
               <Wrench size={22} weight="duotone" />
             </span>
             <div>
@@ -307,12 +307,12 @@ export default function TownshipPage() {
             {tickets.map((m) => {
               const at = STEPS.indexOf(m.status);
               return (
-                <li key={m.id} className="rounded-2xl border border-line p-4">
+                <li key={m.id} className="rounded-xl border border-line p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <p className="text-sm font-semibold">{m.title}</p>
                       <p className="text-[12px] text-muted">
-                        {quarters.find((q) => q.id === m.quarterId)?.number} · raised {formatStamp(m.raisedAt)}
+                        {quarters.find((q) => q.id === m.quarterId)?.number}, raised {formatStamp(m.raisedAt)}
                       </p>
                     </div>
                     {hr && m.status !== "closed" && (
@@ -324,7 +324,7 @@ export default function TownshipPage() {
                   <div className="mt-3 flex items-center gap-2">
                     {STEPS.map((st, i) => (
                       <div key={st} className="flex flex-1 items-center gap-2">
-                        <span className={cn("h-1.5 flex-1 rounded-full", i <= at ? "bg-brand" : "bg-[#eef1f8]")} />
+                        <span className={cn("h-1.5 flex-1 rounded-full", i <= at ? "bg-brand" : "bg-fill")} />
                         <span className={cn("text-[11px] capitalize", i <= at ? "font-semibold text-ink" : "text-muted")}>
                           {st.replace("_", " ")}
                         </span>

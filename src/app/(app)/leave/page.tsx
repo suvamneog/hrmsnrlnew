@@ -157,11 +157,11 @@ export default function LeavePage() {
             <h3 className="mb-3 font-semibold">My requests</h3>
             <ul className="space-y-2">
               {mine.map((r) => (
-                <li key={r.id} className="flex items-center justify-between rounded-2xl bg-[#f6f8fd] px-3 py-3 text-sm">
+                <li key={r.id} className="flex items-center justify-between rounded-xl bg-subtle px-3 py-3 text-sm">
                   <span>
-                    {types.find((t) => t.id === r.typeId)?.name} · {r.days}d · {formatDay(r.from)}
+                    {types.find((t) => t.id === r.typeId)?.name}, {r.days}d, {formatDay(r.from)}
                     {r.from !== r.to ? ` to ${formatDay(r.to)}` : ""}
-                    {r.halfDay ? ` · ${r.halfDay}` : ""}
+                    {r.halfDay ? `, ${r.halfDay}` : ""}
                   </span>
                   <span className="flex items-center gap-2">
                     <Badge tone={requestTone(r.status)}>{r.status}</Badge>

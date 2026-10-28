@@ -28,7 +28,7 @@ export function KpiStrip({ items }: { items: HomeKpi[] }) {
           <Link key={k.label} href={k.href} className="group block">
             <div
               className={`h-full rounded-xl p-5 transition-colors duration-300 ${
-                lead ? "bg-ink text-white" : "border border-line bg-white text-ink hover:bg-[#fbfbfa]"
+                lead ? "bg-ink text-white" : "border border-line bg-white text-ink hover:bg-subtle"
               }`}
             >
               <div className="flex items-start justify-between gap-2">

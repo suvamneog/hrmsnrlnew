@@ -88,11 +88,11 @@ export default function PeoplePage() {
                   setPage(0);
                 }}
                 placeholder="Search for employee"
-                className="h-10 w-[220px] rounded-full bg-[#f6f8fd] pl-9 pr-4 text-sm outline-none placeholder:text-muted focus:ring-4 focus:ring-brand/10"
+                className="h-10 w-[220px] rounded-full bg-subtle pl-9 pr-4 text-sm outline-none placeholder:text-muted focus:ring-4 focus:ring-brand/10"
               />
             </label>
             <Popover>
-              <PopoverTrigger className="inline-flex h-10 items-center gap-2 rounded-full bg-[#f6f8fd] px-4 text-sm font-semibold text-ink">
+              <PopoverTrigger className="inline-flex h-10 items-center gap-2 rounded-lg bg-subtle px-4 text-sm font-semibold text-ink">
                 Filter
                 <FunnelSimple size={16} weight="bold" className="text-muted" />
               </PopoverTrigger>
@@ -106,7 +106,7 @@ export default function PeoplePage() {
                       setPage(0);
                     }}
                     className={`flex w-full rounded-xl px-3 py-2 text-left text-sm font-semibold ${
-                      f === x.id ? "bg-brand-soft text-brand" : "text-ink hover:bg-[#f6f8fd]"
+                      f === x.id ? "bg-brand-soft text-brand" : "text-ink hover:bg-subtle"
                     }`}
                   >
                     {x.label}
@@ -134,7 +134,7 @@ export default function PeoplePage() {
                 return (
                   <tr
                     key={e.id}
-                    className="cursor-pointer border-t border-line/80 transition hover:bg-[#f6f8fd]"
+                    className="cursor-pointer border-t border-line/80 transition hover:bg-subtle"
                     onClick={() => router.push(`/people/${e.id}`)}
                   >
                     <td className="px-5 py-3.5 tabular-nums text-muted">{format(parseISO(e.doj), "dd-MM-yy")}</td>
@@ -146,7 +146,7 @@ export default function PeoplePage() {
                       </span>
                     </td>
                     <td className="py-3.5 text-muted">
-                      {positionTitle(e.positionId)} · {e.grade}
+                      {positionTitle(e.positionId)}, {e.grade}
                     </td>
                     <td className="px-5 py-3.5">
                       <Badge tone={st.tone}>{st.label}</Badge>

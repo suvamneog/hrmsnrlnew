@@ -35,11 +35,11 @@ export default function SeparationPage() {
               defaultOpen={open}
               icon={<SignOut size={20} weight="duotone" />}
               title={e?.name ?? s.employeeId}
-              subtitle={`${s.kind === "superannuation" ? "Superannuation" : s.kind === "vrs" ? "Voluntary retirement" : s.kind === "death" ? "Death in service" : "Resignation"} · last day ${formatDay(s.lastDay)}`}
+              subtitle={`${s.kind === "superannuation" ? "Superannuation" : s.kind === "vrs" ? "Voluntary retirement" : s.kind === "death" ? "Death in service" : "Resignation"}, last day ${formatDay(s.lastDay)}`}
               items={s.clearances.map((c) => ({
                 label: c.dept,
                 done: c.done,
-                hint: c.done ? [c.byId ? employees.find((x) => x.id === c.byId)?.preferredName : null, c.at ? formatStamp(c.at) : null].filter(Boolean).join(" · ") : undefined,
+                hint: c.done ? [c.byId ? employees.find((x) => x.id === c.byId)?.preferredName : null, c.at ? formatStamp(c.at) : null].filter(Boolean).join(", ") : undefined,
                 onToggle:
                   role === "hr_admin" && s.employeeId !== meId && !c.done
                     ? () => {

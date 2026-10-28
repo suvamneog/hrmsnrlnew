@@ -22,7 +22,7 @@ function FileTypeIcon({ kind }: { kind: FileKind }) {
   const { fill, fold, label } = TONE[kind];
   return (
     <span className="relative h-11 w-9 shrink-0" aria-hidden>
-      <svg viewBox="0 0 36 44" className="h-11 w-9 drop-shadow-[0_1px_1px_rgba(27,33,64,0.12)]">
+      <svg viewBox="0 0 36 44" className="h-11 w-9 drop-">
         <path
           d="M4 4.8A3.8 3.8 0 0 1 7.8 1H21.5L33 12.5V39.2A3.8 3.8 0 0 1 29.2 43H7.8A3.8 3.8 0 0 1 4 39.2V4.8Z"
           fill={fill}

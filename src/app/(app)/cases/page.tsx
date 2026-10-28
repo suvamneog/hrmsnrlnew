@@ -106,7 +106,7 @@ export default function CasesPage() {
                   </span>
                 </button>
                 <Collapse open={open === c.id}>
-                  <div className="mt-3 space-y-3 border-t border-[#eef0f6] pt-3">
+                  <div className="mt-3 space-y-3 border-t border-fill pt-3">
                     {c.detail && <p className="text-[13px] text-ink/80">{c.detail}</p>}
                     {c.updates.map((u) => (
                       <p key={u.at} className="text-[13px] text-muted">

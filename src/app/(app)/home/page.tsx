@@ -1,24 +1,13 @@
 "use client";
 
 import { format, parseISO } from "date-fns";
-import { AttendanceStrip } from "@/components/ess/attendance-strip";
-import { DashboardCharts } from "@/components/home/dashboard-charts";
+import { DashboardCharts, type HomeChart } from "@/components/home/dashboard-charts";
 import { TodayList, useToday } from "@/components/home/today";
 import { insideNow } from "@/lib/gate";
-import { QuickActions } from "@/components/ess/quick-actions";
-import { HomeRightRail } from "@/components/home/right-rail";
 import { KpiStrip, buildHomeKpis } from "@/components/home/kpi-strip";
-import { WorkBoard } from "@/components/home/work-board";
-import { AnimatedGroup } from "@/components/motion/animated-group";
-import { InView } from "@/components/motion/in-view";
-import { Avatar } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { canDecideFor, claimApproverRole, routeAllowed } from "@/lib/access";
-import { formatDay, inr } from "@/lib/format";
+import { canDecideFor, claimApproverRole } from "@/lib/access";
 import { locationName, positionTitle, unitName } from "@/lib/org";
 import { DEMO_TODAY } from "@/lib/demo";
-import { cadreTone, requestTone } from "@/lib/status";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import Link from "next/link";
 
@@ -27,7 +16,6 @@ export default function HomePage() {
   const employees = useHrms((s) => s.employees);
   const leaves = useHrms((s) => s.leaveRequests);
   const balances = useHrms((s) => s.leaveBalances);
-  const types = useHrms((s) => s.leaveTypes);
   const run = useHrms((s) => s.payrollRuns[0]);
   const latestSlip = useHrms((s) => s.payrollRuns.find((r) => r.stage === "publish"));
   const workers = useHrms((s) => s.workers);
@@ -75,7 +63,6 @@ export default function HomePage() {
 
   const inside = insideNow(events, passes, myWorkerIds);
 
-  const ess = routeAllowed("/leave", role);
   const canApprove = role === "line_manager" || role === "hr_admin" || role === "finance_approver";
   const elBalance = myBal.find((b) => b.typeId === "el")?.balance ?? 0;
 
@@ -95,127 +82,38 @@ export default function HomePage() {
     interviews: candidates.filter((c) => c.stage === "interview" || c.stage === "medical").length,
   });
 
-  const nearby = supervisor ? [] : (team.length ? team : employees.filter((e) => e.locationId === me.locationId && e.id !== me.id)).slice(0, 6);
+
+  // One structure for every role: what to do today, four numbers, and the one chart that matters.
+  const chart: HomeChart | null =
+    role === "hr_admin" || role === "auditor" || role === "payroll_officer" || role === "finance_approver"
+      ? "attendance"
+      : role === "line_manager"
+        ? "crews"
+        : role === "contract_labour_cell" || role === "safety_officer" || role === "contractor_supervisor"
+          ? "gate"
+          : null;
 
   return (
-    <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
-      <div className="space-y-5">
-        <InView delay={0} className="flex flex-wrap items-end justify-between gap-3" viewOptions={{ amount: 0.01, margin: "0px" }}>
-          <div>
-            <h1 className="text-[28px] font-semibold tracking-tight">Home</h1>
-            <p className="mt-1 text-sm text-muted">
-              {`${me.preferredName}, ${positionTitle(me.positionId)}, ${unitName(me.unitId)}, ${locationName(me.locationId)}. ${format(parseISO(DEMO_TODAY), "EEEE d MMMM")}.`}
-            </p>
-          </div>
-          {canApprove && todoCount > 0 && (
-            <Link href="/approvals" className="text-sm font-semibold text-brand">
-              {todoCount} in inbox
-            </Link>
-          )}
-        </InView>
-
-        <TodayList items={today} />
-
-        <KpiStrip items={kpis} />
-
-        <DashboardCharts />
-
-        <AnimatedGroup preset="slide" className="grid gap-4">
-          {me.cadre !== "contract" && <AttendanceStrip />}
-          {ess && (
-            <div className="grid gap-4 xl:grid-cols-2">
-              <Card className="p-4">
-                <QuickActions />
-              </Card>
-              <Card className="p-5">
-                <div className="mb-3 flex items-center justify-between">
-                  <h2 className="font-semibold">Leave</h2>
-                  <Link href="/leave" className="text-sm font-semibold text-brand">
-                    Apply
-                  </Link>
-                </div>
-                <div className="grid grid-cols-4 gap-2">
-                  {myBal.map((b) => {
-                    const t = types.find((x) => x.id === b.typeId);
-                    return (
-                      <Link key={b.typeId} href="/leave" className="rounded-2xl bg-[#f6f8fd] px-2 py-3 text-center">
-                        <p className="text-[11px] font-semibold text-muted">{t?.code}</p>
-                        <p className="mt-1 text-2xl font-semibold tabular-nums">{b.balance}</p>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </Card>
-            </div>
-          )}
-        </AnimatedGroup>
-
-        <WorkBoard />
-
-        {ess && myOpen.length > 0 && (
-          <div>
-            <Card className="p-5">
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="font-semibold">My requests</h2>
-                <Link href="/approvals" className="text-sm font-semibold text-brand">
-                  Inbox
-                </Link>
-              </div>
-              <ul className="space-y-2">
-                {leaves
-                  .filter((l) => l.employeeId === me.id && l.status === "pending")
-                  .map((l) => (
-                    <li key={l.id} className="flex items-center justify-between rounded-2xl bg-[#f6f8fd] px-3 py-2.5 text-sm">
-                      <span>
-                        {types.find((t) => t.id === l.typeId)?.name} · {formatDay(l.from)}
-                      </span>
-                      <Badge tone={requestTone(l.status)}>{l.status}</Badge>
-                    </li>
-                  ))}
-                {claims
-                  .filter((c) => c.employeeId === me.id && c.status === "pending")
-                  .map((c) => (
-                    <li key={c.id} className="flex items-center justify-between rounded-2xl bg-[#f6f8fd] px-3 py-2.5 text-sm">
-                      <span>
-                        {c.type} · {inr(c.amount)}
-                      </span>
-                      <Badge tone="warn">claim</Badge>
-                    </li>
-                  ))}
-              </ul>
-            </Card>
-          </div>
-        )}
-
-        {!supervisor && (team.length > 0 || routeAllowed("/people", role) || nearby.length > 0) && (
-          <div>
-            <Card className="p-5">
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="font-semibold">{team.length ? "Your crew" : "People around you"}</h2>
-                {routeAllowed("/people", role) && (
-                  <Link href="/people" className="text-sm font-semibold text-brand">
-                    Directory
-                  </Link>
-                )}
-              </div>
-              <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-                {nearby.map((e) => (
-                  <Link
-                    key={e.id}
-                    href={routeAllowed("/people", role) ? `/people/${e.id}` : "/home"}
-                    className="rounded-2xl bg-[#f6f8fd] p-3 transition hover:bg-brand-soft"
-                  >
-                    <Avatar name={e.name} size={40} />
-                    <p className="mt-2 truncate text-sm font-semibold">{e.preferredName}</p>
-                    <Badge tone={cadreTone(e.cadre)}>{e.grade}</Badge>
-                  </Link>
-                ))}
-              </div>
-            </Card>
-          </div>
+    <div className="mx-auto max-w-5xl space-y-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-[28px] font-semibold tracking-tight">Home</h1>
+          <p className="mt-1 text-sm text-muted">
+            {`${me.preferredName}, ${positionTitle(me.positionId)}, ${unitName(me.unitId)}, ${locationName(me.locationId)}. ${format(parseISO(DEMO_TODAY), "EEEE d MMMM")}.`}
+          </p>
+        </div>
+        {canApprove && todoCount > 0 && (
+          <Link href="/approvals" className="text-sm font-medium text-brand">
+            {`${todoCount} in inbox`}
+          </Link>
         )}
       </div>
-      <HomeRightRail />
+
+      <TodayList items={today} />
+
+      <KpiStrip items={kpis.slice(0, 4)} />
+
+      {chart && <DashboardCharts only={chart} />}
     </div>
   );
 }

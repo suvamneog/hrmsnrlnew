@@ -43,7 +43,7 @@ export function Panel({
 
 export type Stat = { label: string; value: number | string; hint?: string; tone?: "ink" | "ok" | "warn" | "danger"; format?: (n: number) => string };
 
-const TONE = { ink: "text-ink", ok: "text-[#148f5b]", warn: "text-[#9a6a12]", danger: "text-[#c4373c]" };
+const TONE = { ink: "text-ink", ok: "text-ok", warn: "text-warn", danger: "text-danger" };
 
 /* Big numbers first. Each tile is flat; hairlines split them instead of nested cards. */
 export function Stats({ items }: { items: Stat[] }) {
@@ -95,7 +95,7 @@ export function Rows<T extends { id: string }>({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.35, ease: easeOut }}
-            className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl px-2 py-3.5 transition-colors hover:bg-[#f7f7f5]"
+            className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl px-2 py-3.5 transition-colors hover:bg-subtle"
           >
             {render(item)}
           </motion.li>

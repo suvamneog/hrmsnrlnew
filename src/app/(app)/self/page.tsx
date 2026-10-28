@@ -42,10 +42,10 @@ export default function SelfPage() {
           <div className="min-w-0">
             <h1 className="text-2xl font-semibold tracking-tight">{me.name}</h1>
             <p className="text-sm text-muted">
-              {me.empNo} · {positionTitle(me.positionId)}
+              {me.empNo}, {positionTitle(me.positionId)}
             </p>
             <p className="text-sm text-muted">
-              {unitName(me.unitId)} · joined {formatDay(me.doj)}
+              {unitName(me.unitId)}, joined {formatDay(me.doj)}
             </p>
           </div>
         </div>
@@ -78,7 +78,7 @@ export default function SelfPage() {
             />
           </FileDownloadList>
         ) : (
-          <Link href="/payslips" className="flex items-center justify-between rounded-2xl bg-[#f6f8fd] px-4 py-3">
+          <Link href="/payslips" className="flex items-center justify-between rounded-xl bg-subtle px-4 py-3">
             <div>
               <p className="text-sm font-semibold">Latest payslip</p>
               <p className="text-xs text-muted">{monthLabel(run.month)}</p>
@@ -116,7 +116,7 @@ export default function SelfPage() {
         </form>
         {mine.map((c) => (
           <p key={c.id} className="mt-2 text-xs text-muted">
-            {c.field}: {c.from} → {c.to} · {c.status}
+            {c.field}: {c.from} → {c.to}, {c.status}
           </p>
         ))}
       </Card>
@@ -162,7 +162,7 @@ export default function SelfPage() {
                 <li key={p.id} className="flex items-center justify-between text-sm">
                   <span className="font-medium capitalize">{p.kind}</span>
                   <span className="text-muted">
-                    {p.readerId === "WEB-ESS" ? "Phone" : p.readerId} · {formatDay(p.time.slice(0, 10))} {formatClock(p.time)}
+                    {p.readerId === "WEB-ESS" ? "Phone" : p.readerId}, {formatDay(p.time.slice(0, 10))} {formatClock(p.time)}
                   </span>
                 </li>
               ))}
