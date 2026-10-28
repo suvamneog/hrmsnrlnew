@@ -8,7 +8,7 @@ import { useLocale } from "./use-locale";
 import { motion } from "motion/react";
 
 /* English, Hindi, Assamese. Each label is written in its own script and never translated. */
-export function LanguageSwitch({ className, large, onDark }: { className?: string; large?: boolean; onDark?: boolean }) {
+export function LanguageSwitch({ className, large, onDark, names }: { className?: string; large?: boolean; onDark?: boolean; names?: "english" }) {
   const locale = useLocale();
   const setLocale = useHrms((s) => s.setLocale);
   return (
@@ -25,12 +25,12 @@ export function LanguageSwitch({ className, large, onDark }: { className?: strin
             onClick={() => setLocale(l.id)}
             className={cn(
               "relative rounded-full font-semibold transition-colors",
-              large ? "px-5 py-2.5 text-base" : "px-3 py-1.5 text-[13px]",
+              large || names ? "px-4 py-2 text-[17px]" : "px-3 py-1.5 text-[13px]",
               onDark ? (on ? "text-brand" : "text-white/80 hover:text-white") : on ? "text-white" : "text-muted hover:text-ink",
             )}
           >
             {on && <motion.span layoutId={large ? "lang-lg" : "lang"} transition={spring} className={cn("absolute inset-0 rounded-full", onDark ? "bg-white" : "bg-brand")} />}
-            <span className="relative">{large ? l.native : l.id === "en" ? "EN" : l.native.slice(0, 2)}</span>
+            <span className="relative">{names === "english" ? (l.id === "en" ? "EN" : l.label) : large ? l.native : l.id === "en" ? "EN" : l.native.slice(0, 2)}</span>
           </button>
         );
       })}
