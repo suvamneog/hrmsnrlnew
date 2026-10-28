@@ -17,7 +17,7 @@ export function Sidebar() {
   const path = usePathname();
 
   return (
-    <aside className="relative z-40 hidden w-[232px] shrink-0 md:block">
+    <aside className="relative z-40 hidden w-[232px] shrink-0 lg:block">
       <div className="sticky top-0 flex h-[100dvh] flex-col border-r border-line bg-white py-5">
         <Link href={landingFor(role)} className="mb-6 px-5 text-ink">
           <Wordmark sub="Numaligarh Refinery" />

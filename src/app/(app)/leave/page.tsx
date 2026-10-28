@@ -83,12 +83,12 @@ export default function LeavePage() {
       <PageHeader title="Leave"
         subtitle="Balances and requests under NRL leave rules, approved by your reporting officer." />
       <LeaveCharts />
-      <div className="grid gap-5 lg:grid-cols-[1.15fr_320px]">
+      <div className="grid grid-cols-1 gap-5 *:min-w-0 lg:grid-cols-[1.15fr_320px]">
         <InView>
         <Card className="p-5">
           <h2 className="mb-4 font-semibold">Apply</h2>
           <form
-            className="grid gap-3 sm:grid-cols-2"
+            className="grid grid-cols-1 gap-3 *:min-w-0 sm:grid-cols-2"
             onSubmit={(e) => {
               e.preventDefault();
               const r = apply({ typeId, from, to, reason, halfDay: half || undefined });

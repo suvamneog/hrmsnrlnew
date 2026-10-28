@@ -16,7 +16,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 
 /* Phone menu: a button at the left of the top bar opens the full navigation as a drawer.
-   The desktop sidebar stays as it is; this only exists below the md breakpoint. */
+   The desktop sidebar stays as it is; this only exists below the lg breakpoint (phones and tablets). */
 export function MobileNav() {
   const role = useHrms((s) => s.actingRole);
   const items = visibleNav(role);
@@ -57,7 +57,7 @@ export function MobileNav() {
         onClick={() => setOpen(true)}
         aria-label="Open menu"
         aria-expanded={open}
-        className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white text-ink md:hidden"
+        className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white text-ink lg:hidden"
       >
         <List size={20} weight="bold" />
       </motion.button>
@@ -67,7 +67,7 @@ export function MobileNav() {
           <AnimatePresence>
             {open && (
               <div
-                className="fixed inset-0 z-[60] md:hidden"
+                className="fixed inset-0 z-[60] lg:hidden"
                 role="dialog"
                 aria-modal="true"
                 aria-label="Menu"
