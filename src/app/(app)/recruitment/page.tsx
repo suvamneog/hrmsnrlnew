@@ -1,30 +1,20 @@
 "use client";
 
 import { RecruitmentCharts } from "@/components/charts/page-charts";
-
+import { PipelineBoard } from "@/components/hiring/pipeline-board";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FileDownload, FileDownloadList } from "@/components/ui/file-download";
-import { HoldToConfirm } from "@/components/ui/hold-to-confirm";
 import { Field, Input, Select } from "@/components/ui/input";
 import { downloadText, prettySize } from "@/lib/files";
 import { ExpandableCard } from "@/components/ui/expandable-card";
 import { IdentificationBadge } from "@phosphor-icons/react";
 import { useCurrentUser, useHrms } from "@/lib/store";
-import type { Cadre, CandidateStage } from "@/lib/types";
+import type { Cadre } from "@/lib/types";
 import { toast } from "sonner";
 import { useState } from "react";
-
-const FLOW: CandidateStage[] = ["applied", "shortlist", "interview", "medical", "offer", "joined"];
-
-const ADVANCE: Partial<Record<CandidateStage, string>> = {
-  applied: "Record shortlist",
-  shortlist: "Call for interview",
-  interview: "Clear interview",
-  medical: "Issue offer",
-};
 
 export default function RecruitmentPage() {
   const openings = useHrms((s) => s.openings);
@@ -32,9 +22,7 @@ export default function RecruitmentPage() {
   const points = useHrms((s) => s.rosterPoints);
   const role = useHrms((s) => s.actingRole);
   const addOpening = useHrms((s) => s.addOpening);
-  const moveCandidate = useHrms((s) => s.moveCandidate);
   const tickOnboarding = useHrms((s) => s.tickOnboarding);
-  const joinCandidate = useHrms((s) => s.joinCandidate);
   const [post, setPost] = useState("Engineer trainee (Chemical)");
   const [grade, setGrade] = useState("ET");
   const [cadre, setCadre] = useState<Cadre>("trainee");
@@ -47,6 +35,7 @@ export default function RecruitmentPage() {
       <PageHeader
         title="Recruitment"
       />
+      <PipelineBoard />
       <RecruitmentCharts />
       {canEdit && (
         <Card className="mb-5 p-5">
@@ -109,75 +98,36 @@ export default function RecruitmentPage() {
             <p className="mt-2 text-xs text-muted">
               Roster points: {points.filter((p) => p.openingId === o.id).map((p) => `${p.category}→${p.nextPoint}`).join(" · ") || "—"}
             </p>
+            {/* Stage moves live on the pipeline board above; here only onboarding for offers and joiners. */}
             <ul className="mt-4 space-y-2">
               {candidates
-                .filter((c) => c.openingId === o.id)
-                .map((c) => {
-                  const idx = FLOW.indexOf(c.stage);
-                  const next = FLOW[idx + 1];
-                  const action = c.stage !== "joined" && c.stage !== "offer" ? ADVANCE[c.stage] : null;
-                  return (
-                    <li key={c.id} className="rounded-xl bg-[#f6f8fd] px-3 py-3 text-sm">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span>
-                          {c.name} · {c.category}
-                          {c.gateScore ? ` · GATE ${c.gateScore}` : ""}
-                        </span>
-                        <span className="flex items-center gap-2">
-                          <span className="capitalize text-muted">{c.stage}</span>
-                          {canEdit && action && next && (
-                            <Button
-                              variant="secondary"
-                              onClick={() => {
-                                moveCandidate(c.id, next);
-                                toast.success(`${action}: ${c.name} → ${next}.`);
-                              }}
-                            >
-                              {action}
-                            </Button>
-                          )}
-                          {canEdit && c.stage === "offer" && (
-                            <HoldToConfirm
-                              label={`Hold to join ${c.name.split(" ")[0]}`}
-                              doneLabel="Joined"
-                              onConfirm={() => {
-                                const r = joinCandidate(c.id);
-                                if (!r.ok) toast.error(r.reason);
-                                else toast.success(`Joined ${c.name}. Employee record created.`);
-                              }}
-                            />
-                          )}
-                        </span>
-                      </div>
-                      {(c.stage === "offer" || c.stage === "joined") && (
-                        <div className="mt-3">
-                          <ExpandableCard
-                            icon={<IdentificationBadge size={20} weight="duotone" />}
-                            title={`Onboarding · ${c.name}`}
-                            subtitle={`${o.post} · ${o.grade}`}
-                            items={c.checklist.map((item) => ({
-                              label: item.item,
-                              done: item.done,
-                              onToggle:
-                                canEdit && !item.done
-                                  ? () => {
-                                      tickOnboarding(c.id, item.item);
-                                      toast.success(`${item.item} done for ${c.name}.`);
-                                    }
-                                  : undefined,
-                            }))}
-                            priority={{ label: "Joining this month", tone: "danger" }}
-                            status={{
-                              label: c.stage === "joined" ? "Joined" : c.checklist.every((x) => x.done) ? "Ready to join" : "In progress",
-                              tone: c.stage === "joined" ? "ok" : c.checklist.every((x) => x.done) ? "brand" : "warn",
-                            }}
-                            people={[c.name, me?.name].filter((n): n is string => !!n)}
-                          />
-                        </div>
-                      )}
-                    </li>
-                  );
-                })}
+                .filter((c) => c.openingId === o.id && (c.stage === "offer" || c.stage === "joined"))
+                .map((c) => (
+                  <li key={c.id}>
+                    <ExpandableCard
+                      icon={<IdentificationBadge size={20} weight="duotone" />}
+                      title={`Onboarding · ${c.name}`}
+                      subtitle={`${o.post} · ${o.grade}`}
+                      items={c.checklist.map((item) => ({
+                        label: item.item,
+                        done: item.done,
+                        onToggle:
+                          canEdit && !item.done
+                            ? () => {
+                                tickOnboarding(c.id, item.item);
+                                toast.success(`${item.item} done for ${c.name}.`);
+                              }
+                            : undefined,
+                      }))}
+                      priority={{ label: "Joining this month", tone: "danger" }}
+                      status={{
+                        label: c.stage === "joined" ? "Joined" : c.checklist.every((x) => x.done) ? "Ready to join" : "In progress",
+                        tone: c.stage === "joined" ? "ok" : c.checklist.every((x) => x.done) ? "brand" : "warn",
+                      }}
+                      people={[c.name, me?.name].filter((n): n is string => !!n)}
+                    />
+                  </li>
+                ))}
             </ul>
             <FileDownloadList className="mt-1">
               <FileDownload
