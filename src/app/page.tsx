@@ -136,14 +136,14 @@ export default function LoginPage() {
             </svg>
             <span className="hidden text-[22px] font-normal tracking-tight text-[#1b2140] sm:inline">NRL <b className="font-bold">People</b></span>
           </div>
-          {/* On phones the picture crops to the middle of the crew; from tablet up the whole scene shows. */}
+          {/* The whole scene shows at every width, anchored to the bottom like the desktop view. */}
           <Image
             src="/login-scene.jpg"
             alt="NRL plant staff in front of the refinery"
             fill
             priority
             sizes="(min-width: 768px) 62vw, 44vw"
-            className="select-none object-cover object-[50%_100%] md:object-contain md:object-bottom"
+            className="select-none object-contain object-bottom"
           />
         </div>
       </div>
