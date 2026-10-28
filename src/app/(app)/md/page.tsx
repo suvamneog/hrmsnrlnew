@@ -62,12 +62,12 @@ export default function MdPage() {
 
       <Grid2>
         <ChartCard
-          title="Overtime cost, last 14 days"
+          title="Overtime paid to workmen each day, last 14 days"
           value={lakh(otCost)}
-          note="Hours from attendance, priced at the overtime rate in the rules engine."
-          series={[{ key: "cost", label: "Cost", color: C.violet }]}
+          note={(() => { const top = [...ot].sort((a, b) => b.cost - a.cost)[0]; return top ? `Highest on ${top.day} at ${lakh(top.cost)}. Priced at the workmen overtime rate in the rules engine.` : "No overtime in the last 14 days."; })()}
+          series={[{ key: "cost", label: "Cost", color: C.blue }]}
         >
-          <Bars data={ot} x="day" format={lakh} series={[{ key: "cost", label: "Cost", color: C.violet }]} />
+          <Bars data={ot} x="day" format={lakh} unit="Rupees" xUnit="Day" series={[{ key: "cost", label: "Cost", color: C.blue }]} />
         </ChartCard>
         <Panel title="Net pay, latest run" note={run ? `${run.month} run, ${run.results.length.toLocaleString("en-IN")} employees.` : undefined}>
           <p className="text-[34px] font-semibold leading-none tracking-[-0.03em] tabular-nums">{lakh(net)}</p>

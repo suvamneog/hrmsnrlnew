@@ -33,9 +33,9 @@ export function DashboardCharts({ force, only }: { force?: boolean; only?: HomeC
       {want("attendance") && (
       <ChartCard
         className={only ? undefined : "xl:col-span-2"}
-        title={`Last ${mix.length} days`}
+        title={`NRL staff attendance, last ${mix.length} days`}
         value={last ? `${last.present + last.late} in today` : "—"}
-        note={last ? `${last.late} late and ${last.absent} missing a punch today, of staff on the biometric roster.` : "Staff on the biometric roster."}
+        note={!last ? "Staff on the biometric roster." : last.late + last.absent ? `${last.late} late and ${last.absent} missing a punch today. Follow up before payroll locks.` : "Everyone rostered today punched in on time."}
         series={[
           { key: "present", label: "On time", color: C.green },
           { key: "late", label: "Late", color: C.amber },
@@ -52,28 +52,32 @@ export function DashboardCharts({ force, only }: { force?: boolean; only?: HomeC
             { key: "absent", label: "Missing punch", color: C.red },
             { key: "leave", label: "On leave", color: C.sky },
           ]}
+          unit="People"
+          xUnit="Day"
         />
       </ChartCard>
       )}
       {want("crews") && (
       <ChartCard
-        title="Planned against actual, today"
+        title="Crew manning today: rostered against present"
         value={short ? `${short} crew below minimum` : "All crews manned"}
         note={short ? `${crews.filter((c) => c.actual < MIN_MANNING && c.planned > 0).map((c) => c.crew).join(", ")} below the minimum of ${MIN_MANNING} (demo value, to confirm with NRL). Call in relief.` : `Every crew meets the minimum of ${MIN_MANNING} (demo value, to confirm with NRL).`}
         series={[
-          { key: "planned", label: "Planned", color: C.slate },
-          { key: "actual", label: "Actual", color: C.blue },
+          { key: "planned", label: "Rostered", color: C.slate },
+          { key: "actual", label: "Present", color: C.blue },
         ]}
       >
         <Bars
           data={crews}
           x="crew"
           stacked={false}
+          unit="People"
+          xUnit="Crew"
           threshold={{ value: MIN_MANNING, label: "Minimum" }}
           highlight={{ key: "actual", when: (r) => Number(r.actual) < MIN_MANNING && Number(r.planned) > 0, color: C.red }}
           series={[
-            { key: "planned", label: "Planned", color: C.slate },
-            { key: "actual", label: "Actual", color: C.blue },
+            { key: "planned", label: "Rostered", color: C.slate },
+            { key: "actual", label: "Present", color: C.blue },
           ]}
           labelFormat={(l, row) => `${l}, ${row?.shift === "OFF" ? "off today" : `${row?.shift} shift`}`}
         />
@@ -81,7 +85,7 @@ export function DashboardCharts({ force, only }: { force?: boolean; only?: HomeC
       )}
       {want("gate") && (
       <ChartCard
-        title="In and out by hour, today"
+        title="Contract workers entering and leaving by hour, today"
         value={`${gate.reduce((n, g) => n + g.in, 0)} entries`}
         note={(() => { const p = [...gate].sort((a, b) => Number(b.in) - Number(a.in))[0]; return p ? `Busiest at ${p.hour}, when ${p.in} came in. Keep all turnstiles open then.` : "Contract workers at Gates 1 to 3."; })()}
         series={[
@@ -96,6 +100,8 @@ export function DashboardCharts({ force, only }: { force?: boolean; only?: HomeC
             { key: "in", label: "In", color: C.green },
             { key: "out", label: "Out", color: C.violet },
           ]}
+          unit="Workers"
+          xUnit="Hour of day"
         />
       </ChartCard>
       )}

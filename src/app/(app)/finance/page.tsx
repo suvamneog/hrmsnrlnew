@@ -63,8 +63,13 @@ export default function FinancePage() {
         ]}
       />
 
-      <ChartCard title="Cost by unit" note="Budget lines are not loaded in the demo, so this shows actuals only." series={SERIES}>
-        <HBars data={units} y="unit" labelWidth={150} format={lakh} series={SERIES} />
+      <ChartCard
+        title="Pay cost by unit this month: gross pay and employer share"
+        value={units[0] ? `${units[0].unit} largest` : undefined}
+        note={units[0] ? `${units[0].unit} costs ${lakh(units[0].gross + units[0].employer)} a month. Budget lines are not loaded, so there is no variance yet.` : undefined}
+        series={SERIES}
+      >
+        <HBars data={units} y="unit" labelWidth={150} format={lakh} unit="Rupees for the month" series={SERIES} />
       </ChartCard>
 
       <Grid2>

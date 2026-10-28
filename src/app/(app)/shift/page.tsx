@@ -202,12 +202,12 @@ export default function ShiftDeskPage() {
         </Panel>
 
         <ChartCard
-          title="Team overtime, last 14 days"
+          title="Overtime hours worked by your team, last 14 days"
           value={`${otHours.toLocaleString("en-IN")} h`}
-          note="From attendance. Executives earn no overtime under DPE rules."
-          series={[{ key: "hours", label: "Hours", color: C.violet }]}
+          note={(() => { const top = [...ot].sort((a, b) => b.hours - a.hours)[0]; return top ? `Most on ${top.day}, ${top.hours} h. Approve requests below before payroll locks; executives earn no overtime.` : "No overtime in the last 14 days."; })()}
+          series={[{ key: "hours", label: "Hours", color: C.blue }]}
         >
-          <Bars data={ot} x="day" series={[{ key: "hours", label: "Hours", color: C.violet }]} />
+          <Bars data={ot} x="day" unit="Hours" xUnit="Day" series={[{ key: "hours", label: "Hours", color: C.blue }]} />
         </ChartCard>
       </Grid2>
 
