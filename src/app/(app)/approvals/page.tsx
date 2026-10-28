@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { HoldToConfirm } from "@/components/ui/hold-to-confirm";
 import { ScrollFade } from "@/components/ui/scroll-fade";
+import { TodayList, useToday } from "@/components/home/today";
 import { canDecideFor, claimApproverRole } from "@/lib/access";
 import { formatDay, inr } from "@/lib/format";
 import { useCurrentUser, useHrms } from "@/lib/store";
@@ -46,6 +47,7 @@ export default function ApprovalsPage() {
   const decideAdvance = useHrms((s) => s.decideAdvance);
   const role = useHrms((s) => s.actingRole);
   const [picked, setPicked] = useState<Scope | null>(null);
+  const today = useToday();
   const [kind, setKind] = useState<Kind>("all");
   const meId = me?.id;
   const teamIds = useMemo(
@@ -160,6 +162,8 @@ export default function ApprovalsPage() {
   const scope: Scope = picked ?? (todoN > 0 ? "todo" : "mine");
   const scoped = rows.filter((r) => (scope === "mine" ? r.own : !r.own));
   const filtered = scoped.filter((r) => kind === "all" || r.kind === kind);
+  // Work from the other desks (cases, musters, permits, pay exceptions) that is not an approval.
+  const other = today.filter((t) => t.href !== "/approvals");
 
   return (
     <div>
@@ -168,6 +172,12 @@ export default function ApprovalsPage() {
           <h1 className="text-[28px] font-semibold tracking-tight">Inbox</h1>
         </div>
       </div>
+
+      {other.length > 0 && (
+        <div className="mb-6">
+          <TodayList items={other} title="Also waiting on you" />
+        </div>
+      )}
 
       <div className="mb-4 flex gap-2">
         {(

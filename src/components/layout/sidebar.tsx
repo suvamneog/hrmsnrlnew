@@ -2,7 +2,7 @@
 
 import { NavIcon } from "@/components/icons";
 import { cn } from "@/lib/cn";
-import { visibleNav } from "@/lib/nav";
+import { isActive, visibleNav } from "@/lib/nav";
 import { useHrms } from "@/lib/store";
 import { motion } from "motion/react";
 import Link from "next/link";
@@ -26,7 +26,7 @@ export function Sidebar() {
         </Link>
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto overflow-x-hidden px-2 pb-4">
           {items.map((item) => {
-            const active = path === item.href || path.startsWith(`${item.href}/`);
+            const active = isActive(item, path);
             return (
               <Link key={item.href} href={item.href} className="relative flex items-center">
                 {active && (

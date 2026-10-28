@@ -4,6 +4,7 @@ import { format, parseISO } from "date-fns";
 import { AttendanceStrip } from "@/components/ess/attendance-strip";
 import { RoleHero } from "@/components/home/role-hero";
 import { DashboardCharts } from "@/components/home/dashboard-charts";
+import { TodayList, useToday } from "@/components/home/today";
 import { insideNow } from "@/lib/gate";
 import { QuickActions } from "@/components/ess/quick-actions";
 import { HomeRightRail } from "@/components/home/right-rail";
@@ -40,6 +41,7 @@ export default function HomePage() {
   const openings = useHrms((s) => s.openings);
   const candidates = useHrms((s) => s.candidates);
   const role = useHrms((s) => s.actingRole);
+  const today = useToday();
   if (!me) return null;
 
   const hour = new Date().getHours();
@@ -116,6 +118,8 @@ export default function HomePage() {
             </Link>
           )}
         </InView>
+
+        <TodayList items={today} />
 
         <KpiStrip items={kpis} />
 

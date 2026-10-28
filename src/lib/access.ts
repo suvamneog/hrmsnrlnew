@@ -5,6 +5,9 @@ export function isOnRoll(role: Role | null) {
   return !!role && ON_ROLL.includes(role);
 }
 
+// Gate staff are NRL employees too: their desk plus their own payslips, leave and cases.
+export const GATE_PAGES = ["/gate", "/visitors", "/self", "/payslips", "/leave", "/cases"];
+
 export function landingFor(role: Role | null) {
   if (role === "gate_security") return "/gate";
   if (role === "md") return "/md";
@@ -13,7 +16,7 @@ export function landingFor(role: Role | null) {
 
 export function routeAllowed(path: string, role: Role | null): boolean {
   if (!role) return false;
-  if (role === "gate_security") return path === "/gate" || path.startsWith("/gate/") || path === "/visitors";
+  if (role === "gate_security") return GATE_PAGES.includes(path) || path.startsWith("/gate/");
   const item = NAV.filter((n) => path === n.href || path.startsWith(`${n.href}/`)).sort(
     (a, b) => b.href.length - a.href.length,
   )[0];

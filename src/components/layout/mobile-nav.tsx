@@ -5,7 +5,7 @@ import { LanguageSwitch } from "@/components/i18n/language-switch";
 import { cn } from "@/lib/cn";
 import { landingFor } from "@/lib/access";
 import { easeOut, spring } from "@/lib/motion";
-import { visibleNav } from "@/lib/nav";
+import { isActive, visibleNav } from "@/lib/nav";
 import { useHrms } from "@/lib/store";
 import { List, X } from "@phosphor-icons/react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -123,8 +123,7 @@ export function MobileNav() {
 
                   <nav className="flex-1 overflow-y-auto overscroll-contain px-3 pb-4">
                     {items.map((item, i) => {
-                      const active =
-                        path === item.href || path.startsWith(`${item.href}/`);
+                      const active = isActive(item, path);
                       return (
                         <motion.div
                           key={item.href}

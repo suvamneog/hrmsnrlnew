@@ -24,6 +24,10 @@ export function Topbar() {
   const logout = useHrms((s) => s.logout);
   const resetDemo = useHrms((s) => s.resetDemo);
   const resetDesk = useDesk((s) => s.resetDesk);
+  const cases = useDesk((s) => s.cases);
+  const permits = useDesk((s) => s.permits);
+  const incidents = useDesk((s) => s.incidents);
+  const visitors = useDesk((s) => s.visitors);
   const [confirmReset, setConfirmReset] = useState(false);
   const markRead = useHrms((s) => s.markRead);
   const router = useRouter();
@@ -42,8 +46,9 @@ export function Topbar() {
         balances,
         types,
         meId: user?.id ?? null,
+        desk: { cases, permits, incidents, visitors },
       }),
-    [q, role, employees, contractors, workers, balances, types, user?.id],
+    [q, role, employees, contractors, workers, balances, types, user?.id, cases, permits, incidents, visitors],
   );
 
   if (!user || !role) return null;

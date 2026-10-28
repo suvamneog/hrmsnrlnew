@@ -1,5 +1,6 @@
 import { canSeePerson, routeAllowed } from "./access";
-import { visibleNav } from "./nav";
+import type { CaseItem, Incident, Permit, Visitor } from "./desk";
+import { NAV } from "./nav";
 import type { Contractor, ContractWorker, Employee, LeaveBalance, LeaveType, Role } from "./types";
 
 export type SearchHit = { href: string; label: string; meta: string };
@@ -13,6 +14,7 @@ export function commandHits(args: {
   balances: LeaveBalance[];
   types: LeaveType[];
   meId: string | null;
+  desk?: { cases: CaseItem[]; permits: Permit[]; incidents: Incident[]; visitors: Visitor[] };
 }): SearchHit[] {
   const s = args.q.trim().toLowerCase();
   if (s.length < 2) return [];
@@ -58,9 +60,33 @@ export function commandHits(args: {
     hits.push({ href: "/approvals", label: "Approvals inbox", meta: "Inbox" });
   }
 
-  const pages = visibleNav(args.role)
-    .filter((n) => n.label.toLowerCase().includes(s))
-    .map((n) => ({ href: n.href, label: n.label, meta: "Module" }));
+  // Every page the role may open, including ones reached through section tabs rather than the menu.
+  const pages = NAV.filter((n) => can(n.href) && n.label.toLowerCase().includes(s)).map((n) => ({
+    href: n.href,
+    label: n.label,
+    meta: "Page",
+  }));
+
+  const d = args.desk;
+  const hr = args.role === "hr_admin" || args.role === "auditor";
+  const records: SearchHit[] = d
+    ? [
+        ...(can("/cases")
+          ? d.cases
+              .filter((c) => (hr || c.raisedBy === args.meId) && c.subject.toLowerCase().includes(s))
+              .map((c) => ({ href: "/cases", label: c.subject, meta: "Case" }))
+          : []),
+        ...(can("/permits")
+          ? d.permits.filter((p) => `${p.kind} ${p.area}`.toLowerCase().includes(s)).map((p) => ({ href: "/permits", label: p.area, meta: `Permit, ${p.kind}` }))
+          : []),
+        ...(can("/permits")
+          ? d.incidents.filter((i) => `${i.kind} ${i.area} ${i.detail}`.toLowerCase().includes(s)).map((i) => ({ href: "/permits", label: i.area, meta: i.kind }))
+          : []),
+        ...(can("/visitors")
+          ? d.visitors.filter((v) => `${v.name} ${v.org}`.toLowerCase().includes(s)).map((v) => ({ href: "/visitors", label: v.name, meta: v.org }))
+          : []),
+      ].slice(0, 6)
+    : [];
 
   const people = can("/people")
     ? args.employees
@@ -84,7 +110,7 @@ export function commandHits(args: {
     : [];
 
   const seen = new Set<string>();
-  return [...hits, ...pages, ...people, ...contractors, ...workers].filter((h) => {
+  return [...hits, ...pages, ...records, ...people, ...contractors, ...workers].filter((h) => {
     const k = `${h.href}|${h.label}`;
     if (seen.has(k)) return false;
     seen.add(k);

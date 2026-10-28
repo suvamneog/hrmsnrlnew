@@ -3,9 +3,10 @@
 import { AccountChip } from "./account-chip";
 import { LanguageSwitch } from "@/components/i18n/language-switch";
 import { Guard } from "./guard";
+import { SectionTabs } from "./section-tabs";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
-import { landingFor, routeAllowed } from "@/lib/access";
+import { GATE_PAGES, landingFor, routeAllowed } from "@/lib/access";
 import { useHrms } from "@/lib/store";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -14,7 +15,12 @@ import { NavIcon } from "@/components/icons";
 import { cn } from "@/lib/cn";
 import type { NavItem } from "@/lib/nav";
 
-const GATE_DESK = ["/gate", "/visitors"];
+const GATE_DESK = GATE_PAGES;
+const GATE_TABS = [
+  { href: "/gate", label: "Pass check" },
+  { href: "/visitors", label: "Visitors and vehicles" },
+  { href: "/self", label: "Me" },
+];
 
 const ESS_TABS: NavItem[] = [
   { href: "/home", label: "Home", icon: "house", roles: "all" },
@@ -62,16 +68,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="min-h-[100dvh] bg-[#e8edf8]">
         <div className="flex items-center justify-between gap-3 px-4 py-3">
           <nav className="inline-flex rounded-full bg-white p-1">
-            {GATE_DESK.map((href) => (
+            {GATE_TABS.map((t) => (
               <Link
-                key={href}
-                href={href}
+                key={t.href}
+                href={t.href}
                 className={cn(
-                  "rounded-full px-4 py-1.5 text-sm font-semibold transition-colors",
-                  path === href ? "bg-brand text-white" : "text-muted hover:text-ink",
+                  "rounded-full px-3 py-1.5 text-sm font-semibold transition-colors sm:px-4",
+                  path === t.href || (t.href === "/self" && !["/gate", "/visitors"].includes(path))
+                    ? "bg-brand text-white"
+                    : "text-muted hover:text-ink",
                 )}
               >
-                {href === "/gate" ? "Pass check" : "Visitors and vehicles"}
+                {t.label}
               </Link>
             ))}
           </nav>
@@ -80,7 +88,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <AccountChip />
           </div>
         </div>
-        <Guard>{children}</Guard>
+        <div className={path === "/gate" || path === "/visitors" ? "" : "mx-auto max-w-6xl px-4 pb-10"}>
+          {path !== "/gate" && path !== "/visitors" && <SectionTabs />}
+          <Guard>{children}</Guard>
+        </div>
       </div>
     );
   }
@@ -93,6 +104,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Topbar />
         </div>
         <main className="flex-1 px-4 pb-24 md:px-7 md:pb-8">
+          <SectionTabs />
           <Guard>{children}</Guard>
         </main>
         <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-line bg-white/95 px-2 py-2 backdrop-blur md:hidden">
