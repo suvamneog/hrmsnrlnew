@@ -123,7 +123,7 @@ export default function LoginPage() {
       </form>
 
       <div className="hidden min-h-[100dvh] flex-1 pt-1 md:block">
-        <div className="relative h-full overflow-hidden rounded-l-[28px] bg-[#fefefc]">
+        <div className="relative h-full overflow-hidden rounded-l-[28px] bg-white">
           <div className="absolute right-8 top-7 z-10 flex items-center gap-2.5 rounded-full bg-white/80 px-4 py-2 backdrop-blur">
             <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden>
               <g fill="#3d5afe" transform="rotate(-38 16 16)">
@@ -137,7 +137,7 @@ export default function LoginPage() {
           </div>
           {/* Refinery crew fills the panel, kept to the bottom edge so the ground line meets the page. */}
           <Image
-            src="/login-cover.jpg"
+            src="/login-scene.jpg"
             alt="NRL plant staff in front of the refinery"
             fill
             priority
