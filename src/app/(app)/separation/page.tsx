@@ -67,7 +67,7 @@ export default function SeparationPage() {
                 <p className="font-semibold">Net F&F {inr(s.netFf)}</p>
               </div>
             )}
-            {role === "hr_admin" && s.employeeId !== meId && (
+            {(role === "hr_admin" || role === "payroll_officer") && s.employeeId !== meId && (
             <div className="mt-4 flex items-center gap-3">
               <Button
                 disabled={open || s.status === "settled"}

@@ -5,6 +5,7 @@ import { Grid2, Panel, Pill, Rows, Stats } from "@/components/desk/kit";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { BankAck } from "@/components/finance/bank-ack";
 import { useDesk } from "@/lib/desk";
 import { costByUnit } from "@/lib/desk-analytics";
 import { formatStamp, inr, monthLabel } from "@/lib/format";
@@ -127,9 +128,10 @@ export default function FinancePage() {
               </>
             )}
           />
-          <p className="mt-4 text-[12px] text-muted">SBI acknowledgement is simulated. A live build reads the bank&apos;s return file.</p>
         </Panel>
       </Grid2>
+
+      <BankAck run={runs.find((r) => r.stage === "bank_file" || r.stage === "publish") ?? runs[0]} />
 
       <Panel title="Largest deductions" note="Recoveries per employee, for audit.">
         <Rows

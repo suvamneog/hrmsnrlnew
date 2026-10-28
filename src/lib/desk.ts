@@ -13,6 +13,8 @@ export interface CaseItem {
   id: string;
   kind: CaseKind;
   raisedBy: string;
+  // For discipline: the employee the case is about, when someone else raised it.
+  aboutId?: string;
   subject: string;
   detail: string;
   status: CaseStatus;
@@ -117,6 +119,60 @@ export interface Interview {
   scores: Record<string, number>;
   docs: Record<string, boolean>;
   offerAt?: string;
+  callLetterAt?: string;
+}
+
+export interface OvertimeRequest {
+  id: string;
+  employeeId: string;
+  date: string;
+  hours: number;
+  reason: string;
+  status: "pending" | "approved" | "rejected";
+  by?: string;
+}
+
+export interface ShiftHandover {
+  id: string;
+  unitId: string;
+  shift: "M" | "A" | "N";
+  by: string;
+  at: string;
+  note: string;
+}
+
+export interface BankAck {
+  runId: string;
+  at: string;
+  by: string;
+  credited: number;
+  rejected: { account: string; reason: string }[];
+}
+
+// What each contractor pays per day by skill, from the wage sheet attached to the bill.
+export interface WageRow {
+  id: string;
+  contractorId: string;
+  skill: "Unskilled" | "Semi-skilled" | "Skilled" | "Highly skilled";
+  workers: number;
+  paidDaily: number;
+  noticeAt?: string;
+}
+
+export interface TrainingBatch {
+  id: string;
+  courseId: string;
+  date: string;
+  venue: string;
+  seats: number;
+  enrolled: string[];
+}
+
+export interface CaseOrder {
+  caseId: string;
+  kind: "transfer order" | "show cause notice";
+  at: string;
+  by: string;
 }
 
 export interface Delegation {
@@ -136,7 +192,7 @@ const SEED = {
     { id: "cs-2", kind: "medical", raisedBy: "e-shreya", subject: "Referral to GNRC Guwahati", detail: "Cardiology referral from NRL hospital, cashless request.", status: "in_progress", at: at("2026-10-22", "16:40"), confidential: true, updates: [{ at: at("2026-10-23", "11:00"), by: "e-bhaskar", text: "Referral letter sent to GNRC." }] },
     { id: "cs-3", kind: "grievance", raisedBy: "e-anil", subject: "Night shift allowance short paid", detail: "Four night duties in September, three paid.", status: "open", at: at("2026-10-20", "08:30"), confidential: false, updates: [] },
     { id: "cs-4", kind: "transfer", raisedBy: "e-dipika", subject: "Request transfer to Guwahati corporate office", detail: "Spouse posted in Guwahati.", status: "open", at: at("2026-10-18", "12:00"), confidential: false, updates: [] },
-    { id: "cs-5", kind: "discipline", raisedBy: "e-hiren", subject: "Unauthorised absence, two night shifts", detail: "Crew C, 14 and 15 Oct. Show cause proposed.", status: "in_progress", at: at("2026-10-16", "07:10"), confidential: true, updates: [{ at: at("2026-10-17", "10:00"), by: "e-bhaskar", text: "Show cause notice drafted." }] },
+    { id: "cs-5", kind: "discipline", raisedBy: "e-hiren", aboutId: "e-soneswar", subject: "Unauthorised absence, two night shifts", detail: "Crew C, 14 and 15 Oct. Show cause proposed.", status: "in_progress", at: at("2026-10-16", "07:10"), confidential: true, updates: [{ at: at("2026-10-17", "10:00"), by: "e-bhaskar", text: "Show cause notice drafted." }] },
   ] as CaseItem[],
   visitors: [
     { id: "vs-1", name: "R. Venkatesh", org: "Engineers India Ltd", hostId: "e-arup", purpose: "DHDT revamp review", gate: "Gate 1 (Main)", idLast4: "4412", status: "inside", inAt: at("2026-10-27", "09:20") },
@@ -178,6 +234,28 @@ const SEED = {
     { id: "iv-2", candidateId: "cd-2", at: at("2026-10-21", "11:00"), panel: ["e-arup", "e-kaushik"], scores: { Technical: 8, "Plant safety": 7, Communication: 8 }, docs: { "Degree certificate": true, "GATE scorecard": true, "Caste certificate": true, "Identity proof": true } },
   ] as Interview[],
   cleared: {} as Record<string, { by: string; reason: string; at: string }>,
+  overtime: [
+    { id: "ot-1", employeeId: "e-bikash", date: "2026-10-27", hours: 3, reason: "Held over for CDU heater H-101 hot work, relief late", status: "pending" },
+    { id: "ot-2", employeeId: "e-soneswar", date: "2026-10-26", hours: 2.5, reason: "Night shift extended, crew short by one", status: "pending" },
+    { id: "ot-3", employeeId: "e-juri", date: "2026-10-24", hours: 2, reason: "Pump changeover, P-104", status: "approved", by: "e-hiren" },
+  ] as OvertimeRequest[],
+  shiftHandovers: [
+    { id: "sh-1", unitId: "cdu", shift: "N", by: "e-hiren", at: "2026-10-27T05:50:00+05:30", note: "Heater H-101 hot work permit continues on morning shift. P-104 on standby after changeover. Crew B one short, relief arranged." },
+  ] as ShiftHandover[],
+  bankAcks: [] as BankAck[],
+  wages: [
+    { id: "wg-1", contractorId: "c-lt", skill: "Unskilled", workers: 46, paidDaily: 610 },
+    { id: "wg-2", contractorId: "c-lt", skill: "Skilled", workers: 38, paidDaily: 790 },
+    { id: "wg-3", contractorId: "c-br", skill: "Semi-skilled", workers: 30, paidDaily: 640 },
+    { id: "wg-4", contractorId: "c-br", skill: "Highly skilled", workers: 12, paidDaily: 960 },
+    { id: "wg-5", contractorId: "c-sis", skill: "Unskilled", workers: 34, paidDaily: 640 },
+  ] as WageRow[],
+  batches: [
+    { id: "tb-1", courseId: "fire", date: "2026-11-03", venue: "Fire station training hall", seats: 25, enrolled: [] },
+    { id: "tb-2", courseId: "h2s", date: "2026-11-05", venue: "HSE classroom, admin block", seats: 20, enrolled: [] },
+    { id: "tb-3", courseId: "height", date: "2026-11-10", venue: "Scaffold yard, utilities", seats: 15, enrolled: [] },
+  ] as TrainingBatch[],
+  orders: [] as CaseOrder[],
   delegation: null as Delegation | null,
 };
 
@@ -207,6 +285,15 @@ type DeskState = typeof SEED & {
   issueOffer: (id: string) => void;
   clearException: (key: string, by: string, reason: string) => void;
   delegate: (d: Delegation | null) => void;
+  requestOvertime: (o: Omit<OvertimeRequest, "id" | "status">) => void;
+  decideOvertime: (id: string, status: "approved" | "rejected", by: string) => void;
+  addShiftHandover: (h: Omit<ShiftHandover, "id" | "at">) => void;
+  recordBankAck: (a: Omit<BankAck, "at">) => void;
+  sendWageNotice: (id: string) => void;
+  addBatch: (b: Omit<TrainingBatch, "id" | "enrolled">) => void;
+  enrolBatch: (id: string, people: string[]) => void;
+  issueOrder: (o: Omit<CaseOrder, "at">) => void;
+  sendCallLetter: (id: string) => void;
   resetDesk: () => void;
 };
 
@@ -245,9 +332,21 @@ export const useDesk = create<DeskState>()(
       issueOffer: (id) => set((s) => ({ interviews: s.interviews.map((i) => (i.id === id ? { ...i, offerAt: now() } : i)) })),
       clearException: (key, by, reason) => set((s) => ({ cleared: { ...s.cleared, [key]: { by, reason, at: now() } } })),
       delegate: (d) => set({ delegation: d }),
+      requestOvertime: (o) => set((s) => ({ overtime: [{ ...o, id: uid("ot"), status: "pending" }, ...s.overtime] })),
+      decideOvertime: (id, status, by) => set((s) => ({ overtime: s.overtime.map((o) => (o.id === id ? { ...o, status, by } : o)) })),
+      addShiftHandover: (h) => set((s) => ({ shiftHandovers: [{ ...h, id: uid("sh"), at: now() }, ...s.shiftHandovers] })),
+      recordBankAck: (a) => set((s) => ({ bankAcks: [{ ...a, at: now() }, ...s.bankAcks.filter((x) => x.runId !== a.runId)] })),
+      sendWageNotice: (id) => set((s) => ({ wages: s.wages.map((w) => (w.id === id ? { ...w, noticeAt: now() } : w)) })),
+      addBatch: (b) => set((s) => ({ batches: [...s.batches, { ...b, id: uid("tb"), enrolled: [] }].sort((x, y) => x.date.localeCompare(y.date)) })),
+      enrolBatch: (id, people) =>
+        set((s) => ({
+          batches: s.batches.map((b) => (b.id === id ? { ...b, enrolled: [...new Set([...b.enrolled, ...people])].slice(0, b.seats) } : b)),
+        })),
+      issueOrder: (o) => set((s) => ({ orders: [{ ...o, at: now() }, ...s.orders] })),
+      sendCallLetter: (id) => set((s) => ({ interviews: s.interviews.map((i) => (i.id === id ? { ...i, callLetterAt: now() } : i)) })),
       resetDesk: () => set({ ...SEED }),
     }),
-    { name: "nrl-desk", version: 1 },
+    { name: "nrl-desk", version: 3 },
   ),
 );
 
@@ -260,3 +359,11 @@ export const CASE_LABEL: Record<CaseKind, string> = {
 };
 
 export const GATES = ["Gate 1 (Main)", "Gate 2 (CDU West)", "Gate 3 (Dispatch)"];
+
+/* Central sphere minimum daily wage, area B (demo values: confirm the current VDA-revised notification). */
+export const MIN_WAGE: Record<WageRow["skill"], number> = {
+  Unskilled: 626,
+  "Semi-skilled": 694,
+  Skilled: 773,
+  "Highly skilled": 845,
+};

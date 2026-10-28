@@ -59,12 +59,12 @@ export default function PayrollPage() {
         subtitle="All NRL locations: Numaligarh, Siliguri, Paradip and Guwahati, with professional tax per state."
         actions={
           <div className="flex gap-2">
-            {!run.lockedAttendance && (
+            {!run.lockedAttendance && (role === "payroll_officer" || role === "hr_admin") && (
               <Button variant="secondary" onClick={() => { lock(run.id); toast.success("Attendance locked"); }}>
                 Lock attendance
               </Button>
             )}
-            {run.stage === "inputs" && (
+            {run.stage === "inputs" && (role === "payroll_officer" || role === "hr_admin") && (
               <Button
                 disabled={!run.lockedAttendance}
                 onClick={() => {

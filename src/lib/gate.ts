@@ -9,7 +9,7 @@ export function passBlockReason(args: {
 }): string | undefined {
   const today = args.today ?? DEMO_TODAY;
   const { worker, contractor, certs } = args;
-  if (worker.blacklisted) return "Blacklisted — do not admit";
+  if (worker.blacklisted) return "Blacklisted, do not admit";
   if (!worker.policeVerification) return "Police verification pending";
   if (worker.medicalFitnessExpiry < today) return "Medical fitness expired";
   if (!worker.inductionPassed) return "Plant induction not passed";

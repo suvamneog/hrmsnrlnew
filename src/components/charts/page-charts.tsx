@@ -22,6 +22,7 @@ import { liveCensus } from "@/lib/census";
 import { DEMO_TODAY } from "@/lib/demo";
 import { inr } from "@/lib/format";
 import { settingOn } from "@/lib/payroll";
+import { useCrewScope } from "@/lib/crew-scope";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import { format, parseISO } from "date-fns";
 import Link from "next/link";
@@ -126,11 +127,7 @@ export function RosterCharts() {
 
 /* Gate: heads inside through the day, and why passes are blocked. */
 export function GateCharts() {
-  const events = useHrms((s) => s.gateEvents);
-  const passes = useHrms((s) => s.passes);
-  const punches = useHrms((s) => s.punches);
-  const workers = useHrms((s) => s.workers);
-  const contractors = useHrms((s) => s.contractors);
+  const { events, passes, punches, workers, contractors, scoped } = useCrewScope();
   const hours = useMemo(() => inPlantByHour(events, passes, punches), [events, passes, punches]);
   const blocked = useMemo(() => blockedByReason(passes, workers, contractors), [passes, workers, contractors]);
   const peak = hours.reduce((m, h) => Math.max(m, h.staff + h.contract), 0);
@@ -138,11 +135,11 @@ export function GateCharts() {
     <Grid>
       <ChartCard
         title="Heads inside by hour, today"
-        note={`Peak ${peak} inside. Muster points and canteen should plan for that many.`}
+        note={scoped ? `Peak ${peak} of your crew inside at once.` : `Peak ${peak} inside. Muster points and canteen should plan for that many.`}
         value={`Peak ${peak}`}
         series={[
           { key: "contract", label: "Contract workers", color: C.blue },
-          { key: "staff", label: "NRL staff", color: C.green },
+          ...(scoped ? [] : [{ key: "staff", label: "NRL staff", color: C.slate }]),
         ]}
       >
         <Areas
@@ -151,7 +148,7 @@ export function GateCharts() {
           stacked
           series={[
             { key: "contract", label: "Contract workers", color: C.blue },
-            { key: "staff", label: "NRL staff", color: C.green },
+            ...(scoped ? [] : [{ key: "staff", label: "NRL staff", color: C.slate }]),
           ]}
         />
       </ChartCard>

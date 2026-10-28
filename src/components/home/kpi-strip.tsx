@@ -64,6 +64,8 @@ export function buildHomeKpis(args: {
   latestSlip?: string;
   openings: number;
   interviews: number;
+  nextShift?: string;
+  nextShiftHint?: string;
 }): HomeKpi[] {
   const { role } = args;
   if (!role || role === "gate_security") return [];
@@ -125,7 +127,7 @@ export function buildHomeKpis(args: {
   return [
     { label: "EL balance", value: args.elBalance, hint: "Earned leave", href: "/leave", tone: "mint", count: true },
     { label: "Open requests", value: args.myOpen, hint: "Leave and claims", href: "/approvals", tone: "peach", count: true },
-    { label: "On leave today", value: CENSUS.onLeave, hint: "Plant-wide", href: "/leave", tone: "lilac", count: true },
+    { label: "Next shift", value: args.nextShift ?? "None rostered", hint: args.nextShiftHint ?? "From your roster", href: "/roster", tone: "lilac" },
     { label: "Payslip", value: args.latestSlip ?? "—", hint: "Latest month", href: "/payslips", tone: "sky" },
   ];
 }

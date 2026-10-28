@@ -60,7 +60,8 @@ export function expandPasses(workers: ContractWorker[], contractors: Contractor[
       id: `gp-${i + 1}`,
       workerId: w.id,
       validFrom: "2026-08-01",
-      validTo: c?.workOrderEnd ?? "2027-03-31",
+      // About one pass in nine is a quarterly pass ending in the next fortnight, so renewals come up.
+      validTo: i % 9 === 4 ? `2026-11-${String(1 + (i % 13)).padStart(2, "0")}` : c?.workOrderEnd ?? "2027-03-31",
       blocked,
       blockReason: blocked
         ? !w.policeVerification

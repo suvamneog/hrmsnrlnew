@@ -54,7 +54,6 @@ export default function GatePage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <GateCharts />
       <div className="mb-6 flex items-end justify-between">
         <div>
           <p className="text-sm text-muted">Gate 2, CDU west</p>
@@ -167,6 +166,10 @@ export default function GatePage() {
           </PassTicket>
         )}
       </motion.div>
+      {/* The pass check leads; the day's traffic sits below it for a guard with a spare moment. */}
+      <div className="mt-8">
+        <GateCharts />
+      </div>
     </div>
   );
 }

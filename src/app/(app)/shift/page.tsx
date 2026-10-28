@@ -4,6 +4,7 @@ import { Bars, C, ChartCard } from "@/components/charts/kit";
 import { Field, Grid2, Panel, Pill, Rows, Stats } from "@/components/desk/kit";
 import { MIN_MANNING } from "@/components/home/dashboard-charts";
 import { PageHeader } from "@/components/layout/page-header";
+import { OvertimeAndHandover } from "@/components/shift/overtime-handover";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
@@ -271,6 +272,7 @@ export default function ShiftDeskPage() {
           )}
         </Panel>
       </Grid2>
+      <OvertimeAndHandover team={team} />
     </div>
   );
 }

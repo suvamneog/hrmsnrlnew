@@ -318,6 +318,7 @@ export interface HrmsState {
   registerWorker: (input: Omit<ContractWorker, "id" | "blacklisted" | "inductionPassed"> & { inductionPassed?: boolean }) => void;
   bulkOnboard: (contractorId: string, count: number) => number;
   blacklistWorker: (id: string, reason: string) => { ok: boolean; reason?: string };
+  renewPass: (passId: string, until: string) => void;
   uploadWageProof: (contractorId: string, month: string, fileName: string) => void;
   enrollTraining: (sessionId: string, personId: string) => void;
   sitInduction: (workerId: string, score: number) => void;
@@ -656,6 +657,8 @@ export const useHrms = create<HrmsState>()(
         })),
       lockAttendance: (runId) =>
         set((s) => {
+          // Only the payroll maker (or HR) may lock; Finance is the checker.
+          if (s.actingRole !== "payroll_officer" && s.actingRole !== "hr_admin") return {};
           const attendance = rebuildAttendance({
             roster: s.roster,
             punches: s.punches,
@@ -673,6 +676,9 @@ export const useHrms = create<HrmsState>()(
         const s = get();
         const run = s.payrollRuns.find((r) => r.id === runId);
         if (!run) return { ok: false, reason: "Run not found" };
+        if (!opts?.silent && s.actingRole !== "payroll_officer" && s.actingRole !== "hr_admin") {
+          return { ok: false, reason: "Only Payroll computes the run; Finance approves it." };
+        }
         if (!opts?.silent && !run.lockedAttendance) {
           return { ok: false, reason: "Lock attendance before compute." };
         }
@@ -1109,6 +1115,11 @@ export const useHrms = create<HrmsState>()(
             audit: log(s.audit, s.currentUserId ?? "system", "register_worker", input.name, "clm"),
           };
         }),
+      renewPass: (passId, until) =>
+        set((s) => ({
+          passes: s.passes.map((p) => (p.id === passId ? { ...p, validTo: until } : p)),
+          audit: log(s.audit, s.currentUserId ?? "system", "renew_pass", passId, "clm", until),
+        })),
       bulkOnboard: (contractorId, count) => {
         const s = get();
         if (s.actingRole !== "contract_labour_cell") return 0;
@@ -1440,7 +1451,7 @@ export const useHrms = create<HrmsState>()(
     }),
     {
       name: "nrl-people",
-      version: 14,
+      version: 15,
       migrate: () => ({ ...initial }),
       partialize: (s) => {
         const slice = { ...initial };

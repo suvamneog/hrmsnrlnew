@@ -1,5 +1,6 @@
 "use client";
 
+import { TrainingCalendar } from "@/components/safety/training-calendar";
 import { SafetyCharts } from "@/components/charts/page-charts";
 
 import { PageHeader } from "@/components/layout/page-header";
@@ -32,6 +33,9 @@ export default function SafetyPage() {
       <PageHeader title="Safety training"
         subtitle="OISD-STD-154 fire, H2S, height and confined space certificates for NRL and contract crews." />
       <SafetyCharts />
+      <div className="mb-5">
+        <TrainingCalendar />
+      </div>
       <Card className="mb-5 px-5 py-2">
         <FileDownloadList>
           <FileDownload

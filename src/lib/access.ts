@@ -59,7 +59,8 @@ export function canAdvancePayroll(role: Role | null, stage: string): boolean {
   if (stage === "bank_file" || stage === "publish") {
     return role === "payroll_officer" || role === "finance_approver";
   }
-  return role === "payroll_officer" || role === "hr_admin" || role === "finance_approver";
+  // Lock, inputs, compute and validate belong to the maker; Finance only approves and releases.
+  return role === "payroll_officer" || role === "hr_admin";
 }
 
 export function claimApproverRole(amount: number): Role[] {

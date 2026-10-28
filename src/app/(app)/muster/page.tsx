@@ -1,6 +1,7 @@
 "use client";
 
 import { Field, Grid2, Panel, Pill, Rows, Stats } from "@/components/desk/kit";
+import { WageAndPasses } from "@/components/contract/wage-and-passes";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
@@ -260,6 +261,7 @@ export default function MusterPage() {
           )}
         />
       </Panel>
+      {!supervisor && <WageAndPasses />}
     </div>
   );
 }

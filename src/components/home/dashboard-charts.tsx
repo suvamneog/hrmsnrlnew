@@ -2,6 +2,7 @@
 
 import { Areas, Bars, C, ChartCard } from "@/components/charts/kit";
 import { attendanceMix, crewCoverage, gateByHour } from "@/lib/analytics";
+import { useCrewScope } from "@/lib/crew-scope";
 import { useHrms } from "@/lib/store";
 import { useMemo } from "react";
 
@@ -18,7 +19,7 @@ export function DashboardCharts({ force, only }: { force?: boolean; only?: HomeC
   const shifts = useHrms((s) => s.shifts);
   const employees = useHrms((s) => s.employees);
   const roster = useHrms((s) => s.roster);
-  const events = useHrms((s) => s.gateEvents);
+  const { events } = useCrewScope();
   const mix = useMemo(() => attendanceMix(attendance, punches, shifts), [attendance, punches, shifts]);
   const crews = useMemo(() => crewCoverage(employees, roster, attendance, punches), [employees, roster, attendance, punches]);
   const gate = useMemo(() => gateByHour(events), [events]);

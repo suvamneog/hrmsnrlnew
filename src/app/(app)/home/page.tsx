@@ -28,6 +28,8 @@ export default function HomePage() {
   const openings = useHrms((s) => s.openings);
   const candidates = useHrms((s) => s.candidates);
   const role = useHrms((s) => s.actingRole);
+  const roster = useHrms((s) => s.roster);
+  const shifts = useHrms((s) => s.shifts);
   const today = useToday();
   if (!me) return null;
 
@@ -66,6 +68,8 @@ export default function HomePage() {
   const canApprove = role === "line_manager" || role === "hr_admin" || role === "finance_approver";
   const elBalance = myBal.find((b) => b.typeId === "el")?.balance ?? 0;
 
+  const next = roster.filter((r) => r.employeeId === me.id && r.date > DEMO_TODAY && r.shiftId !== "OFF").sort((a, b) => a.date.localeCompare(b.date))[0];
+  const nextShift = shifts.find((x) => x.id === next?.shiftId);
   const kpis = buildHomeKpis({
     role,
     todoCount,
@@ -80,6 +84,8 @@ export default function HomePage() {
     latestSlip: latestSlip ? format(parseISO(`${latestSlip.month}-01`), "MMM yyyy") : undefined,
     openings: openings.length,
     interviews: candidates.filter((c) => c.stage === "interview" || c.stage === "medical").length,
+    nextShift: next ? format(parseISO(next.date), "EEE d MMM") : undefined,
+    nextShiftHint: nextShift ? `${nextShift.label}, ${nextShift.start} to ${nextShift.end}` : undefined,
   });
 
 

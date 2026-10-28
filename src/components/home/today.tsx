@@ -82,6 +82,8 @@ export function useToday(): TodayItem[] {
       const late = mine.filter((r) => r.issue === "late" || r.issue === "absent").length;
       add(late, { id: "late", label: `${late} of your crew late or not in`, href: "/shift", tone: "warn" });
       const lapses = lapseImpact({ people: hrms.employees.filter((e) => e.crew), roster: hrms.roster, certs: hrms.certificates, min: MIN_MANNING });
+      const otPending = desk.overtime.filter((o) => o.status === "pending" && teamIds.has(o.employeeId)).length;
+      add(otPending, { id: "ot", label: `${n(otPending, "overtime request")} to approve`, detail: "Before payroll locks attendance", href: "/shift", tone: "warn" });
       add(lapses.length, { id: "lapses", label: `${n(lapses.length, "shift")} next week ${lapses.length === 1 ? "loses" : "lose"} manning`, detail: "Certificates lapsing", href: "/shift", tone: "warn" });
     }
 
@@ -103,6 +105,28 @@ export function useToday(): TodayItem[] {
 
     if (role === "payroll_officer" || role === "finance_approver") {
       const stage = run?.stage.replace("_", " ");
+      // The next step of the month's run, whose desk it sits on, and its cut-off date.
+      const NEXT: Record<string, { who: "payroll_officer" | "finance_approver"; what: string; day: number }> = {
+        attendance_lock: { who: "payroll_officer", what: "Lock attendance", day: 25 },
+        inputs: { who: "payroll_officer", what: run?.lockedAttendance ? "Compute the run" : "Lock attendance, then compute", day: 25 },
+        compute: { who: "payroll_officer", what: "Validate the computed run", day: 26 },
+        validate: { who: "payroll_officer", what: "Clear blockers and send to Finance", day: 27 },
+        finance_approval: { who: "finance_approver", what: "Approve the run", day: 28 },
+        bank_file: { who: "finance_approver", what: "Release the SBI salary file", day: 29 },
+        publish: { who: "payroll_officer", what: "Publish payslips", day: 30 },
+      };
+      const step = run ? NEXT[run.stage] : undefined;
+      if (step && step.who === role) {
+        const cut = `${run!.month}-${String(step.day).padStart(2, "0")}`;
+        const late = cut < DEMO_TODAY;
+        add(true, {
+          id: "next-step",
+          label: `${step.what} by ${formatDay(cut)}`,
+          detail: late ? "Past the cut-off. Salaries are due on the last working day." : `Cut-off for the ${format(parseISO(`${run!.month}-01`), "MMMM")} run`,
+          href: "/payroll",
+          tone: late ? "danger" : "warn",
+        });
+      }
       add(run, { id: "run", label: `${format(parseISO(`${run?.month ?? "2026-10"}-01`), "MMMM")} run at ${stage}`, detail: run?.totals ? `${run.totals.blockers} blockers, ${run.totals.sapDiffs} SAP differences` : "Not computed yet", href: "/payroll", tone: role === "finance_approver" && run?.stage === "finance_approval" ? "danger" : "brand" });
       const last = hrms.payrollRuns.find((r) => r.results.length);
       const ex = last ? last.results.flatMap((r) => r.flags.map((f) => `${last.id}:${r.employeeId}:${f.code}`)).filter((k) => !desk.cleared[k]).length : 0;
