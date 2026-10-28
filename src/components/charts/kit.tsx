@@ -20,16 +20,18 @@ import {
   YAxis,
 } from "recharts";
 
-/* Notion-like palette: calm, readable, one accent per meaning. */
+/* Notion-like palette: ink and greys carry the data; colour only where it means something
+   (red for a breach, amber for a warning, blue for the one thing to look at). */
 export const C = {
-  blue: "#3d5afe",
-  sky: "#8fa0ff",
-  green: "#22a06b",
-  amber: "#e0a43d",
+  blue: "#1d1d1f",
+  sky: "#a1a1a6",
+  green: "#3a3a3c",
+  amber: "#d4a24c",
   red: "#e5484d",
-  violet: "#8e7cf0",
-  slate: "#b4bccd",
-  teal: "#14a3a3",
+  violet: "#6e6e73",
+  slate: "#d2d2d7",
+  teal: "#8e8e93",
+  accent: "#3d5afe",
 } as const;
 
 export type Series = { key: string; label: string; color: string };
@@ -39,7 +41,7 @@ const config = (series: Series[]): ChartConfig =>
 
 // Recharts reads these classes; the cursor and grid stay quiet so the data leads.
 const surface =
-  "aspect-auto w-full [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-[#eef1f8] [&_.recharts-curve.recharts-tooltip-cursor]:stroke-[#c9d0e4] [&_.recharts-cartesian-axis-tick_text]:fill-[#8a93a8]";
+  "aspect-auto w-full [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-[#f2f2f0] [&_.recharts-curve.recharts-tooltip-cursor]:stroke-[#d2d2d7] [&_.recharts-cartesian-axis-tick_text]:fill-[#8e8e93]";
 
 const DURATION = 900;
 
@@ -68,7 +70,7 @@ export function ChartCard({
 }) {
   return (
     <InView className={cn("min-w-0", className)}>
-      <div className="h-full rounded-[22px] bg-white p-5 ring-1 ring-[#e9ecf4] shadow-[0_1px_2px_rgba(27,33,64,0.04),0_10px_28px_rgba(45,64,180,0.06)] sm:p-6">
+      <div className="h-full rounded-[20px] border border-line bg-white p-5 sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h3 className="flex items-center gap-2 text-[15px] font-semibold tracking-tight text-ink">
@@ -131,7 +133,7 @@ function Tip({
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.18, ease: easeOut }}
-      className="min-w-[168px] rounded-xl bg-white px-3 py-2.5 text-[12px] shadow-[0_12px_32px_rgba(27,33,64,0.14)] ring-1 ring-[#e7eaf3]"
+      className="min-w-[168px] rounded-xl bg-white px-3 py-2.5 text-[12px] shadow-[0_8px_24px_rgba(0,0,0,0.08)] ring-1 ring-[#ebebea]"
     >
       <p className="mb-1.5 font-semibold text-ink">{labelFormat ? labelFormat(String(label ?? ""), row) : label}</p>
       {payload.map((p) => {
@@ -188,7 +190,7 @@ export function Bars({
       {seen && (
         <ChartContainer config={config(series)} className={surface} style={{ height }}>
           <BarChart data={data} margin={{ top: 8, right: 4, left: -8, bottom: 0 }} barCategoryGap={stacked ? "22%" : "18%"}>
-            <CartesianGrid vertical={false} strokeDasharray="3 4" stroke="#eef0f5" />
+            <CartesianGrid vertical={false} strokeDasharray="3 4" stroke="#efefed" />
             <XAxis dataKey={x} tickLine={false} axisLine={false} tickMargin={8} fontSize={11} minTickGap={8} />
             <YAxis tickLine={false} axisLine={false} fontSize={11} width={56} allowDecimals={false} tickFormatter={(v: number) => format(v)} />
             <ChartTooltip cursor={{ radius: 8 }} content={<Tip series={series} format={format} labelFormat={labelFormat} />} />
@@ -242,7 +244,7 @@ export function HBars({
       {seen && (
         <ChartContainer config={config(series)} className={surface} style={{ height: h }}>
           <BarChart data={data} layout="vertical" margin={{ top: 0, right: 12, left: 0, bottom: 0 }} barCategoryGap="28%">
-            <CartesianGrid horizontal={false} strokeDasharray="3 4" stroke="#eef0f5" />
+            <CartesianGrid horizontal={false} strokeDasharray="3 4" stroke="#efefed" />
             <XAxis type="number" tickLine={false} axisLine={false} fontSize={11} allowDecimals={false} tickFormatter={(v: number) => format(v)} />
             <YAxis type="category" dataKey={y} tickLine={false} axisLine={false} fontSize={12} width={labelWidth} tick={{ fill: "#1b2140" }} />
             <ChartTooltip cursor={{ radius: 8 }} content={<Tip series={series} format={format} />} />
@@ -295,7 +297,7 @@ export function Areas({
                 </linearGradient>
               ))}
             </defs>
-            <CartesianGrid vertical={false} strokeDasharray="3 4" stroke="#eef0f5" />
+            <CartesianGrid vertical={false} strokeDasharray="3 4" stroke="#efefed" />
             <XAxis dataKey={x} tickLine={false} axisLine={false} tickMargin={8} fontSize={11} minTickGap={14} />
             <YAxis tickLine={false} axisLine={false} fontSize={11} width={44} allowDecimals={false} />
             <ChartTooltip cursor={{ strokeDasharray: "3 3" }} content={<Tip series={series} format={format} />} />
@@ -449,7 +451,7 @@ export function Heatmap({
               animate={{ opacity: 1, y: 0, left: tip.x, top: tip.y }}
               exit={{ opacity: 0 }}
               transition={{ type: "spring", stiffness: 500, damping: 38 }}
-              className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-[calc(100%+8px)] whitespace-nowrap rounded-xl bg-white px-3 py-2 text-[12px] shadow-[0_12px_32px_rgba(27,33,64,0.14)] ring-1 ring-[#e7eaf3]"
+              className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-[calc(100%+8px)] whitespace-nowrap rounded-xl bg-white px-3 py-2 text-[12px] shadow-[0_8px_24px_rgba(0,0,0,0.08)] ring-1 ring-[#ebebea]"
             >
               <p className="font-semibold">{tip.title}</p>
               {tip.detail?.map((d) => (
@@ -561,7 +563,7 @@ export function Timeline({
             animate={{ opacity: 1, top: tip.y + 30 }}
             exit={{ opacity: 0 }}
             transition={{ type: "spring", stiffness: 500, damping: 40 }}
-            className="pointer-events-none absolute right-0 z-20 rounded-xl bg-white px-3 py-2 text-[12px] shadow-[0_12px_32px_rgba(27,33,64,0.14)] ring-1 ring-[#e7eaf3]"
+            className="pointer-events-none absolute right-0 z-20 rounded-xl bg-white px-3 py-2 text-[12px] shadow-[0_8px_24px_rgba(0,0,0,0.08)] ring-1 ring-[#ebebea]"
           >
             <p className="font-semibold">{tip.label}</p>
             {tip.detail.map((d) => (

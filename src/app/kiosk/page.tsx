@@ -203,7 +203,7 @@ function Tiles({ onPick }: { onPick: (s: Screen) => void }) {
           whileTap={{ scale: 0.97 }}
           transition={spring}
           onClick={() => onPick(t.id)}
-          className="flex min-h-[150px] items-center gap-5 rounded-[26px] bg-white p-7 text-left shadow-[0_10px_28px_rgba(45,64,180,0.06)]"
+          className="flex min-h-[150px] items-center gap-5 rounded-[26px] bg-white p-7 text-left border border-line"
         >
           <span className={`grid h-20 w-20 shrink-0 place-items-center rounded-3xl ${t.tone}`}>{t.icon}</span>
           <span className="text-[24px] font-semibold tracking-tight">{t.label}</span>
@@ -213,7 +213,7 @@ function Tiles({ onPick }: { onPick: (s: Screen) => void }) {
   );
 }
 
-const Box = ({ children }: { children: React.ReactNode }) => <section className="rounded-[26px] bg-white p-6 shadow-[0_10px_28px_rgba(45,64,180,0.06)] md:p-8">{children}</section>;
+const Box = ({ children }: { children: React.ReactNode }) => <section className="rounded-[26px] bg-white p-6 border border-line md:p-8">{children}</section>;
 
 function Attendance({ who }: { who: Employee }) {
   const attendance = useHrms((s) => s.attendance);

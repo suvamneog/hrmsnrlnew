@@ -27,7 +27,7 @@ export function SpotlightCard({
       onMouseMove={reduce ? undefined : move}
       onMouseLeave={() => setSpot((s) => ({ ...s, on: false }))}
       className={cn(
-        "relative rounded-[18px] bg-white shadow-[0_10px_30px_rgba(45,64,180,0.07)]",
+        "relative rounded-[18px] bg-white border border-line",
         className,
       )}
     >

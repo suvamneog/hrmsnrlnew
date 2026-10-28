@@ -146,17 +146,17 @@ export function useToday(): TodayItem[] {
   }, [me, role, hrms, desk]);
 }
 
-const DOT = { danger: "bg-[#d13b3b]", warn: "bg-[#e0a100]", brand: "bg-brand", muted: "bg-[#b6bdcf]" };
+const DOT = { danger: "bg-[#e5484d]", warn: "bg-[#d4a24c]", brand: "bg-ink", muted: "bg-[#c7c7cc]" };
 
 export function TodayList({ items, title = "Today", empty = "Nothing due today." }: { items: TodayItem[]; title?: string; empty?: string }) {
   const reduce = useReducedMotion();
   return (
-    <section className="rounded-[22px] bg-white p-5 ring-1 ring-[#e9ecf4] shadow-[0_10px_28px_rgba(45,64,180,0.06)] sm:p-6">
+    <section className="rounded-[20px] border border-line bg-white p-5 sm:p-6">
       <h2 className="text-[16px] font-semibold tracking-tight text-ink">{title}</h2>
       {items.length === 0 ? (
         <p className="mt-3 text-sm text-muted">{empty}</p>
       ) : (
-        <ul className="-mx-2 mt-2 divide-y divide-[#eef0f6]">
+        <ul className="-mx-2 mt-2 divide-y divide-line">
           {items.map((it, i) => (
             <motion.li
               key={it.id}
@@ -164,7 +164,7 @@ export function TodayList({ items, title = "Today", empty = "Nothing due today."
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: easeOut, delay: reduce ? 0 : i * 0.04 }}
             >
-              <Link href={it.href} className="group flex items-center gap-3 rounded-xl px-2 py-3 transition-colors hover:bg-[#f7f8fc]">
+              <Link href={it.href} className="group flex items-center gap-3 rounded-xl px-2 py-3 transition-colors hover:bg-[#f7f7f5]">
                 <span className={`h-2 w-2 shrink-0 rounded-full ${DOT[it.tone]}`} aria-hidden />
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-medium text-ink">{it.label}</span>

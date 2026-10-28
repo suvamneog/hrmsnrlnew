@@ -26,7 +26,7 @@ export function Panel({
 }) {
   return (
     <InView className={cn("min-w-0", className)}>
-      <section className="h-full rounded-[22px] bg-white p-5 ring-1 ring-[#e9ecf4] shadow-[0_1px_2px_rgba(27,33,64,0.04),0_10px_28px_rgba(45,64,180,0.06)] sm:p-6">
+      <section className="h-full rounded-[20px] border border-line bg-white p-5 sm:p-6">
         <header className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <h2 className="text-[16px] font-semibold tracking-tight text-ink">{title}</h2>
@@ -49,15 +49,15 @@ export function Stats({ items }: { items: Stat[] }) {
   return (
     <AnimatedGroup
       preset="slide"
-      className="grid grid-cols-2 overflow-hidden rounded-[22px] bg-white ring-1 ring-[#e9ecf4] shadow-[0_10px_28px_rgba(45,64,180,0.06)] lg:grid-cols-4"
+      className="grid grid-cols-2 overflow-hidden rounded-[20px] border border-line bg-white lg:grid-cols-4"
     >
       {items.map((s, i) => (
         <div
           key={s.label}
           className={cn(
             "min-w-0 p-5 sm:p-6",
-            i % 2 === 1 && "border-l border-[#eef0f6]",
-            i >= 2 && "border-t border-[#eef0f6] lg:border-t-0",
+            i % 2 === 1 && "border-l border-line",
+            i >= 2 && "border-t border-line lg:border-t-0",
             i % 4 !== 0 && "lg:border-l",
           )}
         >
@@ -84,7 +84,7 @@ export function Rows<T extends { id: string }>({
 }) {
   if (items.length === 0) return <p className="py-8 text-center text-sm text-muted">{empty}</p>;
   return (
-    <ul className="-mx-2 divide-y divide-[#eef0f6]">
+    <ul className="-mx-2 divide-y divide-line">
       <AnimatePresence initial={false}>
         {items.map((item) => (
           <motion.li
@@ -94,7 +94,7 @@ export function Rows<T extends { id: string }>({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.35, ease: easeOut }}
-            className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl px-2 py-3.5 transition-colors hover:bg-[#f7f8fc]"
+            className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl px-2 py-3.5 transition-colors hover:bg-[#f7f7f5]"
           >
             {render(item)}
           </motion.li>

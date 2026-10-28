@@ -16,39 +16,36 @@ export type HomeKpi = {
   count?: boolean;
 };
 
-const TONE: Record<HomeKpi["tone"], string> = {
-  mint: "from-[#d9f6e6] to-[#e7f8ef] text-[#0f9f6e]",
-  lilac: "from-[#ddd8ff] to-[#eeeaff] text-[#5b5bd6]",
-  peach: "from-[#ffe0c8] to-[#fff1e6] text-[#e07a3d]",
-  pink: "from-[#fbd7e6] to-[#fdeef4] text-[#d4537e]",
-  sky: "from-[#cfe8ff] to-[#e8f4ff] text-[#2f7ec8]",
-};
-
+/* Flat tiles in the Notion manner: the first figure leads in ink, the rest sit on white
+   with a hairline. Tones stay on the type for callers, but colour no longer floods the tile. */
 export function KpiStrip({ items }: { items: HomeKpi[] }) {
   if (items.length === 0) return null;
   return (
     <AnimatedGroup preset="slide" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-      {items.map((k) => (
-        <Link key={k.label} href={k.href} className="group block">
-          <div
-            className={`relative overflow-hidden rounded-[22px] bg-gradient-to-br p-5 shadow-[0_10px_30px_rgba(45,64,180,0.07)] ${TONE[k.tone]}`}
-          >
-            <span className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full bg-white/45" />
-            <span className="pointer-events-none absolute -bottom-8 right-10 h-16 w-16 rounded-full bg-white/30" />
-            <div className="relative flex items-start justify-between gap-2">
-              <p className="text-[12px] font-semibold text-ink/70">{k.label}</p>
-              <span className="inline-flex items-center gap-0.5 text-[11px] font-bold tracking-wide text-ink/45 transition group-hover:text-ink/80">
-                View
-                <ArrowUpRight size={12} weight="bold" />
-              </span>
+      {items.map((k, i) => {
+        const lead = i === 0;
+        return (
+          <Link key={k.label} href={k.href} className="group block">
+            <div
+              className={`h-full rounded-[20px] p-5 transition-colors duration-300 ${
+                lead ? "bg-ink text-white" : "border border-line bg-white text-ink hover:bg-[#fbfbfa]"
+              }`}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <p className={`text-[13px] font-medium ${lead ? "text-white/70" : "text-muted"}`}>{k.label}</p>
+                <ArrowUpRight
+                  size={14}
+                  className={`shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 ${lead ? "text-white/50" : "text-muted"}`}
+                />
+              </div>
+              <p className="mt-5 text-[32px] font-semibold leading-none tracking-[-0.03em] tabular-nums">
+                {k.count ? <AnimatedNumber value={Number(k.value)} /> : <span className="text-[22px] capitalize">{String(k.value)}</span>}
+              </p>
+              <p className={`mt-2 text-[12px] ${lead ? "text-white/60" : "text-muted"}`}>{k.hint}</p>
             </div>
-            <p className="relative mt-5 text-[28px] font-semibold leading-none tracking-tight text-ink">
-              {k.count ? <AnimatedNumber value={Number(k.value)} /> : <span className="text-[22px] capitalize">{String(k.value)}</span>}
-            </p>
-            <p className="relative mt-2 text-[12px] text-ink/55">{k.hint}</p>
-          </div>
-        </Link>
-      ))}
+          </Link>
+        );
+      })}
     </AnimatedGroup>
   );
 }

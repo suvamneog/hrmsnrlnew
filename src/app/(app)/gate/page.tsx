@@ -73,7 +73,7 @@ export default function GatePage() {
             {offline ? `Sync ${queue.length}` : "Work offline"}
           </button>
           )}
-          <div className="rounded-2xl bg-white px-4 py-3 text-right shadow-[0_10px_30px_rgba(45,64,180,0.07)]">
+          <div className="rounded-2xl bg-white px-4 py-3 text-right border border-line">
             <p className="text-xs text-muted">Headcount inside</p>
             <p className="text-2xl font-semibold">{inside}</p>
           </div>
