@@ -29,7 +29,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 
 const Grid = ({ children }: { children: React.ReactNode }) => <div className="mb-6 grid gap-5 *:min-w-0 xl:grid-cols-2">{children}</div>;
-const lakh = (n: number) => (n >= 1e7 ? `₹${(n / 1e7).toFixed(2)} Cr` : `₹${(n / 1e5).toFixed(1)}L`);
+const lakh = (n: number) => (n === 0 ? "₹0" : n >= 1e7 ? `₹${(n / 1e7).toFixed(2)} Cr` : `₹${(n / 1e5).toFixed(1)}L`);
 
 // Shifts need four colours that stay apart in a stack: two blues, ink and a mid grey.
 const SHIFT_COLOR: Record<string, string> = { M: "#3d5afe", A: "#8a9bff", N: "#1d1d1f", G: "#8e8e93", OFF: "#f2f2f0" };

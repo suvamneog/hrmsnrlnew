@@ -78,7 +78,7 @@ export default function PayrollPage() {
                   setPage(0);
                 }}
               >
-                {run.lockedAttendance ? "Compute" : "Lock first"}
+                {run.lockedAttendance ? "Compute" : "Compute (lock first)"}
               </Button>
             )}
             {run.stage !== "inputs" && run.stage !== "publish" && run.stage === "finance_approval" && role === "finance_approver" ? (
@@ -97,10 +97,10 @@ export default function PayrollPage() {
                 onClick={() => {
                   const r = advance(run.id);
                   if (!r.ok) toast.error(r.reason);
-                  else toast.success("Moved to next stage");
+                  else toast.success(`Moved to ${PAYROLL_STAGES[idx + 1]?.label.toLowerCase() ?? "the next step"}`);
                 }}
               >
-                {role !== "finance_approver" && run.stage === "finance_approval" ? "Needs finance" : "Advance"}
+                {role !== "finance_approver" && run.stage === "finance_approval" ? "Waiting on finance" : PAYROLL_STAGES[idx + 1] ? `Move to ${PAYROLL_STAGES[idx + 1].label.toLowerCase()}` : "Done"}
               </Button>
             ) : null}
             {run.stage === "validate" && (role === "payroll_officer" || role === "hr_admin") && (
@@ -146,6 +146,20 @@ export default function PayrollPage() {
         ))}
       </div>
 
+      {/* Where the run stands and what to do next, said in one line right under the steps. */}
+      <p className="-mt-3 mb-5 text-[13px] text-muted">
+        <span className="font-semibold text-ink">
+          {run.lockedAttendance || run.results.length
+            ? `Step ${idx + 1} of ${PAYROLL_STAGES.length}: ${PAYROLL_STAGES[idx]?.label}.`
+            : `Step 1 of ${PAYROLL_STAGES.length}: ${PAYROLL_STAGES[0].label}.`}
+        </span>{" "}
+        {run.results.length
+          ? "Check the pay register below, then move the run on."
+          : run.lockedAttendance
+            ? "Attendance is locked. Compute the run next."
+            : "Lock attendance first: it freezes this month's punches, leave and overtime so pay is computed on final figures."}
+      </p>
+
       <div className="mb-5 grid gap-3 sm:grid-cols-3">
         <Card className="p-4">
           <p className="text-xs text-muted">Employees in run</p>
@@ -167,13 +181,6 @@ export default function PayrollPage() {
 
       <PayrollCharts />
 
-      {run.results.length === 0 && (
-        <Card className="p-8 text-center text-sm text-muted">
-          {run.lockedAttendance
-            ? "Attendance locked. Compute the October run."
-            : "Lock attendance before compute."}
-        </Card>
-      )}
 
       {run.results.length > 0 && (
         <Card className="overflow-x-auto">

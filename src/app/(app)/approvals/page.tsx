@@ -2,6 +2,7 @@
 
 import { TodayList, useToday } from "@/components/home/today";
 import { Badge } from "@/components/shadcn/badge";
+import { cn } from "@/lib/cn";
 import { Checkbox } from "@/components/shadcn/checkbox";
 import { Input } from "@/components/shadcn/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/shadcn/tabs";
@@ -29,6 +30,8 @@ type Row = {
   approve?: () => void;
   reject?: () => void;
   hold?: boolean;
+  // What the approver needs to decide without opening anything: balance left, who else is off.
+  facts?: { text: string; tone: "ok" | "warn" }[];
 };
 
 export default function ApprovalsPage() {
@@ -36,6 +39,7 @@ export default function ApprovalsPage() {
   const employees = useHrms((s) => s.employees);
   const types = useHrms((s) => s.leaveTypes);
   const leaves = useHrms((s) => s.leaveRequests);
+  const balances = useHrms((s) => s.leaveBalances);
   const swaps = useHrms((s) => s.swaps);
   const regs = useHrms((s) => s.regularisations);
   const claims = useHrms((s) => s.claims);
@@ -65,6 +69,22 @@ export default function ApprovalsPage() {
 
   const nameOf = (id: string) => employees.find((e) => e.id === id)?.name ?? id;
 
+  // Balance after this request, and how many of the same manager's team are already off on those days.
+  const leaveFacts = (l: (typeof leaves)[number]): Row["facts"] => {
+    const bal = balances.find((b) => b.employeeId === l.employeeId && b.typeId === l.typeId)?.balance;
+    const mgr = employees.find((e) => e.id === l.employeeId)?.managerId;
+    const off = new Set(
+      leaves
+        .filter((x) => x.id !== l.id && x.employeeId !== l.employeeId && (x.status === "approved" || x.status === "pending") && x.from <= l.to && x.to >= l.from)
+        .filter((x) => employees.find((e) => e.id === x.employeeId)?.managerId === mgr)
+        .map((x) => x.employeeId),
+    ).size;
+    const out: NonNullable<Row["facts"]> = [];
+    if (bal !== undefined) out.push({ text: `${bal - l.days} ${types.find((t) => t.id === l.typeId)?.code ?? ""} left after`, tone: bal - l.days < 0 ? "warn" : "ok" });
+    out.push(off ? { text: `${off} other${off > 1 ? "s" : ""} in the team off then`, tone: "warn" } : { text: "Nobody else in the team off", tone: "ok" });
+    return out;
+  };
+
   const rows: Row[] = [];
   for (const l of leaves.filter((x) => x.status === "pending")) {
     const own = l.employeeId === me.id;
@@ -76,6 +96,7 @@ export default function ApprovalsPage() {
       sub: `${formatDay(l.from)}${l.from !== l.to ? ` – ${formatDay(l.to)}` : ""}, ${l.reason}`,
       who: nameOf(l.employeeId),
       own,
+      facts: own ? undefined : leaveFacts(l),
       approve: own ? undefined : () => { decideLeave(l.id, "approved"); toast.success("Approved"); },
       reject: own
         ? () => { withdraw(l.id); toast("Withdrawn"); }
@@ -241,6 +262,16 @@ export default function ApprovalsPage() {
                   </div>
                   <p className="mt-0.5 text-sm text-ink">{r.title}</p>
                   <p className="truncate text-[13px] text-muted">{r.sub}</p>
+                  {r.facts && (
+                    <div className="mt-1.5 flex flex-wrap gap-1.5">
+                      {r.facts.map((f) => (
+                        <span key={f.text} className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium", f.tone === "ok" ? "bg-ok-soft text-ok" : "bg-warn-soft text-[#8a5600]")}>
+                          <span className={cn("h-1.5 w-1.5 rounded-full", f.tone === "ok" ? "bg-ok" : "bg-warn")} />
+                          {f.text}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 {/* On a phone the actions drop below the request so its text keeps the full width. */}
                 <div className="flex shrink-0 gap-2 max-sm:w-full max-sm:justify-end">

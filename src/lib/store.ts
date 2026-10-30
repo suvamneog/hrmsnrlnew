@@ -488,7 +488,7 @@ export const useHrms = create<HrmsState>()(
         set({
           leaveRequests: [row, ...s.leaveRequests],
           audit: log(s.audit, me.id, "apply_leave", `${input.from} ${input.typeId}`, "leave", String(days)),
-          notifications: notify(s.notifications, me.managerId, "Leave pending", `${me.preferredName}, ${days} day(s)`, "/approvals"),
+          notifications: notify(s.notifications, me.managerId, "Leave pending", `${me.preferredName}, ${days} ${days === 1 ? "day" : "days"}`, "/approvals"),
         });
         return { ok: true, days };
       },

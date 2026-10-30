@@ -34,6 +34,17 @@ export default function MusterPage() {
   const [req, setReq] = useState({ name: "", trade: "Rigger" });
   const ids = new Set(contractors.map((c) => c.id));
   const crew = useMemo(() => workersAll.filter((w) => w.contractorId === cid && !w.blacklisted), [workersAll, cid]);
+  // Same names repeat across a crew, so each row carries its pass number, trade and today's gate entry.
+  const passOf = useMemo(() => new Map(passes.map((p) => [p.workerId, p])), [passes]);
+  const inToday = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const e of events) if (e.direction === "in" && e.time.startsWith(DEMO_TODAY) && !m.has(e.passId)) m.set(e.passId, e.time.slice(11, 16));
+    return m;
+  }, [events]);
+  const seenIds = crew.filter((w) => {
+    const p = passOf.get(w.id);
+    return p && inToday.has(p.id);
+  }).map((w) => w.id);
   if (!me) return null;
 
   const cname = (id: string) => contractorsAll.find((c) => c.id === id)?.name ?? id;
@@ -112,9 +123,17 @@ export default function MusterPage() {
               <button type="button" className="text-[13px] font-semibold text-brand" onClick={() => setTicked(new Set(crew.map((w) => w.id)))}>
                 Tick all {crew.length}
               </button>
+              {seenIds.length > 0 && (
+                <button type="button" className="text-[13px] font-semibold text-brand" onClick={() => setTicked(new Set(seenIds))}>
+                  Tick the {seenIds.length} seen at gate
+                </button>
+              )}
             </div>
             <div className="grid max-h-72 gap-1 overflow-auto pr-1 sm:grid-cols-2">
-              {crew.slice(0, 40).map((w) => (
+              {crew.map((w) => {
+                const pass = passOf.get(w.id);
+                const at = pass ? inToday.get(pass.id) : undefined;
+                return (
                 <label key={w.id} className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-2 text-sm hover:bg-subtle">
                   <input
                     type="checkbox"
@@ -127,9 +146,18 @@ export default function MusterPage() {
                       setTicked(n);
                     }}
                   />
-                  <span className="truncate">{w.name}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate">{w.name}</span>
+                    <span className="block truncate text-[11px] text-muted">
+                      {pass?.id.toUpperCase() ?? "No pass"}, {w.skill}
+                    </span>
+                  </span>
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${at ? "bg-ok-soft text-ok" : "bg-fill text-muted"}`}>
+                    {at ? `In ${at}` : "Not at gate"}
+                  </span>
                 </label>
-              ))}
+                );
+              })}
             </div>
             <div className="mt-4">
               <Button

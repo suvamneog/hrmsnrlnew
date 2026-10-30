@@ -256,7 +256,7 @@ export function Bars({
   const [pick, setPick] = useState<number | null>(null);
   return (
     <div>
-      <ChartDetail rows={detailRows(data, x, series)} index={pick} onIndex={setPick} format={format} unit={unit} />
+      <ChartDetail rows={detailRows(data, x, series)} index={pick} onIndex={setPick} format={format} unit={unit} stacked={stacked} threshold={threshold} />
       <AxisNote>{unit}</AxisNote>
       <div ref={ref} style={{ height }}>
         {seen && (
@@ -378,7 +378,7 @@ export function HBars({
   const [pick, setPick] = useState<number | null>(null);
   return (
     <div>
-      <ChartDetail rows={detailRows(data, y, series)} index={pick} onIndex={setPick} format={format} unit={unit} />
+      <ChartDetail rows={detailRows(data, y, series)} index={pick} onIndex={setPick} format={format} unit={unit} stacked={stacked} />
       <div ref={ref} style={{ height: h }}>
         {seen && (
           <ChartContainer
@@ -471,7 +471,7 @@ export function Areas({
   const [pick, setPick] = useState<number | null>(null);
   return (
     <div>
-      <ChartDetail rows={detailRows(data, x, series)} index={pick} onIndex={setPick} format={format} unit={unit} />
+      <ChartDetail rows={detailRows(data, x, series)} index={pick} onIndex={setPick} format={format} unit={unit} stacked={stacked} />
       <AxisNote>{unit}</AxisNote>
       <div ref={ref} style={{ height }}>
         {seen && (

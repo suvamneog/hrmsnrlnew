@@ -15,6 +15,8 @@ export const ChartTitle = createContext("");
 
 const ord = (n: number) => `${n}${["th", "st", "nd", "rd"][n % 100 > 10 && n % 100 < 14 ? 0 : n % 10 < 4 ? n % 10 : 0]}`;
 const sum = (r: DetailRow) => r.parts.reduce((n, p) => n + p.value, 0);
+// Side-by-side series are compared, not added: the headline is the last series (the one measured).
+const head = (r: DetailRow, stacked: boolean) => (stacked ? sum(r) : (r.parts[r.parts.length - 1]?.value ?? 0));
 
 /* The sheet that opens when any bar, point or slice is clicked: what the part is made of,
    and how it compares with the rest of the chart. Springs in from below, Apple style. */
@@ -24,8 +26,12 @@ export function ChartDetail({
   onIndex,
   format,
   unit,
+  stacked = true,
+  threshold,
 }: {
+  threshold?: { value: number; label: string };
   unit?: string;
+  stacked?: boolean;
   rows: DetailRow[];
   index: number | null;
   onIndex: (i: number | null) => void;
@@ -37,8 +43,8 @@ export function ChartDetail({
   const pill = useId();
   const open = index !== null && !!rows[index];
   const row = open ? rows[index] : null;
-  const total = row ? sum(row) : 0;
-  const totals = rows.map(sum);
+  const total = row ? head(row, stacked) : 0;
+  const totals = rows.map((r) => head(r, stacked));
   const ranked = [...totals].sort((a, b) => b - a);
   const avg = totals.reduce((n, v) => n + v, 0) / Math.max(1, totals.length);
   const max = Math.max(1, ...totals);
@@ -90,7 +96,9 @@ export function ChartDetail({
                       >
                         <D.Title className="mt-1 text-[22px] font-semibold tracking-[-0.02em] text-ink">{row.label}</D.Title>
                         <p className="mt-1 text-[34px] font-semibold leading-none tracking-[-0.03em] tabular-nums text-ink">{format(total)}</p>
-                        {unit && <p className="mt-1.5 text-[12px] text-muted">{unit}</p>}
+                        <p className="mt-1.5 text-[12px] text-muted">
+                          {stacked || row.parts.length < 2 ? unit : `${row.parts[row.parts.length - 1].label}${unit ? `, ${unit.toLowerCase()}` : ""}`}
+                        </p>
                       </motion.div>
                     </AnimatePresence>
                   </div>
@@ -144,7 +152,8 @@ export function ChartDetail({
                       {tab === "parts" ? (
                         <ul className="divide-y divide-fill">
                           {row.parts.map((p, i) => {
-                            const share = total ? (p.value / total) * 100 : 0;
+                            const peak = Math.max(1, ...row.parts.map((x) => x.value));
+                          const share = stacked ? (total ? (p.value / total) * 100 : 0) : (p.value / peak) * 100;
                             return (
                               <li key={p.key} className="py-3">
                                 <div className="flex items-center justify-between gap-3 text-[14px]">
@@ -154,7 +163,7 @@ export function ChartDetail({
                                   </span>
                                   <span className="tabular-nums">
                                     <span className="font-semibold text-ink">{format(p.value)}</span>
-                                    {row.parts.length > 1 && <span className="ml-2 text-muted">{Math.round(share)}%</span>}
+                                    {stacked && row.parts.length > 1 && <span className="ml-2 text-muted">{Math.round(share)}%</span>}
                                   </span>
                                 </div>
                                 {row.parts.length > 1 && (
@@ -171,7 +180,20 @@ export function ChartDetail({
                               </li>
                             );
                           })}
-                          <Fact label="Share of the whole chart" value={`${Math.round((total / Math.max(1, totals.reduce((n, v) => n + v, 0))) * 100)}%`} />
+                          {!stacked && row.parts.length === 2 && (
+                            <Fact
+                              label={`${row.parts[1].label} against ${row.parts[0].label.toLowerCase()}`}
+                              value={row.parts[0].value ? `${Math.round((row.parts[1].value / row.parts[0].value) * 100)}%` : "—"}
+                            />
+                          )}
+                          {threshold && (
+                            <Fact
+                              label={`${threshold.label} (${format(threshold.value)})`}
+                              value={total >= threshold.value ? "Met" : `${format(threshold.value - total)} short`}
+                              warn={total < threshold.value}
+                            />
+                          )}
+                          {stacked && <Fact label="Share of the whole chart" value={`${Math.round((total / Math.max(1, totals.reduce((n, v) => n + v, 0))) * 100)}%`} />}
                         </ul>
                       ) : (
                         <div>
@@ -218,11 +240,11 @@ export function ChartDetail({
   );
 }
 
-function Fact({ label, value }: { label: string; value: string }) {
+function Fact({ label, value, warn }: { label: string; value: string; warn?: boolean }) {
   return (
     <li className="flex items-center justify-between gap-3 py-3 text-[14px]">
       <span className="text-muted">{label}</span>
-      <span className="font-semibold tabular-nums text-ink">{value}</span>
+      <span className={cn("font-semibold tabular-nums", warn ? "text-danger" : "text-ink")}>{value}</span>
     </li>
   );
 }

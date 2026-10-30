@@ -57,7 +57,7 @@ export function validateLeave(args: {
   if (args.days <= 0) return { ok: false, reason: "No working days in that range (weekly off or holiday)." };
   if (args.halfDay && !args.type.halfDay) return { ok: false, reason: `${args.type.name} cannot be taken as a half day.` };
   if (args.type.maxPerSpell && args.days > args.type.maxPerSpell) {
-    return { ok: false, reason: `${args.type.code} is limited to ${args.type.maxPerSpell} day(s) at a time.` };
+    return { ok: false, reason: `${args.type.name} is limited to ${args.type.maxPerSpell} ${args.type.maxPerSpell === 1 ? "day" : "days"} at a time. Shorten the dates.` };
   }
   // Days already waiting for approval are held against the balance.
   const bal = (args.balance?.balance ?? 0) - (args.pendingDays ?? 0);

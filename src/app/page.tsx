@@ -148,12 +148,14 @@ export default function LoginPage() {
                       autoComplete="one-time-code"
                       value={mfa}
                       onChange={(e) => setMfa(e.target.value)}
-                      placeholder="Authentication code"
-                      className={`${field} tracking-[0.3em]`}
+                      placeholder="6-digit code"
+                      maxLength={6}
+                      className={`${field} placeholder:tracking-normal tracking-[0.3em]`}
                       autoFocus
                     />
                   </span>
                 </label>
+                <p className="mt-3 text-sm text-white/80">Open your authenticator app and enter the 6-digit code shown for NRL People.</p>
                 <button
                   type="button"
                   className="mt-4 text-sm font-semibold text-white/80 hover:text-white"
@@ -231,11 +233,13 @@ export default function LoginPage() {
                   autoComplete="one-time-code"
                   value={mfa}
                   onChange={(e) => setMfa(e.target.value)}
-                  placeholder="Authentication code"
-                  className={`${fieldDesk} tracking-[0.35em]`}
+                  placeholder="6-digit code"
+                  maxLength={6}
+                  className={`${fieldDesk} placeholder:tracking-normal tracking-[0.35em]`}
                   autoFocus
                 />
               </label>
+              <p className="mt-3 text-[13px] text-white/80">Open your authenticator app and enter the 6-digit code shown for NRL People.</p>
               <button
                 type="button"
                 className="mt-4 text-sm font-semibold text-white/80 hover:text-white"

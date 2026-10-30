@@ -39,7 +39,7 @@ export default function LeavePage() {
   const role = useHrms((s) => s.actingRole);
   const [typeId, setTypeId] = useState("cl");
   const [from, setFrom] = useState("2026-11-23");
-  const [to, setTo] = useState("2026-11-27");
+  const [to, setTo] = useState("2026-11-24");
   const [reason, setReason] = useState("");
   const [half, setHalf] = useState<"" | "am" | "pm">("");
   const [newType, setNewType] = useState("Special casual");
@@ -98,7 +98,7 @@ export default function LeavePage() {
               const r = apply({ typeId, from, to, reason, halfDay: half || undefined });
               if (!r.ok) toast.error(r.reason);
               else {
-                toast.success(`Submitted ${r.days} day(s)`);
+                toast.success(`Sent to your manager: ${r.days} ${r.days === 1 ? "day" : "days"}`);
                 setReason("");
               }
             }}
@@ -170,7 +170,7 @@ export default function LeavePage() {
             </Field>
             <div className="flex flex-wrap items-center gap-3 self-end">
               <Button type="submit">Submit {days} day{days === 1 ? "" : "s"}</Button>
-              <p className="text-xs text-muted">Balance {bal}</p>
+              <p className="text-xs text-muted">Balance {bal}{type?.maxPerSpell ? `, up to ${type.maxPerSpell} days at a time` : ""}</p>
             </div>
           </form>
           <div className="mt-8">
