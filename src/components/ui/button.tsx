@@ -8,7 +8,7 @@ import { motion, useReducedMotion, type HTMLMotionProps } from "motion/react";
 type Variant = "primary" | "secondary" | "ghost" | "danger" | "white";
 
 // NRL colours over shadcn's button base (focus ring, disabled state, icon sizing).
-// Flat fills and an 8px radius, in line with the cards: no gradients, no glow.
+// Apple-style capsules with flat fills: no gradients, no glow. Pressing shrinks to 0.97 at once.
 const styles: Record<Variant, string> = {
   primary: "bg-brand text-white hover:bg-brand-deep",
   secondary: "border border-line bg-white text-ink hover:bg-subtle",
@@ -34,11 +34,11 @@ export function Button({
   const reduce = useReducedMotion();
   return (
     <motion.button
-      whileTap={reduce || props.disabled ? undefined : { scale: 0.98 }}
+      whileTap={reduce || props.disabled ? undefined : { scale: 0.97 }}
       transition={press}
       className={cn(
         buttonVariants({ variant: shadcnVariant[variant], size: "lg" }),
-        "h-9 w-fit rounded-lg px-4 text-sm font-medium transition-colors duration-150",
+        "h-9 w-fit rounded-full px-[18px] text-sm font-medium tracking-[-0.01em] transition-colors duration-150 ease-out",
         styles[variant],
         className,
       )}

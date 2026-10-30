@@ -5,7 +5,7 @@ import { Wordmark } from "@/components/brand/wordmark";
 import { LanguageSwitch } from "@/components/i18n/language-switch";
 import { cn } from "@/lib/cn";
 import { landingFor } from "@/lib/access";
-import { easeOut, spring } from "@/lib/motion";
+import { easeOut, spring, springDrawer } from "@/lib/motion";
 import { isActive, visibleNav } from "@/lib/nav";
 import { useHrms } from "@/lib/store";
 import { List, X } from "@phosphor-icons/react";
@@ -90,7 +90,7 @@ export function MobileNav() {
                   transition={
                     reduce
                       ? { duration: 0.15 }
-                      : { type: "spring", stiffness: 420, damping: 40 }
+                      : springDrawer
                   }
                   drag={reduce ? false : "x"}
                   dragConstraints={{ left: 0, right: 0 }}

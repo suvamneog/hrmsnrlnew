@@ -102,7 +102,24 @@ textarea {
   background: #d9e0ff;
 }
 
+/* Press feedback on every plain button, shown on pointer-down (Apple: respond on press, not release).
+   Motion buttons set their own inline transform, which wins over this. */
+@layer base {
+  button:not(:disabled) {
+    transition-property: color, background-color, border-color, opacity, transform;
+    transition-duration: 160ms;
+    transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  button:not(:disabled):active {
+    transform: scale(0.97);
+    transition-duration: 100ms;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  button:not(:disabled):active {
+    transform: none;
+  }
   *,
   *::before,
   *::after {
