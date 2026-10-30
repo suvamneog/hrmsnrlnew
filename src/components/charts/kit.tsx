@@ -5,6 +5,7 @@ import {
   ChartTooltip,
   type ChartConfig,
 } from "@/components/shadcn/chart";
+import { ChartDetail, ChartTitle, type DetailRow } from "@/components/charts/detail";
 import { InView } from "@/components/motion/in-view";
 import { cn } from "@/lib/cn";
 import { easeOut } from "@/lib/motion";
@@ -47,7 +48,7 @@ const config = (series: Series[]): ChartConfig =>
 
 // Recharts reads these classes; the cursor and grid stay quiet so the data leads.
 const surface =
-  "aspect-auto w-full [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-[#f2f2f0] [&_.recharts-curve.recharts-tooltip-cursor]:stroke-[#d2d2d7] [&_.recharts-cartesian-axis-tick_text]:fill-[#8e8e93]";
+  "aspect-auto w-full cursor-pointer [&_*:focus]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-surface]:outline-none [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-[#f2f2f0] [&_.recharts-curve.recharts-tooltip-cursor]:stroke-[#d2d2d7] [&_.recharts-cartesian-axis-tick_text]:fill-[#8e8e93]";
 
 const DURATION = 900;
 
@@ -72,6 +73,7 @@ export function ChartCard({
   children: ReactNode;
 }) {
   return (
+    <ChartTitle.Provider value={title}>
     <InView className={cn("min-w-0", className)}>
       <div className="h-full rounded-xl border border-line bg-white p-5 sm:p-6">
         <div className="flex items-start justify-between gap-3">
@@ -112,6 +114,7 @@ export function ChartCard({
         <div className="mt-4">{children}</div>
       </div>
     </InView>
+    </ChartTitle.Provider>
   );
 }
 
@@ -187,6 +190,17 @@ function Tip({
 }
 
 type Row = Record<string, string | number>;
+
+/* Turns chart rows into the detail sheet's parts, and reads the clicked index from Recharts. */
+const detailRows = (data: Row[], x: string, series: Series[]): DetailRow[] =>
+  data.map((r) => ({
+    label: String(r[x]),
+    parts: series.map((s) => ({ ...s, value: Number(r[s.key]) || 0 })),
+  }));
+const clicked = (state: unknown) => {
+  const i = (state as { activeTooltipIndex?: number | string | null } | null)?.activeTooltipIndex;
+  return i === null || i === undefined || i === "" ? null : Number(i);
+};
 const n0 = (n: number) => n.toLocaleString("en-IN");
 
 /* Axis units, written as plain captions: the value axis above the plot, the category axis below. */
@@ -239,8 +253,10 @@ export function Bars({
   xUnit?: string;
 }) {
   const { ref, seen } = useSeen();
+  const [pick, setPick] = useState<number | null>(null);
   return (
     <div>
+      <ChartDetail rows={detailRows(data, x, series)} index={pick} onIndex={setPick} format={format} />
       <AxisNote>{unit}</AxisNote>
       <div ref={ref} style={{ height }}>
         {seen && (
@@ -250,6 +266,7 @@ export function Bars({
             style={{ height }}
           >
             <BarChart
+              onClick={(st) => setPick(clicked(st))}
               data={data}
               margin={{ top: 8, right: 4, left: -8, bottom: 0 }}
               barCategoryGap={stacked ? "22%" : "18%"}
@@ -358,8 +375,10 @@ export function HBars({
 }) {
   const { ref, seen } = useSeen();
   const h = height ?? Math.max(120, data.length * 40 + 24);
+  const [pick, setPick] = useState<number | null>(null);
   return (
     <div>
+      <ChartDetail rows={detailRows(data, y, series)} index={pick} onIndex={setPick} format={format} />
       <div ref={ref} style={{ height: h }}>
         {seen && (
           <ChartContainer
@@ -368,6 +387,7 @@ export function HBars({
             style={{ height: h }}
           >
             <BarChart
+              onClick={(st) => setPick(clicked(st))}
               data={data}
               layout="vertical"
               margin={{ top: 0, right: 12, left: 0, bottom: 0 }}
@@ -448,8 +468,10 @@ export function Areas({
   xUnit?: string;
 }) {
   const { ref, seen } = useSeen();
+  const [pick, setPick] = useState<number | null>(null);
   return (
     <div>
+      <ChartDetail rows={detailRows(data, x, series)} index={pick} onIndex={setPick} format={format} />
       <AxisNote>{unit}</AxisNote>
       <div ref={ref} style={{ height }}>
         {seen && (
@@ -459,6 +481,7 @@ export function Areas({
             style={{ height }}
           >
             <AreaChart
+              onClick={(st) => setPick(clicked(st))}
               data={data}
               margin={{ top: 8, right: 4, left: -18, bottom: 0 }}
             >
@@ -552,8 +575,10 @@ export function Donut({
   const [hover, setHover] = useState<number | null>(null);
   const total = data.reduce((n, d) => n + d.value, 0);
   const shown = hover === null ? null : data[hover];
+  const [pick, setPick] = useState<number | null>(null);
   return (
     <div>
+      <ChartDetail rows={data.map((d) => ({ label: d.label, parts: [{ ...d }] }))} index={pick} onIndex={setPick} format={format} />
       <div ref={ref} className="relative" style={{ height }}>
         {seen && (
           <ChartContainer
@@ -573,6 +598,7 @@ export function Donut({
                 stroke="none"
                 onMouseEnter={(_, i) => setHover(i)}
                 onMouseLeave={() => setHover(null)}
+                onClick={(_, i) => setPick(i)}
                 animationDuration={DURATION + 200}
                 animationEasing="ease-out"
               >

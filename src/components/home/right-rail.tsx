@@ -123,18 +123,8 @@ export function HomeRightRail() {
           }))
       : [];
 
+  // Only things this person has to act on: approvals, then their own open requests and enrolled training.
   const todos = [
-    ...holidays
-      .filter((h) => h.date >= selected)
-      .slice(0, 2)
-      .map((h) => ({
-        id: h.date,
-        title: h.name,
-        when: "Plant holiday",
-        meta: format(parseISO(h.date), "d MMM"),
-        names: [] as string[],
-        href: "/leave",
-      })),
     ...leaveInbox.slice(0, 2).map((l) => {
       const who = employees.find((e) => e.id === l.employeeId);
       return {
@@ -146,6 +136,28 @@ export function HomeRightRail() {
         href: "/approvals",
       };
     }),
+    ...leaves
+      .filter((l) => l.employeeId === me.id && l.status === "pending")
+      .slice(0, 2)
+      .map((l) => ({
+        id: l.id,
+        title: `Your ${types.find((t) => t.id === l.typeId)?.name.toLowerCase() ?? "leave"}`,
+        when: rangeLabel(l.from, l.to),
+        meta: "Awaiting approval",
+        names: [] as string[],
+        href: "/leave",
+      })),
+    ...sessions
+      .filter((s) => s.date >= selected && s.enrolled.includes(me.id))
+      .slice(0, 1)
+      .map((s) => ({
+        id: s.id,
+        title: `Attend ${courses.find((c) => c.id === s.courseId)?.name ?? "training"}`,
+        when: sessionTime(s.courseId),
+        meta: format(parseISO(s.date), "d MMM"),
+        names: [] as string[],
+        href: "/safety",
+      })),
   ].slice(0, 3);
 
   const events =
@@ -264,7 +276,7 @@ export function HomeRightRail() {
         </div>
         <div className="mt-3 space-y-2">
           {events.length === 0 ? (
-            <p className="py-4 text-center text-sm text-muted">Nothing on this day.</p>
+            <p className="py-4 text-center text-sm text-muted">{tab === "todo" ? "Nothing to do. You are all caught up." : "Nothing on this day."}</p>
           ) : (
             events.map((ev) => (
               <Link key={ev.id} href={ev.href} className="block rounded-xl bg-subtle px-3 py-2.5 transition hover:bg-brand-soft">

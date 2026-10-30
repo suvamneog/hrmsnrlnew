@@ -2,7 +2,11 @@
 
 import { LeaveCharts } from "@/components/charts/page-charts";
 
-import { ATT_DOT, StatusMonth } from "@/components/calendar/status-month";
+import { ATT_DOT } from "@/components/calendar/status-month";
+
+const DOT = "relative after:absolute after:bottom-0.5 after:left-1/2 after:h-1 after:w-1 after:-translate-x-1/2 after:rounded-full";
+const dayList = (marks: Map<string, { dot: string }>, dot: string) =>
+  [...marks].filter(([, m]) => m.dot === dot).map(([d]) => parseISO(d));
 import { PageHeader } from "@/components/layout/page-header";
 import { AnimatedGroup } from "@/components/motion/animated-group";
 import { InView } from "@/components/motion/in-view";
@@ -142,8 +146,24 @@ export default function LeavePage() {
                   setFrom(format(next.from, "yyyy-MM-dd"));
                   setTo(format((next.to ?? next.from), "yyyy-MM-dd"));
                 }}
+                // One calendar: pick the range on it and see holidays, offs and your leave as dots.
+                modifiers={{
+                  holiday: dayList(marks, ATT_DOT.holiday),
+                  off: dayList(marks, ATT_DOT.weekly_off),
+                  booked: dayList(marks, ATT_DOT.leave),
+                }}
+                modifiersClassNames={{
+                  holiday: `${DOT} after:bg-warn`,
+                  off: `${DOT} after:bg-faint`,
+                  booked: `${DOT} after:bg-brand`,
+                }}
                 className="mx-auto"
               />
+            <ul className="mt-2 justify-center flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted">
+              <li className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${ATT_DOT.leave}`} />Your leave</li>
+              <li className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${ATT_DOT.holiday}`} />Holiday</li>
+              <li className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${ATT_DOT.weekly_off}`} />Weekly off</li>
+            </ul>
             </div>
             <Field label="Reason">
               <Textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={2} required />
@@ -186,21 +206,6 @@ export default function LeavePage() {
                 <p className="text-2xl font-semibold">{b.balance}</p>
               </Card>
             ))}
-          <div>
-          <Card className="p-4">
-            <p className="mb-2 text-sm font-semibold">Plant calendar</p>
-            <StatusMonth selected={from} onSelect={(iso) => {
-              setFrom(iso);
-              if (iso > to) setTo(iso);
-            }} marks={marks} month={parseISO(from)} />
-            <ul className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted">
-              <li className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${ATT_DOT.leave}`} />Approved</li>
-              <li className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${ATT_DOT.od}`} />Pending</li>
-              <li className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${ATT_DOT.holiday}`} />Holiday</li>
-              <li className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${ATT_DOT.weekly_off}`} />Weekly off</li>
-            </ul>
-          </Card>
-          </div>
           <p className="text-xs text-muted">Approver: {employees.find((e) => e.id === me.managerId)?.name ?? "HR"}</p>
           {role === "hr_admin" && (
             <InView>
