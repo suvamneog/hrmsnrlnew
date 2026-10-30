@@ -55,6 +55,7 @@ export default function TownshipPage() {
   if (!me) return null;
 
   const hr = role === "hr_admin";
+  const estate = hr || role === "auditor";
   const occupied = quarters.filter((q) => q.status === "occupied").length;
   const myQuarter = quarters.find((q) => q.employeeId === me.id);
   const myType = eligibleType(me.grade, me.cadre);
@@ -72,8 +73,11 @@ export default function TownshipPage() {
     <div className="space-y-5">
       <PageHeader title="Township housing" subtitle="Numaligarh township, quarters, waiting list and upkeep" />
 
-      <TownshipCharts />
+      {/* Occupancy, licence fees and the full quarters list are the estate office's view; residents see their own housing. */}
+      {estate && <TownshipCharts />}
 
+      {estate && (
+      <>
       <InView>
         <HeroCard title={`${occupied} of ${quarters.length} quarters occupied`}>
           <div className="grid gap-8 md:grid-cols-[auto_1fr]">
@@ -126,6 +130,8 @@ export default function TownshipPage() {
           </div>
         </HeroCard>
       </InView>
+      </>
+      )}
 
       <div className="grid gap-5 *:min-w-0 lg:grid-cols-2">
         <InView delay={0.05}>
@@ -225,6 +231,8 @@ export default function TownshipPage() {
         </InView>
       </div>
 
+      {estate && (
+      <>
       <InView delay={0.05}>
         <Card className="p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -265,6 +273,8 @@ export default function TownshipPage() {
           </div>
         </Card>
       </InView>
+      </>
+      )}
 
       <InView delay={0.05}>
         <Card className="p-6">
