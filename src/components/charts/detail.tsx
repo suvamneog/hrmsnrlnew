@@ -23,7 +23,9 @@ export function ChartDetail({
   index,
   onIndex,
   format,
+  unit,
 }: {
+  unit?: string;
   rows: DetailRow[];
   index: number | null;
   onIndex: (i: number | null) => void;
@@ -88,6 +90,7 @@ export function ChartDetail({
                       >
                         <D.Title className="mt-1 text-[22px] font-semibold tracking-[-0.02em] text-ink">{row.label}</D.Title>
                         <p className="mt-1 text-[34px] font-semibold leading-none tracking-[-0.03em] tabular-nums text-ink">{format(total)}</p>
+                        {unit && <p className="mt-1.5 text-[12px] text-muted">{unit}</p>}
                       </motion.div>
                     </AnimatePresence>
                   </div>

@@ -324,6 +324,8 @@ const MENU: Record<Role, MenuItem[]> = {
     item("/home", "Home", "house"),
     item("/approvals", "Inbox", "check"),
     item("/people", "People", "users"),
+    item("/time", "Attendance", "clock", "time"),
+    item("/payroll", "Payroll", "wallet", "pay"),
     item("/cases", "Cases", "lifebuoy"),
     item("/recruitment", "Hiring", "briefcase", "hiring"),
     item("/contractors", "Contract and safety", "hardhat", "plant"),

@@ -1,6 +1,7 @@
 "use client";
 
 import { format, parseISO } from "date-fns";
+import { PayrollCharts, RecruitmentCharts, SafetyCharts } from "@/components/charts/page-charts";
 import {
   DashboardCharts,
   type HomeChart,
@@ -127,10 +128,7 @@ export default function HomePage() {
 
   // One structure for every role: what to do today, four numbers, and the one chart that matters.
   const chart: HomeChart | null =
-    role === "hr_admin" ||
-    role === "auditor" ||
-    role === "payroll_officer" ||
-    role === "finance_approver"
+    role === "hr_admin" || role === "auditor" || role === "payroll_officer"
       ? "attendance"
       : role === "line_manager"
         ? "crews"
@@ -162,6 +160,10 @@ export default function HomePage() {
         <KpiStrip items={kpis.slice(0, 4)} />
 
         {chart && <DashboardCharts only={chart} />}
+        {/* Roles whose day is not about attendance get the chart from their own desk. */}
+        {role === "finance_approver" && <PayrollCharts />}
+        {role === "recruiter" && <RecruitmentCharts />}
+        {role === "safety_officer" && <SafetyCharts />}
       </div>
       {/* Calendar, leave requests and quick links, beside the day's work. */}
       <HomeRightRail />

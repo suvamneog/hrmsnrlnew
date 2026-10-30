@@ -291,6 +291,8 @@ export function HomeRightRail() {
         </div>
       </Card>
 
+      {/* Contractor supervisors are not NRL staff and have no leave here. */}
+      {role !== "contractor_supervisor" && (
       <Card className="p-4">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-semibold">Leave requests</h2>
@@ -319,6 +321,7 @@ export function HomeRightRail() {
           </ul>
         )}
       </Card>
+      )}
 
       {links.length > 0 && (
         <Card className="p-4">
