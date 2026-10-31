@@ -17,6 +17,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { Field, Input, Select, Textarea } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { DEMO_TODAY } from "@/lib/demo";
+import { withUndo } from "@/lib/undo";
 import { formatDay } from "@/lib/format";
 import { countLeaveDays, eachDate } from "@/lib/leave";
 import { requestTone } from "@/lib/status";
@@ -160,7 +161,7 @@ export default function LeavePage() {
                 }}
                 className="mx-auto"
               />
-            <ul className="mt-2 justify-center flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted">
+            <ul className="mt-2 justify-center flex flex-wrap gap-x-3 gap-y-1 text-[12px] text-muted">
               <li className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${ATT_DOT.leave}`} />Your leave</li>
               <li className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${ATT_DOT.holiday}`} />Holiday</li>
               <li className="inline-flex items-center gap-1.5"><span className={`h-1.5 w-1.5 rounded-full ${ATT_DOT.weekly_off}`} />Weekly off</li>
@@ -187,7 +188,7 @@ export default function LeavePage() {
                   <span className="flex items-center gap-2">
                     <Badge tone={requestTone(r.status)}>{r.status}</Badge>
                     {r.status === "pending" && (
-                      <button className="text-xs font-semibold text-brand" onClick={() => withdraw(r.id)}>
+                      <button className="text-xs font-semibold text-brand" onClick={() => withUndo("Leave withdrawn", () => withdraw(r.id))}>
                         Withdraw
                       </button>
                     )}

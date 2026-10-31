@@ -220,10 +220,10 @@ const KIND: { match: RegExp; icon: Icon; verb: string }[] = [
 const kind = (id: string) => KIND.find((k) => k.match.test(id)) ?? { icon: CaretRight, verb: "Open" };
 
 const TILE: Record<Tone, string> = {
-  danger: "bg-danger-soft text-danger",
-  warn: "bg-warn-soft text-[#8a5600]",
-  brand: "bg-brand-soft text-brand",
-  muted: "bg-fill text-muted",
+  danger: "text-danger",
+  warn: "text-[#8a5600]",
+  brand: "text-brand",
+  muted: "text-muted",
 };
 const VERB: Record<Tone, string> = {
   danger: "bg-danger text-white",
@@ -257,7 +257,7 @@ export function TodayList({ items, title = "Today", empty = "Nothing due today."
       </div>
       {items.length === 0 ? (
         <div className="mt-4 flex items-center gap-3 rounded-xl bg-subtle px-4 py-4">
-          <span className="grid h-9 w-9 place-items-center rounded-[10px] bg-ok-soft text-ok">
+          <span className="grid h-9 w-9 place-items-center rounded-lg bg-ok-soft text-ok">
             <CheckCircle size={20} weight="fill" />
           </span>
           <p className="text-sm text-muted">{empty}</p>
@@ -266,7 +266,7 @@ export function TodayList({ items, title = "Today", empty = "Nothing due today."
         <div className="mt-4 space-y-5">
           {groups.map((g) => (
             <div key={g.id}>
-              <p className={cn("mb-1.5 px-0.5 text-[11px] font-semibold uppercase tracking-[0.06em]", g.id === "urgent" ? "text-danger" : "text-muted")}>{g.title}</p>
+              <p className={cn("mb-1.5 px-0.5 text-[12px] font-semibold uppercase tracking-[0.06em]", g.id === "urgent" ? "text-danger" : "text-muted")}>{g.title}</p>
               <ul className="-mx-2">
                 {g.items.map((it) => {
                   const k = kind(it.id);
@@ -281,17 +281,17 @@ export function TodayList({ items, title = "Today", empty = "Nothing due today."
                     >
                       <Link
                         href={it.href}
-                        className="group flex items-center gap-3 rounded-[14px] px-2 py-2.5 transition-[background-color,transform] duration-150 ease-out hover:bg-subtle active:scale-[0.99]"
+                        className="group flex items-center gap-3 rounded-xl px-2 py-2.5 transition-[background-color,transform] duration-150 ease-out hover:bg-subtle active:scale-[0.99]"
                       >
-                        <span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-[12px]", TILE[it.tone])} aria-hidden>
-                          <I size={20} weight="duotone" />
+                        <span className={cn("grid w-7 shrink-0 place-items-center", TILE[it.tone])} aria-hidden>
+                          <I size={22} weight="duotone" />
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-[14px] font-medium text-ink">{it.label}</span>
                           {it.detail && <span className="block truncate text-[12px] text-muted">{it.detail}</span>}
                         </span>
                         <span className={cn("hidden shrink-0 rounded-full px-3 py-1 text-[12px] font-semibold sm:inline-block", VERB[it.tone])}>{k.verb}</span>
-                        <CaretRight size={14} className="shrink-0 text-faint transition-transform duration-150 ease-out group-hover:translate-x-0.5 group-hover:text-ink" />
+                        <CaretRight size={14} className="shrink-0 text-muted transition-transform duration-150 ease-out group-hover:translate-x-0.5 group-hover:text-ink" />
                       </Link>
                     </motion.li>
                   );

@@ -110,11 +110,11 @@ export function DayBoard({ people, meId }: { people: Employee[]; meId: string })
               initial={reduce ? false : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, ease: easeOut, delay: i * 0.05 }}
-              className={cn("rounded-[22px] p-3.5 sm:p-5", s.card)}
+              className={cn("rounded-xl p-3.5 sm:p-5", s.card)}
             >
               <div className="flex flex-col items-start gap-2 sm:flex-row sm:gap-3">
-                <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-full sm:h-10 sm:w-10", s.chip)}>
-                  <s.Icon size={20} weight="duotone" />
+                <span className={cn("shrink-0", s.chip.split(" ").filter((c) => c.startsWith("text-")).join(" "))}>
+                  <s.Icon size={24} weight="duotone" />
                 </span>
                 <div className="min-w-0">
                   <AnimatePresence mode="popLayout" initial={false}>
@@ -130,7 +130,7 @@ export function DayBoard({ people, meId }: { people: Employee[]; meId: string })
                     </motion.p>
                   </AnimatePresence>
                   <p className="mt-1.5 text-[13px] font-medium leading-tight text-ink/80 sm:text-[15px]">{s.label}</p>
-                  <p className={cn("mt-1 inline-flex items-start gap-1 text-[11px] font-medium leading-tight sm:text-[12px]", better === null ? "text-muted" : better ? "text-ok" : "text-danger")}>
+                  <p className={cn("mt-1 inline-flex items-start gap-1 text-[12px] font-medium leading-tight sm:text-[12px]", better === null ? "text-muted" : better ? "text-ok" : "text-danger")}>
                     {d > 0 ? <ArrowUpRight size={13} weight="bold" /> : d < 0 ? <ArrowDownRight size={13} weight="bold" /> : null}
                     {d === 0 ? "Same as the day before" : `${d > 0 ? "+" : "−"}${Math.abs(d)} on the day before`}
                   </p>
@@ -143,7 +143,7 @@ export function DayBoard({ people, meId }: { people: Employee[]; meId: string })
 
       {/* A week of days; the chosen one is a dark capsule that springs between them. */}
       <div className="mt-4 flex items-stretch gap-2">
-        <button type="button" aria-label="Earlier days" onClick={() => setStart(format(addDays(parseISO(start), -7), "yyyy-MM-dd"))} className="grid w-10 shrink-0 place-items-center rounded-[18px] bg-white text-muted ring-1 ring-line hover:text-ink">
+        <button type="button" aria-label="Earlier days" onClick={() => setStart(format(addDays(parseISO(start), -7), "yyyy-MM-dd"))} className="grid w-10 shrink-0 place-items-center rounded-xl bg-white text-muted ring-1 ring-line hover:text-ink">
           <CaretLeft size={16} weight="bold" />
         </button>
         <div className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto sm:gap-2" style={{ scrollbarWidth: "none" }}>
@@ -155,18 +155,18 @@ export function DayBoard({ people, meId }: { people: Employee[]; meId: string })
                 type="button"
                 onClick={() => setDay(d)}
                 aria-pressed={on}
-                className="relative w-[68px] shrink-0 rounded-[18px] bg-white py-2.5 text-center ring-1 ring-line sm:w-auto sm:min-w-0 sm:flex-1"
+                className="relative w-[68px] shrink-0 rounded-xl bg-white py-2.5 text-center ring-1 ring-line sm:w-auto sm:min-w-0 sm:flex-1"
               >
-                {on && <motion.span layoutId="roster-day" transition={reduce ? { duration: 0 } : spring} className="absolute inset-0 rounded-[18px] bg-[#141a3a]" />}
+                {on && <motion.span layoutId="roster-day" transition={reduce ? { duration: 0 } : spring} className="absolute inset-0 rounded-xl bg-[#141a3a]" />}
                 <span className={cn("relative block text-[22px] font-semibold leading-tight tabular-nums sm:text-[24px]", on ? "text-white" : "text-ink")}>{format(parseISO(d), "d")}</span>
-                <span className={cn("relative block truncate px-1 text-[11px] sm:text-[12px]", on ? "text-white/80" : "text-muted")}>
+                <span className={cn("relative block truncate px-1 text-[12px] sm:text-[12px]", on ? "text-white/80" : "text-muted")}>
                   {d === DEMO_TODAY ? "Today" : format(parseISO(d), "EEEE")}
                 </span>
               </button>
             );
           })}
         </div>
-        <button type="button" aria-label="Later days" onClick={() => setStart(format(addDays(parseISO(start), 7), "yyyy-MM-dd"))} className="grid w-10 shrink-0 place-items-center rounded-[18px] bg-white text-muted ring-1 ring-line hover:text-ink">
+        <button type="button" aria-label="Later days" onClick={() => setStart(format(addDays(parseISO(start), 7), "yyyy-MM-dd"))} className="grid w-10 shrink-0 place-items-center rounded-xl bg-white text-muted ring-1 ring-line hover:text-ink">
           <CaretRight size={16} weight="bold" />
         </button>
       </div>
@@ -199,8 +199,8 @@ export function DayBoard({ people, meId }: { people: Employee[]; meId: string })
       </div>
 
       {/* One row per person. Desktop reads as a table; on a phone each row stacks into a card. */}
-      <div className="mt-4 overflow-hidden rounded-[22px] bg-white ring-1 ring-line">
-        <div className="hidden grid-cols-[1.6fr_1.2fr_1.6fr_auto] gap-4 border-b border-line px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.06em] text-muted md:grid">
+      <div className="mt-4 overflow-hidden rounded-xl bg-white ring-1 ring-line">
+        <div className="hidden grid-cols-[1.6fr_1.2fr_1.6fr_auto] gap-4 border-b border-line px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.06em] text-muted md:grid">
           <span>Employee</span>
           <span>Shift</span>
           <span>Check in and out</span>
@@ -240,7 +240,7 @@ export function DayBoard({ people, meId }: { people: Employee[]; meId: string })
                   </span>
 
                   <div className="col-span-2 flex min-w-0 items-center gap-2.5 md:col-span-1">
-                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[10px]" style={{ background: st?.bg, color: st?.ink }}>
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg" style={{ background: st?.bg, color: st?.ink }}>
                       <ShiftIcon code={r.code} size={15} />
                     </span>
                     <span className="min-w-0">

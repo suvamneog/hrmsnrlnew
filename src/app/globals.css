@@ -3,6 +3,11 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  /* Shift colours step from light to dark through the day: dawn, afternoon, night. */
+  --shift-morning: #ffe9a8;
+  --shift-morning-ink: #8a5a00;
+  --shift-afternoon: #ef7d32;
+  --shift-night: #26306b;
   --bg: #f7f7f5;
   --surface: #ffffff;
   --ink: #1d1d1f;
@@ -17,8 +22,6 @@
   --peach-ink: #e07a3d;
   --pink: #fdeef4;
   --pink-ink: #d4537e;
-  --lilac: #eeeaff;
-  --lilac-ink: #5b5bd6;
   --sky: #e8f4ff;
   --sky-ink: #2f7ec8;
   /* The whole palette: page, two fills, line, ink, grey, faint, brand, and three status pairs. */
@@ -127,4 +130,68 @@ textarea {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Keyboard focus is always visible, even where a component set outline-none for the mouse. */
+:where(a, button, input, select, textarea, summary, [role="button"], [role="tab"], [role="radio"], [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 2px solid var(--brand) !important;
+  outline-offset: 2px;
+}
+
+/* Taps act at once (no double-tap zoom wait). */
+a,
+button,
+[role="button"],
+label {
+  touch-action: manipulation;
+}
+
+/* Small icon buttons get a 44px touch area on touch screens without changing how they look. */
+@media (pointer: coarse) {
+  .hit {
+    position: relative;
+  }
+  .hit::after {
+    content: "";
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* Headings break into even lines; paragraphs avoid a lone last word. */
+@layer base {
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+}
+
+/* Apple-style continuous corners where the browser can draw them; others keep the plain radius. */
+@supports (corner-shape: squircle) {
+  .rounded-lg,
+  .rounded-xl,
+  .rounded-2xl {
+    corner-shape: squircle;
+  }
+}
+
+/* The app is designed light; say so, so form controls and scrollbars match. */
+:root {
+  color-scheme: light;
+}
+
+/* Page changes cross-fade where the browser supports view transitions. */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 180ms;
 }

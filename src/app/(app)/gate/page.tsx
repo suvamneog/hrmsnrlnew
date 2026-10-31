@@ -97,7 +97,7 @@ export default function GatePage() {
                 ? "0 0 0 6px rgba(225,75,75,0.35)"
                 : "0 10px 30px rgba(45,64,180,0.07)",
         }}
-        className="rounded-[28px] bg-white p-6"
+        className="rounded-xl bg-white p-6"
       >
         <Input
           placeholder="Search worker or scan pass"
@@ -123,7 +123,7 @@ export default function GatePage() {
                   <Avatar name={w.name} size={32} />
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-semibold">{w.name}</span>
-                    <span className="text-[11px] text-muted">{p.id.toUpperCase()}</span>
+                    <span className="text-[12px] text-muted">{p.id.toUpperCase()}</span>
                   </span>
                 </button>
               );
@@ -139,7 +139,7 @@ export default function GatePage() {
                   {worker.skill}, {contractor?.name}
                 </p>
                 <p className="font-mono text-xs text-muted">{maskAadhaar(worker.aadhaar)}</p>
-                <p className="mt-1 font-mono text-[11px] font-semibold text-brand">
+                <p className="mt-1 font-mono text-[12px] font-semibold text-brand">
                   <span>{pass.id.toUpperCase()}</span>
                 </p>
               </div>

@@ -73,7 +73,7 @@ export default function LoginPage() {
   return (
     <>
       <div className="min-h-[100dvh] bg-[#3d5afe] md:grid md:place-items-center md:py-6 lg:hidden">
-        <div className="mx-auto flex min-h-[100dvh] w-full max-w-[520px] flex-col md:min-h-0 md:overflow-hidden md:rounded-[28px] md:shadow-[0_24px_60px_rgba(20,30,90,0.25)]">
+        <div className="mx-auto flex min-h-[100dvh] w-full max-w-[520px] flex-col md:min-h-0 md:overflow-hidden md:rounded-xl md:shadow-[0_24px_24px_rgba(20,30,90,0.25)]">
           <div className="relative rounded-b-[24px] bg-white px-4 pt-5 pb-2 md:rounded-b-[24px] md:px-6 md:pt-6">
             <div className="flex justify-end">
               <span className="flex items-center gap-2 text-[#3d5afe]">

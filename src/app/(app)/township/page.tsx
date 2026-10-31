@@ -84,7 +84,7 @@ export default function TownshipPage() {
             <Ring value={occupied} max={quarters.length}>
               <div>
                 <p className="text-[28px] font-semibold tabular-nums tracking-tight">{Math.round((occupied / quarters.length) * 100)}%</p>
-                <p className="text-[11px] text-muted">occupancy</p>
+                <p className="text-[12px] text-muted">occupancy</p>
               </div>
             </Ring>
             <div className="space-y-4">
@@ -118,7 +118,7 @@ export default function TownshipPage() {
                   </div>
                 );
               })}
-              <div className="flex gap-4 pt-1 text-[11px] text-muted">
+              <div className="flex gap-4 pt-1 text-[12px] text-muted">
                 {(Object.keys(STATUS_TONE) as (keyof typeof STATUS_TONE)[]).map((k) => (
                   <span key={k} className="inline-flex items-center gap-1.5 capitalize">
                     <span className="h-2 w-2 rounded-full" style={{ background: STATUS_TONE[k] }} />
@@ -267,7 +267,7 @@ export default function TownshipPage() {
                 <p className="mt-1 truncate text-[12px] text-muted">
                   {q.status === "occupied" ? (hr ? (nameOf(q.employeeId) ?? "Allotted") : q.employeeId === me.id ? "You" : "Allotted") : q.status === "vacant" ? "Vacant" : "Under repair"}
                 </p>
-                <p className="mt-1 text-[11px] tabular-nums text-muted">{inr(q.licenceFee)} / mo</p>
+                <p className="mt-1 text-[12px] tabular-nums text-muted">{inr(q.licenceFee)} / mo</p>
               </div>
             ))}
           </div>
@@ -335,7 +335,7 @@ export default function TownshipPage() {
                     {STEPS.map((st, i) => (
                       <div key={st} className="flex flex-1 items-center gap-2">
                         <span className={cn("h-1.5 flex-1 rounded-full", i <= at ? "bg-brand" : "bg-fill")} />
-                        <span className={cn("text-[11px] capitalize", i <= at ? "font-semibold text-ink" : "text-muted")}>
+                        <span className={cn("text-[12px] capitalize", i <= at ? "font-semibold text-ink" : "text-muted")}>
                           {st.replace("_", " ")}
                         </span>
                       </div>

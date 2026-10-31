@@ -34,7 +34,7 @@ export function PunchCard() {
           </p>
         </div>
         <span
-          className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold ${
+          className={`rounded-lg px-2.5 py-1 text-[12px] font-semibold ${
             inside ? "bg-ok-soft text-ok" : out ? "bg-fill text-muted" : "bg-warn-soft text-warn"
           }`}
         >
@@ -43,11 +43,11 @@ export function PunchCard() {
       </div>
       <div className="mt-5 grid grid-cols-2 gap-3">
         <div className="rounded-xl bg-subtle px-4 py-3">
-          <p className="text-[11px] font-semibold text-muted">In</p>
+          <p className="text-[12px] font-semibold text-muted">In</p>
           <p className="mt-1 font-mono text-lg font-medium tabular-nums">{inn ? formatClock(inn.time) : "—"}</p>
         </div>
         <div className="rounded-xl bg-subtle px-4 py-3">
-          <p className="text-[11px] font-semibold text-muted">Out</p>
+          <p className="text-[12px] font-semibold text-muted">Out</p>
           <p className="mt-1 font-mono text-lg font-medium tabular-nums">{out ? formatClock(out.time) : "—"}</p>
         </div>
       </div>

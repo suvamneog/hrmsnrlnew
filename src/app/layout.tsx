@@ -25,11 +25,20 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, title: "NRL People", statusBarStyle: "default" },
 };
 
-export const viewport: Viewport = { themeColor: "#3d5afe" };
+// viewport-fit=cover lets env(safe-area-inset-*) report the notch and home bar on iPhone.
+export const viewport: Viewport = { themeColor: "#3d5afe", viewportFit: "cover" };
+
+// Prerender same-site pages on hover. The sign-in page is left out; no link in the app changes data.
+const SPECULATION = JSON.stringify({
+  prerender: [{ where: { and: [{ href_matches: "/*" }, { not: { href_matches: "/" } }] }, eagerness: "moderate" }],
+});
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${jakarta.variable} ${plex.variable} ${devanagari.variable} ${bengali.variable} h-full antialiased`}>
+      <head>
+        <script type="speculationrules" dangerouslySetInnerHTML={{ __html: SPECULATION }} />
+      </head>
       <body className="min-h-full bg-bg font-sans text-ink">
         <Providers>{children}</Providers>
       </body>

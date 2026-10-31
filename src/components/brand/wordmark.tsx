@@ -22,7 +22,7 @@ export function Wordmark({ className, sub }: { className?: string; sub?: string 
         <span className="block text-[15px] tracking-tight">
           NRL <b className="font-semibold">People</b>
         </span>
-        {sub && <span className="block text-[11px] opacity-70">{sub}</span>}
+        {sub && <span className="block text-[12px] opacity-70">{sub}</span>}
       </span>
     </span>
   );

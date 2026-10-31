@@ -202,7 +202,7 @@ export function HomeRightRail() {
           {routeAllowed("/leave", role) && (
             <Link
               href={addHref}
-              className="grid h-8 w-8 place-items-center rounded-full bg-brand text-white"
+              className="grid h-8 w-8 hit place-items-center rounded-full bg-brand text-white"
               aria-label="Apply leave"
             >
               <Plus size={16} weight="bold" />
@@ -212,7 +212,7 @@ export function HomeRightRail() {
         <div className="mb-3 flex items-center justify-between text-sm">
           <button
             type="button"
-            className="grid h-7 w-7 place-items-center rounded-full text-muted hover:bg-brand-soft hover:text-ink"
+            className="grid h-7 w-7 hit place-items-center rounded-full text-muted hover:bg-brand-soft hover:text-ink"
             onClick={() => setAnchor(format(addDays(parseISO(anchor), -5), "yyyy-MM-dd"))}
             aria-label="Previous days"
           >
@@ -221,7 +221,7 @@ export function HomeRightRail() {
           <p className="font-semibold">{format(parseISO(selected), "MMMM, yyyy")}</p>
           <button
             type="button"
-            className="grid h-7 w-7 place-items-center rounded-full text-muted hover:bg-brand-soft hover:text-ink"
+            className="grid h-7 w-7 hit place-items-center rounded-full text-muted hover:bg-brand-soft hover:text-ink"
             onClick={() => setAnchor(format(addDays(parseISO(anchor), 5), "yyyy-MM-dd"))}
             aria-label="Next days"
           >
@@ -239,7 +239,7 @@ export function HomeRightRail() {
                 onClick={() => setSelected(iso)}
                 className="relative flex flex-col items-center gap-1 py-1"
               >
-                <span className="text-[11px] font-medium text-muted">{format(parseISO(iso), "EEE")}</span>
+                <span className="text-[12px] font-medium text-muted">{format(parseISO(iso), "EEE")}</span>
                 <span
                   className={`relative grid h-8 w-8 place-items-center rounded-xl text-sm font-semibold ${
                     on ? "bg-brand-soft text-brand" : today ? "text-brand" : "text-ink"
@@ -283,8 +283,8 @@ export function HomeRightRail() {
               <Link key={ev.id} href={ev.href} className="block rounded-xl bg-subtle px-3 py-2.5 transition hover:bg-brand-soft">
                 <p className="truncate text-sm font-semibold">{ev.title}</p>
                 <div className="mt-1.5 flex items-center justify-between gap-2">
-                  {ev.names.length > 0 ? <AvatarStack names={ev.names} /> : <span className="text-[11px] text-muted">{ev.meta}</span>}
-                  <p className="text-[11px] text-muted">{ev.when}</p>
+                  {ev.names.length > 0 ? <AvatarStack names={ev.names} /> : <span className="text-[12px] text-muted">{ev.meta}</span>}
+                  <p className="text-[12px] text-muted">{ev.when}</p>
                 </div>
               </Link>
             ))
@@ -312,7 +312,7 @@ export function HomeRightRail() {
                     <p className="truncate text-sm font-semibold">{types.find((t) => t.id === l.typeId)?.name ?? "Leave"}</p>
                     <p className="text-[12px] text-muted">{rangeLabel(l.from, l.to)}</p>
                   </div>
-                  <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${l.status === "approved" ? "bg-ok-soft text-ok" : "bg-warn-soft text-[#8a5600]"}`}>
+                  <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[12px] font-semibold ${l.status === "approved" ? "bg-ok-soft text-ok" : "bg-warn-soft text-[#8a5600]"}`}>
                     {l.status === "approved" ? "Approved" : "Waiting"}
                   </span>
                 </Link>

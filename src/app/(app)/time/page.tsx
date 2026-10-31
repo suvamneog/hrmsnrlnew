@@ -159,7 +159,7 @@ export default function TimePage() {
                     <p className="text-[28px] font-semibold tabular-nums tracking-tight">
                       {Math.round((month.present / Math.max(1, month.working)) * 100)}%
                     </p>
-                    <p className="text-[11px] text-muted">attendance</p>
+                    <p className="text-[12px] text-muted">attendance</p>
                   </div>
                 </Ring>
                 <div className="min-w-[160px]">
@@ -172,7 +172,7 @@ export default function TimePage() {
               <div>
                 <p className="mb-1 text-[12px] font-semibold text-muted">Hours by week</p>
                 <Columns data={month.weeks} height={92} format={(n) => n.toFixed(0)} />
-                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted">
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-muted">
                   <span>Leave {month.leave}</span>
                   <span>Weekly off {month.off}</span>
                   <span>Holidays {month.holidays}</span>
@@ -197,7 +197,7 @@ export default function TimePage() {
             <Card className="p-4 sm:p-5">
               <h2 className="mb-3 font-semibold">October 2026</h2>
               <StatusMonth selected={date} onSelect={setDate} marks={marks} month={parseISO("2026-10-01")} />
-              <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-[11px] text-muted">
+              <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-[12px] text-muted">
                 {LEGEND.map(([key, label]) => (
                   <li key={key} className="inline-flex items-center gap-1.5">
                     <span className={`h-1.5 w-1.5 rounded-full ${ATT_DOT[key]}`} />
@@ -215,19 +215,19 @@ export default function TimePage() {
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
                   <div className="rounded-xl bg-subtle px-3 py-3">
-                    <p className="text-[11px] font-semibold text-muted">In</p>
+                    <p className="text-[12px] font-semibold text-muted">In</p>
                     <p className="mt-1 font-mono text-base tabular-nums">{inn ? formatClock(inn.time) : "—"}</p>
                   </div>
                   <div className="rounded-xl bg-subtle px-3 py-3">
-                    <p className="text-[11px] font-semibold text-muted">Out</p>
+                    <p className="text-[12px] font-semibold text-muted">Out</p>
                     <p className="mt-1 font-mono text-base tabular-nums">{out ? formatClock(out.time) : "—"}</p>
                   </div>
                   <div className="rounded-xl bg-subtle px-3 py-3">
-                    <p className="text-[11px] font-semibold text-muted">Hours</p>
+                    <p className="text-[12px] font-semibold text-muted">Hours</p>
                     <p className="mt-1 text-base font-semibold tabular-nums">{flags.hours || row?.hours || "—"}</p>
                   </div>
                   <div className="rounded-xl bg-subtle px-3 py-3">
-                    <p className="text-[11px] font-semibold text-muted">OT / late</p>
+                    <p className="text-[12px] font-semibold text-muted">OT / late</p>
                     <p className="mt-1 text-sm">
                       {flags.overtime || row?.overtime ? `${flags.overtime || row?.overtime}h OT` : "—"}
                       {flags.lateMinutes ? `, in +${flags.lateMinutes}m` : ""}

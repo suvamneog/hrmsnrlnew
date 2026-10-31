@@ -148,11 +148,11 @@ export default function MusterPage() {
                   />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate">{w.name}</span>
-                    <span className="block truncate text-[11px] text-muted">
+                    <span className="block truncate text-[12px] text-muted">
                       {pass?.id.toUpperCase() ?? "No pass"}, {w.skill}
                     </span>
                   </span>
-                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${at ? "bg-ok-soft text-ok" : "bg-fill text-muted"}`}>
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[12px] font-medium ${at ? "bg-ok-soft text-ok" : "bg-fill text-muted"}`}>
                     {at ? `In ${at}` : "Not at gate"}
                   </span>
                 </label>

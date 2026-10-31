@@ -89,7 +89,7 @@ export default function PerformancePage() {
                 <Ring value={score} max={100}>
                   <div>
                     <p className="text-[28px] font-semibold tabular-nums tracking-tight">{score.toFixed(0)}</p>
-                    <p className="text-[11px] text-muted">weighted %</p>
+                    <p className="text-[12px] text-muted">weighted %</p>
                   </div>
                 </Ring>
                 <div className="min-w-[170px]">
@@ -162,7 +162,7 @@ export default function PerformancePage() {
                   <div key={g.id}>
                     <div className="flex items-baseline justify-between gap-3">
                       <p className="text-sm font-semibold">{g.title}</p>
-                      <span className="rounded-lg bg-subtle px-2 py-0.5 text-[11px] font-semibold text-muted">{g.weight}%</span>
+                      <span className="rounded-lg bg-subtle px-2 py-0.5 text-[12px] font-semibold text-muted">{g.weight}%</span>
                     </div>
                     <p className="mt-0.5 text-[12px] text-muted">Target {g.target}</p>
                     <Bars rows={[{ label: "Achieved at mid-year", value: g.achievement }]} format={(n) => `${n}%`} max={100} />

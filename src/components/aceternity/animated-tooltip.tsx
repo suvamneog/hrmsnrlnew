@@ -77,14 +77,12 @@ export const AnimatedTooltip = ({
                   rotate: rotate,
                   whiteSpace: "nowrap",
                 }}
-                className="absolute bottom-[calc(100%+8px)] left-1/2 z-50 flex -translate-x-1/2 flex-col items-center justify-center rounded-xl bg-ink px-3 py-1.5 text-xs shadow-xl"
+                className="absolute bottom-[calc(100%+8px)] left-1/2 z-50 flex -translate-x-1/2 flex-col items-center justify-center rounded-xl bg-ink px-3 py-1.5 text-xs shadow-[0_8px_24px_rgba(20,26,58,0.12)]"
               >
-                <div className="absolute inset-x-10 -bottom-px z-30 h-px w-[20%] bg-gradient-to-r from-transparent via-[#8fa0ff] to-transparent" />
-                <div className="absolute -bottom-px left-10 z-30 h-px w-[40%] bg-gradient-to-r from-transparent via-brand to-transparent" />
                 <div className="relative z-30 text-[13px] font-semibold text-white">
                   {item.name}
                 </div>
-                {item.designation && <div className="text-[11px] text-white/70">{item.designation}</div>}
+                {item.designation && <div className="text-[12px] text-white/70">{item.designation}</div>}
               </motion.div>
             )}
           </AnimatePresence>

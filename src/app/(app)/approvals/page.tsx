@@ -3,6 +3,7 @@
 import { TodayList, useToday } from "@/components/home/today";
 import { Badge } from "@/components/shadcn/badge";
 import { cn } from "@/lib/cn";
+import { withUndo } from "@/lib/undo";
 import { Checkbox } from "@/components/shadcn/checkbox";
 import { Input } from "@/components/shadcn/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/shadcn/tabs";
@@ -99,8 +100,8 @@ export default function ApprovalsPage() {
       facts: own ? undefined : leaveFacts(l),
       approve: own ? undefined : () => { decideLeave(l.id, "approved"); toast.success("Approved"); },
       reject: own
-        ? () => { withdraw(l.id); toast("Withdrawn"); }
-        : () => { decideLeave(l.id, "rejected"); toast("Rejected"); },
+        ? () => withUndo("Withdrawn", () => withdraw(l.id))
+        : () => withUndo("Rejected", () => decideLeave(l.id, "rejected")),
     });
   }
   for (const s of swaps.filter((x) => x.status === "pending")) {
@@ -114,7 +115,7 @@ export default function ApprovalsPage() {
       who: nameOf(s.fromId),
       own,
       approve: own ? undefined : () => { decideSwap(s.id, "approved"); toast.success("Approved"); },
-      reject: own ? undefined : () => { decideSwap(s.id, "rejected"); toast("Rejected"); },
+      reject: own ? undefined : () => withUndo("Rejected", () => decideSwap(s.id, "rejected")),
     });
   }
   for (const r of regs.filter((x) => x.status === "pending")) {
@@ -128,7 +129,7 @@ export default function ApprovalsPage() {
       who: nameOf(r.employeeId),
       own,
       approve: own ? undefined : () => { decideReg(r.id, "approved"); toast.success("Approved"); },
-      reject: own ? undefined : () => { decideReg(r.id, "rejected"); toast("Rejected"); },
+      reject: own ? undefined : () => withUndo("Rejected", () => decideReg(r.id, "rejected")),
     });
   }
   for (const c of claims.filter((x) => x.status === "pending")) {
@@ -144,7 +145,7 @@ export default function ApprovalsPage() {
       who: nameOf(c.employeeId),
       own,
       approve: own || !claimDecide ? undefined : () => { decideClaim(c.id, "approved"); toast.success("Approved"); },
-      reject: own || !claimDecide ? undefined : () => { decideClaim(c.id, "rejected"); toast("Rejected"); },
+      reject: own || !claimDecide ? undefined : () => withUndo("Rejected", () => decideClaim(c.id, "rejected")),
       hold: c.amount >= 25000,
     });
   }
@@ -163,7 +164,7 @@ export default function ApprovalsPage() {
       who: nameOf(ch.employeeId),
       own,
       approve: own || !checker ? undefined : () => { decideChange(ch.id, "approved"); toast.success("Applied"); },
-      reject: own || !checker ? undefined : () => { decideChange(ch.id, "rejected"); toast("Rejected"); },
+      reject: own || !checker ? undefined : () => withUndo("Rejected", () => decideChange(ch.id, "rejected")),
     });
   }
 
@@ -179,7 +180,7 @@ export default function ApprovalsPage() {
       who: nameOf(a.employeeId),
       own,
       approve: own || !checker ? undefined : () => { decideAdvance(a.id, "approved"); toast.success("Advance approved. Recovery starts next payroll."); },
-      reject: own || !checker ? undefined : () => { decideAdvance(a.id, "rejected"); toast("Rejected"); },
+      reject: own || !checker ? undefined : () => withUndo("Rejected", () => decideAdvance(a.id, "rejected")),
     });
   }
 
@@ -234,7 +235,7 @@ export default function ApprovalsPage() {
       )}
       {visible.length === 0 ? (
         <div className="grid place-items-center gap-2 px-6 py-14 text-center">
-          <Tray size={28} className="text-faint" />
+          <Tray size={28} className="text-muted" />
           <p className="text-sm font-medium text-ink">{term ? "Nothing matches that search." : scope === "todo" ? "Nothing waiting on you." : "No open requests of yours."}</p>
           <p className="text-[13px] text-muted">{scope === "todo" ? "New requests from your team land here." : "Requests you raise show here until they are decided."}</p>
         </div>
@@ -251,11 +252,11 @@ export default function ApprovalsPage() {
                 <div className="min-w-0 flex-1 basis-[180px]">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-medium text-ink">{r.own ? "You" : r.who}</p>
-                    <Badge variant="secondary" className="rounded-md font-normal">
+                    <Badge variant="secondary" className="rounded-lg font-normal">
                       {KIND[r.kind]}
                     </Badge>
                     {r.hold && (
-                      <Badge variant="outline" className="rounded-md border-warn/30 font-normal text-warn">
+                      <Badge variant="outline" className="rounded-lg border-warn/30 font-normal text-warn">
                         Finance limit
                       </Badge>
                     )}
@@ -265,7 +266,7 @@ export default function ApprovalsPage() {
                   {r.facts && (
                     <div className="mt-1.5 flex flex-wrap gap-1.5">
                       {r.facts.map((f) => (
-                        <span key={f.text} className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium", f.tone === "ok" ? "bg-ok-soft text-ok" : "bg-warn-soft text-[#8a5600]")}>
+                        <span key={f.text} className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[12px] font-medium", f.tone === "ok" ? "bg-ok-soft text-ok" : "bg-warn-soft text-[#8a5600]")}>
                           <span className={cn("h-1.5 w-1.5 rounded-full", f.tone === "ok" ? "bg-ok" : "bg-warn")} />
                           {f.text}
                         </span>
@@ -291,7 +292,7 @@ export default function ApprovalsPage() {
                       Approve
                     </Button>
                   )}
-                  {r.own && !r.reject && <Badge variant="outline" className="rounded-md font-normal text-muted">Waiting</Badge>}
+                  {r.own && !r.reject && <Badge variant="outline" className="rounded-lg font-normal text-muted">Waiting</Badge>}
                 </div>
               </li>
             );
@@ -326,7 +327,7 @@ export default function ApprovalsPage() {
           {scope !== "desks" && (
             <ToggleGroup type="single" value={kind} onValueChange={(v) => v && setKind(v as Kind)} className="flex-wrap">
               {(["all", "leave", "time", "claim", "change"] as const).map((k) => (
-                <ToggleGroupItem key={k} value={k} className="h-8 rounded-md px-2.5 text-[13px] data-[state=on]:bg-fill">
+                <ToggleGroupItem key={k} value={k} className="h-8 rounded-lg px-2.5 text-[13px] data-[state=on]:bg-fill">
                   {k === "all" ? "All" : KIND[k]}
                 </ToggleGroupItem>
               ))}

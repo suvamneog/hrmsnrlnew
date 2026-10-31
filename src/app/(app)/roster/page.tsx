@@ -67,17 +67,17 @@ export default function RosterPage() {
           <span className="mr-1 text-[12px] font-semibold text-muted">Shift times</span>
           {shifts.filter((s) => s.code !== "OFF").map((s) => (
             <label key={s.id} className="flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-xs">
-              <span className="grid h-5 w-5 place-items-center rounded-[6px]" style={{ background: SHIFT_STYLE[s.code]?.bg, color: SHIFT_STYLE[s.code]?.ink }}>
+              <span className="grid h-5 w-5 place-items-center rounded-lg" style={{ background: SHIFT_STYLE[s.code]?.bg, color: SHIFT_STYLE[s.code]?.ink }}>
                 <ShiftIcon code={s.code} size={11} />
               </span>
               {SHIFT_STYLE[s.code]?.name ?? s.code}
               <input
-                className="w-14 rounded-md border border-line px-1"
+                className="w-14 rounded-lg border border-line px-1"
                 defaultValue={s.start}
                 onBlur={(e) => editShift(s.id, e.target.value, s.end)}
               />
               <input
-                className="w-14 rounded-md border border-line px-1"
+                className="w-14 rounded-lg border border-line px-1"
                 defaultValue={s.end}
                 onBlur={(e) => editShift(s.id, s.start, e.target.value)}
               />

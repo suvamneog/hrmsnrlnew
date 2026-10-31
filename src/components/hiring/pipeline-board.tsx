@@ -184,7 +184,7 @@ export function PipelineBoard() {
                               "grid h-8 w-8 place-items-center rounded-full border transition-colors",
                               done && "border-ok bg-ok-soft text-ok",
                               current && "border-brand bg-brand-soft text-brand",
-                              !done && !current && "border-line bg-white text-faint",
+                              !done && !current && "border-line bg-white text-muted",
                               show === s.id && "ring-2 ring-ink/15 ring-offset-1",
                             )}
                           >

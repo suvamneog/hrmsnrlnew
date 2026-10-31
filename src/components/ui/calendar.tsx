@@ -71,7 +71,7 @@ export function Calendar({
         button_previous: "rdp-button_previous rounded-full text-muted hover:bg-brand-soft hover:text-ink",
         button_next: "rdp-button_next rounded-full text-muted hover:bg-brand-soft hover:text-ink",
         caption_label: "rdp-caption_label text-sm font-semibold",
-        weekday: "rdp-weekday text-[11px] font-semibold uppercase tracking-wide text-muted",
+        weekday: "rdp-weekday text-[12px] font-semibold uppercase tracking-wide text-muted",
         ...classNames,
       }}
       components={{

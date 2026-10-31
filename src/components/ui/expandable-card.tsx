@@ -92,13 +92,13 @@ export function ExpandableCard({
             <div className="flex items-center gap-4 pt-3 text-[13px] text-muted">
               {priority && (
                 <span className="inline-flex items-center gap-1.5">
-                  <Flag size={14} weight="fill" className="text-faint" />
+                  <Flag size={14} weight="fill" className="text-muted" />
                   {priority.label}
                 </span>
               )}
               {status && (
                 <span className="inline-flex items-center gap-1.5">
-                  <Hourglass size={14} weight="fill" className="text-faint" />
+                  <Hourglass size={14} weight="fill" className="text-muted" />
                   {status.label}
                 </span>
               )}
@@ -154,7 +154,7 @@ export function ExpandableCard({
                       {it.done && <Check size={11} weight="bold" />}
                     </button>
                     <span className={cn("text-[14px]", it.done ? "text-ink" : "text-muted")}>{it.label}</span>
-                    {it.hint && <span className="ml-auto text-[11px] text-muted">{it.hint}</span>}
+                    {it.hint && <span className="ml-auto text-[12px] text-muted">{it.hint}</span>}
                   </motion.li>
                 ))}
               </ul>
@@ -164,7 +164,7 @@ export function ExpandableCard({
                   {priority && (
                     <>
                       <span className="inline-flex items-center gap-2 text-muted">
-                        <Flag size={15} weight="fill" className="text-faint" /> Priority
+                        <Flag size={15} weight="fill" className="text-muted" /> Priority
                       </span>
                       <span className={cn("justify-self-start rounded-lg px-2.5 py-1 text-[13px] font-medium", PILL[priority.tone])}>{priority.label}</span>
                     </>
@@ -172,7 +172,7 @@ export function ExpandableCard({
                   {status && (
                     <>
                       <span className="inline-flex items-center gap-2 text-muted">
-                        <Hourglass size={15} weight="fill" className="text-faint" /> Status
+                        <Hourglass size={15} weight="fill" className="text-muted" /> Status
                       </span>
                       <span className={cn("justify-self-start rounded-lg px-2.5 py-1 text-[13px] font-medium", PILL[status.tone])}>{status.label}</span>
                     </>

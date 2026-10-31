@@ -49,7 +49,7 @@ const config = (series: Series[]): ChartConfig =>
 
 // Recharts reads these classes; the cursor and grid stay quiet so the data leads.
 const surface =
-  "aspect-auto w-full cursor-pointer [&_*:focus]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-surface]:outline-none [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-[#f2f2f0] [&_.recharts-curve.recharts-tooltip-cursor]:stroke-[#d2d2d7] [&_.recharts-cartesian-axis-tick_text]:fill-[#8e8e93]";
+  "aspect-auto w-full cursor-pointer [&_*:focus]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-surface]:outline-none [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-[#f2f2f0] [&_.recharts-curve.recharts-tooltip-cursor]:stroke-[#d2d2d7] [&_.recharts-cartesian-axis-tick_text]:fill-[#6e6e73]";
 
 const DURATION = 900;
 
@@ -82,7 +82,7 @@ export function ChartCard({
             <h3 className="flex items-center gap-2 text-[15px] font-semibold tracking-tight text-ink">
               {title}
               {sample && (
-                <span className="rounded-md bg-[#fff4dc] px-1.5 py-0.5 text-[11px] font-medium text-[#8a5600]">
+                <span className="rounded-lg bg-[#fff4dc] px-1.5 py-0.5 text-[12px] font-medium text-[#8a5600]">
                   Sample
                 </span>
               )}
@@ -104,7 +104,7 @@ export function ChartCard({
                 className="inline-flex items-center gap-1.5 text-[12px] text-muted"
               >
                 <span
-                  className="h-2 w-2 rounded-[3px]"
+                  className="h-2 w-2 rounded-sm"
                   style={{ background: s.color }}
                 />
                 {s.label}
@@ -116,6 +116,22 @@ export function ChartCard({
       </div>
     </InView>
     </ChartTitle.Provider>
+  );
+}
+
+/* Grey bars in the chart's shape, shown until the chart scrolls in and draws. Static, no pulse. */
+function ChartSkeleton({ height, horizontal }: { height: number; horizontal?: boolean }) {
+  const bars = [0.55, 0.8, 0.4, 0.9, 0.65, 0.7, 0.45];
+  return (
+    <div aria-hidden className={cn("flex h-full gap-3 px-2 pb-6", horizontal ? "flex-col justify-around" : "items-end")} style={{ height }}>
+      {bars.map((b, i) =>
+        horizontal ? (
+          <span key={i} className="h-3 rounded-full bg-fill" style={{ width: `${b * 100}%` }} />
+        ) : (
+          <span key={i} className="flex-1 rounded-t-md bg-fill" style={{ height: `${b * 100}%` }} />
+        ),
+      )}
+    </div>
   );
 }
 
@@ -169,7 +185,7 @@ function Tip({
           >
             <span className="inline-flex items-center gap-1.5 text-muted">
               <span
-                className="h-2 w-2 rounded-[3px]"
+                className="h-2 w-2 rounded-sm"
                 style={{ background: s?.color ?? p.color }}
               />
               {s?.label ?? p.dataKey}
@@ -216,7 +232,7 @@ function AxisNote({
   return (
     <p
       className={cn(
-        "text-[11px] text-muted",
+        "text-[12px] text-muted",
         align === "right" ? "mt-1 text-right" : "mb-1",
       )}
     >
@@ -260,6 +276,7 @@ export function Bars({
       <ChartDetail rows={detailRows(data, x, series)} index={pick} onIndex={setPick} format={format} unit={unit} stacked={stacked} threshold={threshold} />
       <AxisNote>{unit}</AxisNote>
       <div ref={ref} style={{ height }}>
+        {!seen && <ChartSkeleton height={height} />}
         {seen && (
           <ChartContainer
             config={config(series)}
@@ -381,6 +398,7 @@ export function HBars({
     <div>
       <ChartDetail rows={detailRows(data, y, series)} index={pick} onIndex={setPick} format={format} unit={unit} stacked={stacked} />
       <div ref={ref} style={{ height: h }}>
+        {!seen && <ChartSkeleton height={h} horizontal />}
         {seen && (
           <ChartContainer
             config={config(series)}
@@ -475,6 +493,7 @@ export function Areas({
       <ChartDetail rows={detailRows(data, x, series)} index={pick} onIndex={setPick} format={format} unit={unit} stacked={stacked} />
       <AxisNote>{unit}</AxisNote>
       <div ref={ref} style={{ height }}>
+        {!seen && <ChartSkeleton height={height} />}
         {seen && (
           <ChartContainer
             config={config(series)}
@@ -627,7 +646,7 @@ export function Donut({
               <p className="text-[22px] font-semibold tabular-nums tracking-tight">
                 {shown ? format(shown.value) : center}
               </p>
-              <p className="text-[11px] text-muted">
+              <p className="text-[12px] text-muted">
                 {shown
                   ? `${shown.label}, ${total ? Math.round((shown.value / total) * 100) : 0}%`
                   : centerLabel}
@@ -645,7 +664,7 @@ export function Donut({
           >
             <span className="inline-flex items-center gap-2 text-muted">
               <span
-                className="h-2.5 w-2.5 rounded-[3px]"
+                className="h-2.5 w-2.5 rounded-sm"
                 style={{ background: d.color }}
               />
               {d.label}
@@ -724,7 +743,8 @@ export function Heatmap({
               {cols.map((c, ci) => {
                 const v = cell(r.key, c.key);
                 return (
-                  <motion.span
+                  <motion.button
+                    type="button"
                     key={c.key}
                     initial={{ opacity: 0, scale: 0.6 }}
                     animate={seen ? { opacity: 1, scale: 1 } : {}}
@@ -733,19 +753,11 @@ export function Heatmap({
                       ease: easeOut,
                       delay: (ri * cols.length + ci) * 0.004,
                     }}
-                    role="button"
                     data-heatmap-cell
-                    tabIndex={0}
                     aria-label={v.title}
                     onClick={(e) => {
                       setTip(null);
                       setPin({ row: r.key, col: c.key, rect: (e.currentTarget as HTMLElement).getBoundingClientRect() });
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        setPin({ row: r.key, col: c.key, rect: (e.currentTarget as HTMLElement).getBoundingClientRect() });
-                      }
                     }}
                     onMouseEnter={(e) => {
                       if (pin) return;
@@ -762,7 +774,7 @@ export function Heatmap({
                         });
                     }}
                     className={cn(
-                      "relative grid h-[30px] cursor-pointer place-items-center rounded-[8px] text-[10px] font-semibold outline-none transition-transform duration-150 hover:scale-110 hover:shadow-md focus-visible:ring-2 focus-visible:ring-brand",
+                      "relative grid h-[30px] cursor-pointer place-items-center rounded-lg text-[10px] font-semibold outline-none transition-transform duration-150 hover:scale-110 hover:shadow-md focus-visible:ring-2 focus-visible:ring-brand",
                       pin?.row === r.key && pin?.col === c.key && "z-10 scale-110 shadow-md ring-2 ring-ink",
                     )}
                     style={{ background: v.color }}
@@ -781,7 +793,7 @@ export function Heatmap({
                         )}
                       />
                     )}
-                  </motion.span>
+                  </motion.button>
                 );
               })}
             </div>
@@ -860,18 +872,18 @@ function HeatmapCard({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.12 } }}
           transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-          className="fixed z-[80] rounded-2xl bg-white p-4 text-[13px] shadow-[0_16px_40px_rgba(20,26,58,0.16)] ring-1 ring-black/5"
+          className="fixed z-[80] rounded-xl bg-white p-4 text-[13px] shadow-[0_16px_24px_rgba(20,26,58,0.16)] ring-1 ring-black/5"
           style={{ left, top, width: W, translateY: below ? 0 : "-100%", transformOrigin: below ? "top center" : "bottom center" }}
         >
           <div className="flex items-start gap-3">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px]" style={{ background: cell.color, color: cell.ink }}>
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg" style={{ background: cell.color, color: cell.ink }}>
               {cell.icon}
             </span>
             <div className="min-w-0 flex-1">
               <p className="font-semibold leading-snug text-ink">{cell.title}</p>
               {cell.detail?.[0] && <p className="text-[12px] text-muted">{cell.detail[0]}</p>}
             </div>
-            <button type="button" aria-label="Close" onClick={onClose} className="-mr-1 -mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-fill text-muted hover:text-ink">
+            <button type="button" aria-label="Close" onClick={onClose} className="-mr-1 -mt-1 grid h-7 w-7 hit shrink-0 place-items-center rounded-full bg-fill text-muted hover:text-ink">
               <span className="text-[15px] leading-none">×</span>
             </button>
           </div>
@@ -920,7 +932,7 @@ export function FunnelChart({
             </span>
             <div className="relative h-9 flex-1">
               <motion.div
-                className="absolute inset-y-0 left-0 rounded-[10px]"
+                className="absolute inset-y-0 left-0 rounded-lg"
                 style={{
                   background: `color-mix(in srgb, ${color} ${100 - i * 12}%, white)`,
                 }}
@@ -948,7 +960,7 @@ export function FunnelChart({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className={cn(
-                  "w-[72px] shrink-0 text-right text-[11px] tabular-nums",
+                  "w-[72px] shrink-0 text-right text-[12px] tabular-nums",
                   hover === i ? "font-semibold text-ink" : "text-muted",
                 )}
               >
@@ -1010,13 +1022,13 @@ export function Timeline({
               })
             }
           >
-            <span className="w-[68px] shrink-0 text-[11px] font-medium text-muted">
+            <span className="w-[68px] shrink-0 text-[12px] font-medium text-muted">
               {r.label}
             </span>
-            <div className="relative h-6 flex-1 rounded-md bg-[#f6f8fd] transition-colors hover:bg-[#eef1f8]">
+            <div className="relative h-6 flex-1 rounded-lg bg-[#f6f8fd] transition-colors hover:bg-[#eef1f8]">
               {r.shift && (
                 <span
-                  className="absolute inset-y-1 rounded-[5px] border border-dashed border-[#b4bccd]"
+                  className="absolute inset-y-1 rounded-sm border border-dashed border-[#b4bccd]"
                   style={{
                     left: pct(r.shift[0]),
                     width: width(r.shift[0], r.shift[1]),
@@ -1025,7 +1037,7 @@ export function Timeline({
               )}
               {r.punch && (
                 <motion.span
-                  className="absolute inset-y-1.5 rounded-[4px]"
+                  className="absolute inset-y-1.5 rounded-sm"
                   style={{
                     left: pct(r.punch[0]),
                     background: r.flag ? flagColor[r.flag] : C.green,

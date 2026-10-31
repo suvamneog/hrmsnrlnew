@@ -95,7 +95,7 @@ export default function ClaimsPage() {
                   </Ring>
                   <div className="text-center">
                     <p className="text-[13px] font-semibold">{t.label}</p>
-                    <p className="text-[11px] tabular-nums text-muted">
+                    <p className="text-[12px] tabular-nums text-muted">
                       {lim ? `${inr(u)} of ${inr(lim)}` : "Not eligible"}
                     </p>
                   </div>
@@ -159,7 +159,7 @@ export default function ClaimsPage() {
                   <Input type="number" min={1} value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" required />
                 </Field>
                 <div className="rounded-xl bg-subtle px-4 py-3">
-                  <p className="text-[11px] font-semibold text-muted">Left this year</p>
+                  <p className="text-[12px] font-semibold text-muted">Left this year</p>
                   <p className={cn("mt-1 text-lg font-semibold tabular-nums", amt > left && "text-danger")}>{inr(left)}</p>
                 </div>
               </div>
@@ -189,7 +189,7 @@ export default function ClaimsPage() {
                     </div>
                   ))}
                 </div>
-                <p className="mt-2 text-[11px] text-muted">Under ₹10,000 to your manager, ₹10,000–24,999 to HR, ₹25,000 and above to finance.</p>
+                <p className="mt-2 text-[12px] text-muted">Under ₹10,000 to your manager, ₹10,000–24,999 to HR, ₹25,000 and above to finance.</p>
               </div>
               <Button type="submit" className="justify-self-start">Submit claim</Button>
             </form>
@@ -217,7 +217,7 @@ export default function ClaimsPage() {
                           {TYPES.find((t) => t.id === c.type)?.label}, {inr(c.amount)}
                         </p>
                         <p className="truncate text-[12px] text-muted">{c.description}</p>
-                        <p className="mt-0.5 text-[11px] text-muted">
+                        <p className="mt-0.5 text-[12px] text-muted">
                           {formatDay(c.submittedAt.slice(0, 10))}, {c.bills} bill{c.bills === 1 ? "" : "s"}, to{" "}
                           {["line manager", "HR", "finance"][route(c.amount)]}
                         </p>
@@ -225,7 +225,7 @@ export default function ClaimsPage() {
                       <div className="flex shrink-0 flex-col items-end gap-1">
                         <Badge tone={requestTone(c.status)}>{c.status}</Badge>
                         {c.status === "pending" && (
-                          <button className="text-[11px] font-semibold text-brand" onClick={() => withdrawClaim(c.id)}>
+                          <button className="text-[12px] font-semibold text-brand" onClick={() => withdrawClaim(c.id)}>
                             Withdraw
                           </button>
                         )}

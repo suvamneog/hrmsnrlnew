@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/cn";
+import { withUndo } from "@/lib/undo";
 import { DEMO_TODAY } from "@/lib/demo";
 import { useDesk } from "@/lib/desk";
 import { SHIFT_CHANGE, crewInside, lapseImpact, overtimeByDay, shiftExceptions } from "@/lib/desk-analytics";
@@ -217,7 +218,7 @@ export default function ShiftDeskPage() {
               <p className="text-sm text-ink">
                 {name(delegation.toId)} approves for you until {formatDay(delegation.until)}.
               </p>
-              <Button variant="secondary" onClick={() => delegate(null)}>
+              <Button variant="secondary" onClick={() => withUndo("Delegation ended", () => delegate(null))}>
                 End delegation
               </Button>
             </div>

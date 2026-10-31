@@ -42,7 +42,7 @@ export function AccountChip() {
         <Avatar name={user.name} size={32} />
         <div className="min-w-0 text-left">
           <p className="truncate text-xs font-semibold">{user.preferredName}</p>
-          <p className="truncate text-[11px] text-muted">{positionTitle(user.positionId)}</p>
+          <p className="truncate text-[12px] text-muted">{positionTitle(user.positionId)}</p>
         </div>
         <CaretDown size={12} className="hidden shrink-0 text-muted md:block" weight="bold" />
       </button>
@@ -83,7 +83,7 @@ export function AccountChip() {
                   <Avatar name={a.person.name} size={32} />
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold">{a.person.preferredName}</p>
-                    <p className="truncate text-[11px] text-muted">{positionTitle(a.person.positionId)}</p>
+                    <p className="truncate text-[12px] text-muted">{positionTitle(a.person.positionId)}</p>
                   </div>
                 </button>
               );

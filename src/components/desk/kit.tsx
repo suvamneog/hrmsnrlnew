@@ -115,7 +115,7 @@ export function Field({ label, children, className }: { label: string; children:
 }
 
 export function Pill({ tone = "muted", children }: { tone?: "ok" | "warn" | "danger" | "muted" | "brand"; children: ReactNode }) {
-  return <span className={cn("inline-flex shrink-0 items-center rounded-md px-2 py-0.5 text-[12px] font-medium", TONES[tone])}>{children}</span>;
+  return <span className={cn("inline-flex shrink-0 items-center rounded-lg px-2 py-0.5 text-[12px] font-medium", TONES[tone])}>{children}</span>;
 }
 
 export const Grid2 = ({ children, className }: { children: ReactNode; className?: string }) => (

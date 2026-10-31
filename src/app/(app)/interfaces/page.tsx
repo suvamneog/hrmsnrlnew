@@ -94,15 +94,15 @@ export default function InterfacesPage() {
               <p className="mt-1 text-xs text-muted">{cat.channel}</p>
               <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
                 <div>
-                  <dt className="text-[11px] font-semibold text-muted">Last file</dt>
+                  <dt className="text-[12px] font-semibold text-muted">Last file</dt>
                   <dd className="mt-1 font-medium">{row.lastFile ?? "—"}</dd>
                 </div>
                 <div>
-                  <dt className="text-[11px] font-semibold text-muted">Last ack</dt>
+                  <dt className="text-[12px] font-semibold text-muted">Last ack</dt>
                   <dd className="mt-1 font-medium">{row.lastAck ?? "—"}</dd>
                 </div>
                 <div>
-                  <dt className="text-[11px] font-semibold text-muted">Last run</dt>
+                  <dt className="text-[12px] font-semibold text-muted">Last run</dt>
                   <dd className="mt-1 font-medium">{row.lastRun ? formatStamp(row.lastRun) : "—"}</dd>
                 </div>
               </dl>

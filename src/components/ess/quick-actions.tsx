@@ -29,7 +29,7 @@ export function QuickActions() {
           <span className={`grid h-12 w-12 place-items-center rounded-xl ${bg} ${ink}`}>
             <Icon size={22} weight="duotone" />
           </span>
-          <span className="text-[11px] font-semibold">{label}</span>
+          <span className="text-[12px] font-semibold">{label}</span>
         </Link>
       ))}
     </div>

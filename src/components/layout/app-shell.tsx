@@ -10,7 +10,7 @@ import { Topbar } from "./topbar";
 import { GATE_PAGES, landingFor, routeAllowed } from "@/lib/access";
 import { useHrms } from "@/lib/store";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { ViewTransition, useEffect } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 import type { NavItem } from "@/lib/nav";
@@ -92,7 +92,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
         <div className={path === "/gate" || path === "/visitors" || path === "/gate/handover" ? "" : "mx-auto max-w-6xl px-4 pb-10"}>
           {!["/gate", "/visitors", "/gate/handover"].includes(path) && <SectionTabs />}
-          <Guard>{children}</Guard>
+          <ViewTransition>
+            <Guard>{children}</Guard>
+          </ViewTransition>
         </div>
       </div>
     );
@@ -107,7 +109,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
         <main className="flex-1 px-4 pb-28 md:px-7 lg:pb-8">
           <SectionTabs />
-          <Guard>{children}</Guard>
+          <ViewTransition>
+            <Guard>{children}</Guard>
+          </ViewTransition>
         </main>
         <GlassTabBar items={ESS_TABS.filter((item) => routeAllowed(item.href, role))} path={path} />
       </div>

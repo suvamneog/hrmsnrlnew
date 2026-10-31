@@ -92,7 +92,7 @@ export function ChartDetail({
               className="fixed inset-0 z-[71] flex items-end justify-center outline-none sm:items-center sm:p-6"
             >
               <motion.div
-                className="flex max-h-[88dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[22px] bg-white shadow-[0_24px_64px_rgba(20,26,58,0.18)] ring-1 ring-black/5 will-change-transform sm:rounded-[22px]"
+                className="flex max-h-[88dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-xl bg-white shadow-[0_24px_24px_rgba(20,26,58,0.18)] ring-1 ring-black/5 will-change-transform sm:rounded-xl"
                 initial={reduce ? { opacity: 0 } : { opacity: 0, y: 40, scale: 0.97 }}
                 animate={reduce ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
                 exit={reduce ? { opacity: 0 } : { opacity: 0, y: 24, scale: 0.98, transition: { duration: 0.18, ease: easeOut } }}
@@ -185,7 +185,7 @@ export function ChartDetail({
                               <li key={p.key} className="py-3">
                                 <div className="flex items-center justify-between gap-3 text-[14px]">
                                   <span className="inline-flex items-center gap-2 text-ink">
-                                    <span className="h-2.5 w-2.5 rounded-[3px]" style={{ background: p.color }} />
+                                    <span className="h-2.5 w-2.5 rounded-sm" style={{ background: p.color }} />
                                     {p.label}
                                   </span>
                                   <span className="tabular-nums">
@@ -280,7 +280,7 @@ function Fact({ label, value, warn }: { label: string; value: string; warn?: boo
 
 function Round({ label, children, ...props }: React.ComponentProps<"button"> & { label: string }) {
   return (
-    <button type="button" aria-label={label} className="grid h-8 w-8 place-items-center rounded-full bg-fill text-ink hover:bg-[#e8e8ed] disabled:opacity-30" {...props}>
+    <button type="button" aria-label={label} className="grid h-8 w-8 hit place-items-center rounded-full bg-fill text-ink hover:bg-[#e8e8ed] disabled:opacity-30" {...props}>
       {children}
     </button>
   );

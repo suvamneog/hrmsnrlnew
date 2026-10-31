@@ -103,7 +103,7 @@ export function Bars({
             <span className="truncate font-medium text-ink">{r.label}</span>
             <span className="shrink-0 tabular-nums text-muted">
               {format(r.value)}
-              {r.hint ? <span className="ml-1 text-[11px]">{r.hint}</span> : null}
+              {r.hint ? <span className="ml-1 text-[12px]">{r.hint}</span> : null}
             </span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-fill">
@@ -139,18 +139,18 @@ export function Columns({
         const last = i === data.length - 1;
         return (
           <div key={d.label} className="flex flex-1 flex-col items-center justify-end gap-2">
-            <span className={cn("text-[11px] tabular-nums", last ? "font-semibold text-ink" : "text-muted")}>
+            <span className={cn("text-[12px] tabular-nums", last ? "font-semibold text-ink" : "text-muted")}>
               {format(d.value)}
             </span>
             <motion.div
-              className="w-full max-w-[44px] rounded-[10px]"
+              className="w-full max-w-[44px] rounded-lg"
               style={{ background: last ? "var(--brand)" : "#dfe5f7" }}
               initial={{ height: 4 }}
               whileInView={{ height: Math.max(4, (d.value / max) * height) }}
               viewport={{ once: true }}
               transition={{ duration: 0.9, ease, delay: 0.08 * i }}
             />
-            <span className="text-[11px] font-medium text-muted">{d.label}</span>
+            <span className="text-[12px] font-medium text-muted">{d.label}</span>
           </div>
         );
       })}
@@ -168,7 +168,7 @@ export function Funnel({ steps }: { steps: { label: string; value: number }[] })
           <span className="w-[76px] shrink-0 text-[12px] font-medium text-muted">{s.label}</span>
           <div className="relative h-8 flex-1">
             <motion.div
-              className="absolute inset-y-0 left-0 rounded-[10px]"
+              className="absolute inset-y-0 left-0 rounded-lg"
               style={{ background: `color-mix(in srgb, var(--brand) ${100 - i * 13}%, white)` }}
               initial={{ width: 0 }}
               whileInView={{ width: `${Math.max(8, (s.value / max) * 100)}%` }}
@@ -204,7 +204,7 @@ export function StageTrack({ stages, current }: { stages: { id: string; label: s
           </div>
         ))}
       </div>
-      <div className="mt-2 flex justify-between text-[11px] text-muted">
+      <div className="mt-2 flex justify-between text-[12px] text-muted">
         <span>{stages[0]?.label}</span>
         <span className="font-semibold text-ink">{stages[at]?.label ?? "—"}</span>
         <span>{stages[stages.length - 1]?.label}</span>

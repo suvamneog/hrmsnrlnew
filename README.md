@@ -26,7 +26,7 @@ Open http://localhost:3100. Every demo account uses the password `Nrl@2026`. HR,
 | Contractor supervisor | vikram.rao (email at lntecc.com) | Home, Muster |
 | Managing Director (read only) | md.office | Overview |
 
-The walkthrough is in [docs/demo-script.md](docs/demo-script.md).
+The walkthrough is in [docs/demo-script.md](docs/demo-script.md). The design system (palette, type, radius, motion) is in [DESIGN.md](DESIGN.md).
 
 ## What the prototype does
 

@@ -110,7 +110,7 @@ export default function PolicyPage() {
               </div>
               {past.length > 0 && (
                 <div className="mt-4 overflow-x-auto border-t border-line pt-3">
-                  <p className="mb-2 text-[11px] font-semibold text-muted">
+                  <p className="mb-2 text-[12px] font-semibold text-muted">
                     Earlier versions
                   </p>
                   <div className="-mx-1 overflow-x-auto px-1">

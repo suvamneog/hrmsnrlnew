@@ -123,7 +123,7 @@ export default function ContractorsPage() {
                         <Badge tone={reason ? "danger" : "ok"}>{reason ?? "Pass live"}</Badge>
                         {role === "contract_labour_cell" && !w.blacklisted && (
                           <HoldToConfirm
-                            className="mt-2 h-8 min-w-0 px-3 text-[11px]"
+                            className="mt-2 h-8 min-w-0 px-3 text-[12px]"
                             variant="danger"
                             label="Hold to blacklist"
                             doneLabel="Barred"

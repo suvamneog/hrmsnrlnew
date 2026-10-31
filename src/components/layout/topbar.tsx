@@ -6,11 +6,11 @@ import { useDesk } from "@/lib/desk";
 import { LanguageSwitch } from "@/components/i18n/language-switch";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { locationName, unitName } from "@/lib/org";
-import { toast } from "sonner";
+import { withUndo } from "@/lib/undo";
 import { commandHits } from "@/lib/search";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 
 export function Topbar() {
@@ -29,10 +29,25 @@ export function Topbar() {
   const permits = useDesk((s) => s.permits);
   const incidents = useDesk((s) => s.incidents);
   const visitors = useDesk((s) => s.visitors);
-  const [confirmReset, setConfirmReset] = useState(false);
   const markRead = useHrms((s) => s.markRead);
   const router = useRouter();
   const [q, setQ] = useState("");
+  const [active, setActive] = useState(0);
+  const search = useRef<HTMLInputElement>(null);
+  const mac = useSyncExternalStore(() => () => {}, () => /Mac|iPhone|iPad/.test(navigator.platform), () => true);
+  // Cmd+K (Ctrl+K elsewhere) jumps to search from anywhere; it never fires while typing in another field.
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() !== "k" || !(e.metaKey || e.ctrlKey)) return;
+      const t = e.target as HTMLElement;
+      if (t !== search.current && (t.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName))) return;
+      e.preventDefault();
+      search.current?.focus();
+      search.current?.select();
+    };
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  }, []);
   const [open, setOpen] = useState(false);
   const mine = notes.filter((n) => n.userId === user?.id && !n.read);
 
@@ -65,19 +80,38 @@ export function Topbar() {
       <div className="relative hidden min-w-0 flex-1 md:block">
         <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={18} />
         <input
+          ref={search}
           value={q}
-          onChange={(e) => setQ(e.target.value)}
+          onChange={(e) => {
+            setQ(e.target.value);
+            setActive(0);
+          }}
+          onKeyDown={(e) => {
+            // Arrow keys move through results and Enter opens one, so search works without a mouse.
+            if (e.key === "ArrowDown") { e.preventDefault(); setActive((i) => Math.min(i + 1, hits.length - 1)); }
+            else if (e.key === "ArrowUp") { e.preventDefault(); setActive((i) => Math.max(i - 1, 0)); }
+            else if (e.key === "Enter" && hits[active]) { router.push(hits[active].href); setQ(""); search.current?.blur(); }
+            else if (e.key === "Escape") { setQ(""); search.current?.blur(); }
+          }}
+          aria-label="Search pages and actions"
+          aria-keyshortcuts={mac ? "Meta+K" : "Control+K"}
           placeholder="Leave balance, payslip, people…"
-          className="h-11 w-full rounded-full border border-line bg-white pl-10 pr-4 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10"
+          className="h-11 w-full rounded-full border border-line bg-white pl-10 pr-16 text-sm outline-none focus:border-brand focus:ring-4 focus:ring-brand/10"
         />
+        {!q && (
+          <kbd className="pointer-events-none absolute right-3 hidden xl:block top-1/2 -translate-y-1/2 rounded-lg border border-line bg-subtle px-1.5 py-0.5 font-sans text-[12px] font-medium text-muted">
+            {mac ? "⌘K" : "Ctrl K"}
+          </kbd>
+        )}
         {hits.length > 0 && (
           <div className="absolute z-30 mt-2 w-full overflow-hidden rounded-xl bg-white py-2 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
-            {hits.map((h) => (
+            {hits.map((h, i) => (
               <Link
                 key={h.href + h.label}
                 href={h.href}
                 onClick={() => setQ("")}
-                className="flex items-center justify-between px-4 py-2 text-sm hover:bg-brand-soft"
+                onMouseEnter={() => setActive(i)}
+                className={`flex items-center justify-between px-4 py-2 text-sm ${i === active ? "bg-brand-soft" : ""}`}
               >
                 <span>{h.label}</span>
                 <span className="text-xs text-muted">{h.meta}</span>
@@ -97,22 +131,15 @@ export function Topbar() {
       <LanguageSwitch className="hidden sm:inline-flex" />
       <button
         type="button"
-        onClick={() => {
-          if (!confirmReset) {
-            setConfirmReset(true);
-            setTimeout(() => setConfirmReset(false), 3000);
-            return;
-          }
+        onClick={() => withUndo("Demo data reset", () => {
           resetDemo();
           resetDesk();
-          setConfirmReset(false);
-          toast.success("Demo data reset");
-        }}
-        className={`hidden h-11 shrink-0 items-center gap-2 rounded-lg px-4 text-[13px] font-semibold transition-colors md:inline-flex ${confirmReset ? "bg-danger-soft text-danger" : "bg-white text-muted hover:text-ink"}`}
+        })}
+        className="hidden h-11 shrink-0 items-center gap-2 rounded-lg bg-white px-4 text-[13px] font-semibold text-muted transition-colors hover:text-ink md:inline-flex"
         aria-label="Reset demo data"
       >
         <ArrowCounterClockwise size={16} />
-        {confirmReset ? "Tap again to reset" : "Reset demo"}
+        Reset demo
       </button>
       <div className="min-w-0">
         <AccountChip />

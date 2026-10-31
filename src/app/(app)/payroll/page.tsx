@@ -173,7 +173,7 @@ export default function PayrollPage() {
         <Card className="p-4">
           <p className="text-xs text-muted">SAP parallel differences</p>
           <p className="text-2xl font-semibold">{sapDiff}</p>
-          {run.totals?.ms != null && <p className="mt-1 text-[11px] text-muted">Computed in {run.totals.ms} ms</p>}
+          {run.totals?.ms != null && <p className="mt-1 text-[12px] text-muted">Computed in {run.totals.ms} ms</p>}
           <Link href="/interfaces" className="mt-2 inline-block text-xs font-semibold text-brand">
             SAP HR interface
           </Link>

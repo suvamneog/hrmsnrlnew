@@ -43,7 +43,7 @@ function StatusDayButton({
         SHIFT_STYLE[mark.stamp] ? (
           <span
             title={SHIFT_STYLE[mark.stamp].name}
-            className="grid h-4 min-w-4 place-items-center rounded-[5px] px-0.5 text-[9px] font-semibold"
+            className="grid h-4 min-w-4 place-items-center rounded-sm px-0.5 text-[9px] font-semibold"
             style={{ background: SHIFT_STYLE[mark.stamp].bg, color: SHIFT_STYLE[mark.stamp].ink }}
           >
             {SHIFT_STYLE[mark.stamp].Icon ? <ShiftIcon code={mark.stamp} size={10} /> : "Off"}
