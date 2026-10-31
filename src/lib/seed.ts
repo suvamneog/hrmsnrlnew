@@ -73,6 +73,8 @@ export const EMPLOYEES: Employee[] = [
     locationId: "numaligarh",
     unitId: "hr",
     positionId: "p-gm-hr",
+    // GMs and CGMs report to the Managing Director.
+    managerId: "e-md",
     status: "active",
     bankAccount: "3045127781",
     ifsc: "SBIN0003180",
@@ -119,6 +121,8 @@ export const EMPLOYEES: Employee[] = [
     locationId: "numaligarh",
     unitId: "ops",
     positionId: "p-dgm-ops",
+    // GMs and CGMs report to the Managing Director.
+    managerId: "e-md",
     status: "active",
     bankAccount: "2011983345",
     ifsc: "SBIN0003180",
@@ -431,6 +435,8 @@ export const EMPLOYEES: Employee[] = [
     locationId: "numaligarh",
     unitId: "tech",
     positionId: "p-cgm-tech",
+    // GMs and CGMs report to the Managing Director.
+    managerId: "e-md",
     status: "active",
     bankAccount: "1002987761",
     ifsc: "SBIN0003180",

@@ -394,6 +394,8 @@ const MENU: Record<Role, MenuItem[]> = {
   gate_security: [item("/gate", "Gate", "gate", "gate"), ME],
   md: [
     item("/md", "Overview", "gauge"),
+    // Only for the GMs and CGMs who report to the MD; everything else stays read-only.
+    item("/approvals", "Inbox", "check"),
     item("/organisation", "Organisation", "tree"),
     item("/finance", "Pay cost", "coins"),
     item("/reports", "Reports", "chart"),

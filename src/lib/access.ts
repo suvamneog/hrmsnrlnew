@@ -66,7 +66,7 @@ export function canAdvancePayroll(role: Role | null, stage: string): boolean {
 export function claimApproverRole(amount: number): Role[] {
   if (amount >= 25000) return ["finance_approver"];
   if (amount >= 10000) return ["hr_admin"];
-  return ["line_manager", "hr_admin"];
+  return ["line_manager", "hr_admin", "md"];
 }
 
 export function canSeePerson(role: Role | null, viewer: Employee | null, subject: Employee | null) {

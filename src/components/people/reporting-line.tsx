@@ -25,6 +25,22 @@ export function ReportingLine({ person, self }: { person: Employee; self?: boole
   }
   const reports = employees.filter((e) => e.managerId === person.id && !e.id.startsWith("g-"));
   const manager = chain.at(-1);
+  const contract = person.cadre === "contract";
+  const top = !manager && !contract;
+  // Who decides each kind of request, by the rules in lib/access (claims go up by amount).
+  const holder = (r: string) => employees.find((e) => e.roles.includes(r as never) && e.id !== person.id && !e.id.startsWith("g-"));
+  const hr = holder("hr_admin");
+  const finance = holder("finance_approver");
+  // The MD's own requests sit with the Board, outside this system.
+  const approvals: { what: string; who?: Employee; note?: string }[] = contract || person.roles.includes("md")
+    ? []
+    : [
+        { what: "Leave, shift swaps, attendance corrections", who: manager ?? hr },
+        { what: "Claims under ₹10,000", who: manager ?? hr },
+        { what: "Claims ₹10,000 to ₹24,999", who: hr ?? manager },
+        { what: "Claims ₹25,000 and over", who: finance },
+        { what: "Bank or phone change", who: hr ?? finance, note: "checked before payroll uses it" },
+      ];
 
   const Row = ({ e, current }: { e: Employee; current?: boolean }) => {
     const body = (
@@ -46,9 +62,13 @@ export function ReportingLine({ person, self }: { person: Employee; self?: boole
     <Card className="p-5">
       <h2 className="font-semibold">Reporting line</h2>
       <p className="mb-3 text-[12px] text-muted">
-        {manager
-          ? `${self ? "Your" : `${person.preferredName}'s`} leave, swaps and small claims go to ${manager.name}.`
-          : "No reporting manager on record. HR approves requests."}
+        {contract
+          ? "Contract staff report to their own company. The Contract Labour Cell handles registration and gate passes."
+          : manager
+            ? `${self ? "Your" : `${person.preferredName}'s`} leave, swaps and small claims go to ${manager.name}.`
+            : top && person.roles.includes("md")
+              ? "The Managing Director reports to the Board of Directors."
+              : "No reporting manager on record. HR approves requests."}
       </p>
       <ol className="relative">
         {[...chain, person].map((e, i, all) => (
@@ -58,6 +78,22 @@ export function ReportingLine({ person, self }: { person: Employee; self?: boole
           </li>
         ))}
       </ol>
+      {approvals.length > 0 && (
+        <div className="mt-4 border-t border-line pt-3">
+          <p className="mb-1 text-[12px] font-semibold text-muted">{self ? "Who approves your requests" : "Who approves their requests"}</p>
+          <ul className="divide-y divide-fill">
+            {approvals.map((a) => (
+              <li key={a.what} className="flex items-center justify-between gap-3 py-2 text-sm">
+                <span className="min-w-0 text-muted">{a.what}</span>
+                <span className="shrink-0 text-right">
+                  <span className="block font-medium text-ink">{a.who?.name ?? "Not assigned"}</span>
+                  {a.who && <span className="block text-[12px] text-muted">{positionTitle(a.who.positionId)}</span>}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {reports.length > 0 && (
         <div className="mt-4 border-t border-line pt-3">
           <p className="mb-2 text-[12px] font-semibold text-muted">
