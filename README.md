@@ -55,6 +55,6 @@ The on-roll headcount of 1,588 is a generated sample. NRL publishes 1,120 on rol
 - Tamper-proof, India-hosted, encrypted audit storage; backup; VAPT.
 - Live SAP, Saral Pravesh readers, SBI salary file, EPFO ECR and TRACES submission. Files download; nothing is submitted.
 - A parallel payroll run against the current system, and month-on-month variance (only October 2026 exists).
-- Hindi and Assamese wording is machine-drafted in `src/lib/i18n` and needs a native reviewer. Text built from data (names, units, toasts with numbers) stays in English.
+- Hindi and Assamese wording is machine-drafted in `src/lib/i18n` and needs a native reviewer. Labels, sentences with numbers, dates and day names are translated; records stay as entered (people, companies, places, job titles, trades, policy and order names, IDs and file names).
 - Offline changes stay on the device; with no backend there is nothing to sync them to yet.
 - Confirmed shift pattern, overtime rates and NREP surge contractor split from NRL.
