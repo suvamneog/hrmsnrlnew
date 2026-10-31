@@ -1,5 +1,6 @@
 "use client";
 
+import { routeAllowed } from "@/lib/access";
 import { Areas, Bars, C, ChartCard, Donut, HBars, Heatmap, Timeline } from "@/components/charts/kit";
 import {
   ATTRITION_SAMPLE,
@@ -251,6 +252,7 @@ export function ContractorCharts() {
 
 /* Safety: certificates by course over the next 90 days. */
 export function SafetyCharts() {
+  const role = useHrms((s) => s.actingRole);
   const certs = useHrms((s) => s.certificates);
   const courses = useHrms((s) => s.courses);
   const rows = useMemo(() => certExpiryByCourse(certs, courses), [certs, courses]);
@@ -272,7 +274,8 @@ export function SafetyCharts() {
         })()}
         series={series}
         action={
-          expired ? (
+          // Only for roles that can open the gate page; others would be sent back to their landing page.
+          expired && routeAllowed("/gate", role) ? (
             <Link href="/gate" className="shrink-0 rounded-lg bg-danger-soft px-3 py-1.5 text-[12px] font-semibold text-danger transition hover:bg-danger-soft">
               See blocked passes
             </Link>
