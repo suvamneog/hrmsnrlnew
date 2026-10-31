@@ -128,6 +128,7 @@ const PATTERNS: { re: RegExp; to: (m: RegExpMatchArray, l: Locale) => string }[]
   { re: /^([\d.]+) h, under (\d+) h$/, to: (m, l) => (l === "hi" ? `${m[1]} घंटे, ${m[2]} घंटे से कम` : `${m[1]} ঘণ্টা, ${m[2]} ঘণ্টাতকৈ কম`) },
   { re: /^(.+), (Mon|Tue|Wed|Thu|Fri|Sat|Sun) (\d+ \w+)$/, to: (m, l) => `${m[1]}, ${dw(`${m[2]} ${m[3]}`, l)}` },
   { re: /^Note for (.+)$/, to: (m, l) => (l === "hi" ? `${m[1]} के लिए नोट` : `${m[1]}ৰ বাবে টোকা`) },
+  { re: /^HRA now \((\d+)% of basic\)$/, to: (m, l) => (l === "hi" ? `अभी HRA (मूल वेतन का ${m[1]}%)` : `এতিয়াৰ HRA (মূল দৰমহাৰ ${m[1]}%)`) },
   { re: /^Tick all (\d+)$/, to: (m, l) => (l === "hi" ? `सभी ${m[1]} चुनें` : `সকলো ${m[1]} বাছক`) },
 ];
 

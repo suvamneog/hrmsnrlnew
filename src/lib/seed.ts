@@ -416,7 +416,7 @@ export const EMPLOYEES: Employee[] = [
     name: "Arup Kumar Bora",
     preferredName: "Arup",
     gender: "M",
-    dob: "1966-08-04",
+    dob: "1968-08-04",
     doj: "1996-11-12",
     confirmationDate: "1997-11-12",
     email: "arup.bora@nrl.co.in",
@@ -785,7 +785,7 @@ export const EMPLOYEES: Employee[] = [
     name: "Anil Karmakar",
     preferredName: "Anil",
     gender: "M",
-    dob: "1980-03-03",
+    dob: "1966-11-12",
     doj: "2007-08-20",
     confirmationDate: "2008-08-20",
     email: "anil.karmakar@nrl.co.in",
@@ -1061,9 +1061,9 @@ export const SETTINGS: PolicySetting[] = [
   { id: "s5", key: "perks.cap", label: "Workmen allowance basket", cadre: "workman", value: 25, unit: "% of basic", validFrom: "2024-01-01", approvedBy: "e-bhaskar", source: "Wage settlement" },
   { id: "s6", key: "perks.cap", label: "Trainee perks cap", cadre: "trainee", value: 20, unit: "% of basic", validFrom: "2025-08-01", approvedBy: "e-bhaskar", source: "Board" },
   { id: "s7", key: "super.cap", label: "Superannuation cap", cadre: "executive", value: 30, unit: "% of basic+DA", validFrom: "2017-01-01", approvedBy: "e-bhaskar", source: "DPE 2017" },
-  { id: "s8", key: "hra.x", label: "HRA X cities", value: 30, unit: "%", validFrom: "2022-07-01", approvedBy: "e-bhaskar", source: "DPE allowance order" },
-  { id: "s9", key: "hra.y", label: "HRA Y cities", value: 20, unit: "%", validFrom: "2022-07-01", approvedBy: "e-bhaskar", source: "DPE allowance order" },
-  { id: "s10", key: "hra.z", label: "HRA Z cities", value: 10, unit: "%", validFrom: "2022-07-01", approvedBy: "e-bhaskar", source: "DPE allowance order" },
+  { id: "s8", key: "hra.x", label: "HRA X cities", value: 27, unit: "%", validFrom: "2022-07-01", approvedBy: "e-bhaskar", source: "DPE 2017, IDA past 25% (30/20/10 from 50%)" },
+  { id: "s9", key: "hra.y", label: "HRA Y cities", value: 18, unit: "%", validFrom: "2022-07-01", approvedBy: "e-bhaskar", source: "DPE 2017, IDA past 25% (30/20/10 from 50%)" },
+  { id: "s10", key: "hra.z", label: "HRA Z cities", value: 9, unit: "%", validFrom: "2022-07-01", approvedBy: "e-bhaskar", source: "DPE 2017, IDA past 25% (30/20/10 from 50%)" },
   { id: "s11", key: "pf.rate", label: "PF contribution", value: 12, unit: "%", validFrom: "2014-09-01", approvedBy: "e-bhaskar", source: "EPF Act / NRL PF trust" },
   { id: "s12", key: "nps.rate", label: "NPS employee & employer", value: 10, unit: "%", validFrom: "2019-04-01", approvedBy: "e-bhaskar", source: "NRL NPS policy" },
   { id: "s13", key: "shift.allowance", label: "Shift allowance per duty", cadre: "workman", value: 220, unit: "INR", validFrom: "2024-01-01", approvedBy: "e-bhaskar", source: "Wage settlement" },
@@ -1205,7 +1205,9 @@ function rosterForMonth(): RosterEntry[] {
       const dt = addDays(start, d);
       const date = format(dt, "yyyy-MM-dd");
       const dow = dt.getDay();
-      rows.push({ id: `ro-${i++}`, employeeId: e.id, date, shiftId: dow === 0 ? "OFF" : "G" });
+      // General-shift staff are off on Sundays and on plant holidays where they work; crews run through holidays.
+      const holiday = HOLIDAYS.some((h) => h.date === date && (!h.locationId || h.locationId === e.locationId));
+      rows.push({ id: `ro-${i++}`, employeeId: e.id, date, shiftId: dow === 0 || holiday ? "OFF" : "G" });
     }
   }
   return rows;
@@ -1278,12 +1280,14 @@ function punches(): Punch[] {
 export const PUNCHES: Punch[] = punches();
 
 export const ATTENDANCE: AttendanceDay[] = ROSTER.filter((r) => r.date <= TODAY).map((r) => {
-  const holiday = HOLIDAYS.some((h) => h.date === r.date);
-  if (r.shiftId === "OFF") {
-    return { employeeId: r.employeeId, date: r.date, status: "weekly_off", hours: 0, overtime: 0, shiftId: "OFF" };
-  }
+  // A holiday counts only at the locations it applies to, the same rule check-ins follow.
+  const loc = EMPLOYEES.find((e) => e.id === r.employeeId)?.locationId;
+  const holiday = HOLIDAYS.some((h) => h.date === r.date && (!h.locationId || h.locationId === loc));
   if (holiday) {
     return { employeeId: r.employeeId, date: r.date, status: "holiday", hours: 0, overtime: 0, shiftId: r.shiftId };
+  }
+  if (r.shiftId === "OFF") {
+    return { employeeId: r.employeeId, date: r.date, status: "weekly_off", hours: 0, overtime: 0, shiftId: "OFF" };
   }
   if (r.employeeId === "e-ranjit" && r.date === "2026-10-24") {
     return { employeeId: r.employeeId, date: r.date, status: "missing_punch", hours: 0, overtime: 0, shiftId: r.shiftId };

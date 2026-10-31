@@ -47,7 +47,7 @@ export default function PayrollPage() {
   }, [run.results]);
   const pages = Math.max(1, Math.ceil(ordered.length / PAGE));
   const slice = ordered.slice(page * PAGE, page * PAGE + PAGE);
-  const payable = employees.filter((e) => (e.status === "active" || e.status === "probation") && e.cadre !== "contract").length;
+  const payable = employees.filter((e) => (e.status === "active" || e.status === "probation" || e.status === "notice") && e.cadre !== "contract").length;
   const employeesInRun = run.totals?.employees ?? run.results.length;
   const totalNet = run.totals?.net ?? run.results.reduce((s, r) => s + r.net, 0);
   const sapDiff = run.totals?.sapDiffs ?? run.results.filter((r) => r.sapNet && Math.abs(r.sapNet - r.net) > 1).length;
