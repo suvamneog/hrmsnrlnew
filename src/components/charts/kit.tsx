@@ -9,8 +9,9 @@ import { ChartDetail, ChartTitle, type DetailRow } from "@/components/charts/det
 import { InView } from "@/components/motion/in-view";
 import { cn } from "@/lib/cn";
 import { easeOut } from "@/lib/motion";
-import { AnimatePresence, motion, useInView } from "motion/react";
-import { useRef, useState, type ReactNode } from "react";
+import { AnimatePresence, motion, useInView, useReducedMotion } from "motion/react";
+import { createPortal } from "react-dom";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   Area,
   AreaChart,
@@ -677,8 +678,12 @@ export function Heatmap({
     title: string;
     detail?: string[];
     mark?: "swap" | "rest";
+    // Shown in the card that opens when the cell is tapped.
+    facts?: { label: string; value: string; tone?: "ok" | "warn" | "danger" }[];
   };
 }) {
+  const reduce = useReducedMotion();
+  const [pin, setPin] = useState<{ row: string; col: string; rect: DOMRect } | null>(null);
   const [tip, setTip] = useState<{
     x: number;
     y: number;
@@ -728,7 +733,22 @@ export function Heatmap({
                       ease: easeOut,
                       delay: (ri * cols.length + ci) * 0.004,
                     }}
+                    role="button"
+                    data-heatmap-cell
+                    tabIndex={0}
+                    aria-label={v.title}
+                    onClick={(e) => {
+                      setTip(null);
+                      setPin({ row: r.key, col: c.key, rect: (e.currentTarget as HTMLElement).getBoundingClientRect() });
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setPin({ row: r.key, col: c.key, rect: (e.currentTarget as HTMLElement).getBoundingClientRect() });
+                      }
+                    }}
                     onMouseEnter={(e) => {
+                      if (pin) return;
                       const b = box.current?.getBoundingClientRect();
                       const t = (
                         e.currentTarget as HTMLElement
@@ -741,7 +761,10 @@ export function Heatmap({
                           detail: v.detail,
                         });
                     }}
-                    className="relative grid h-[30px] place-items-center rounded-[8px] text-[10px] font-semibold transition-transform duration-150 hover:scale-110 hover:shadow-md"
+                    className={cn(
+                      "relative grid h-[30px] cursor-pointer place-items-center rounded-[8px] text-[10px] font-semibold outline-none transition-transform duration-150 hover:scale-110 hover:shadow-md focus-visible:ring-2 focus-visible:ring-brand",
+                      pin?.row === r.key && pin?.col === c.key && "z-10 scale-110 shadow-md ring-2 ring-ink",
+                    )}
                     style={{ background: v.color }}
                   >
                     <span
@@ -764,8 +787,9 @@ export function Heatmap({
             </div>
           ))}
         </div>
+        <HeatmapCard pin={pin} cell={pin ? cell(pin.row, pin.col) : null} onClose={() => setPin(null)} reduce={!!reduce} />
         <AnimatePresence>
-          {tip && (
+          {tip && !pin && (
             <motion.div
               key="tip"
               initial={{ opacity: 0, y: 6 }}
@@ -785,6 +809,86 @@ export function Heatmap({
         </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+/* The small card a tapped heatmap cell opens: anchored under (or above) the cell, kept on screen,
+   closed by the ×, Escape, a tap elsewhere or scrolling. Rendered at the page root so the grid's
+   own scroll box cannot clip it. */
+function HeatmapCard({
+  pin,
+  cell,
+  onClose,
+  reduce,
+}: {
+  pin: { rect: DOMRect } | null;
+  cell: { title: string; detail?: string[]; facts?: { label: string; value: string; tone?: "ok" | "warn" | "danger" }[]; color: string; ink?: string; icon?: ReactNode } | null;
+  onClose: () => void;
+  reduce: boolean;
+}) {
+  useEffect(() => {
+    if (!pin) return;
+    const key = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const away = (e: PointerEvent) => !(e.target as Element).closest?.("[data-heatmap-card]") && !(e.target as Element).closest?.("[data-heatmap-cell]") && onClose();
+    // Only a real page scroll closes it: tapping a cell can nudge the grid's own scroll box.
+    const y0 = window.scrollY;
+    const scrolled = () => Math.abs(window.scrollY - y0) > 8 && onClose();
+    window.addEventListener("keydown", key);
+    window.addEventListener("pointerdown", away);
+    window.addEventListener("scroll", scrolled, { passive: true });
+    return () => {
+      window.removeEventListener("keydown", key);
+      window.removeEventListener("pointerdown", away);
+      window.removeEventListener("scroll", scrolled);
+    };
+  }, [pin, onClose]);
+  if (typeof document === "undefined") return null;
+  const W = Math.min(300, window.innerWidth - 24);
+  const r = pin?.rect;
+  const below = r ? r.bottom + 220 < window.innerHeight : true;
+  const left = r ? Math.min(Math.max(12, r.left + r.width / 2 - W / 2), window.innerWidth - W - 12) : 0;
+  const top = r ? (below ? r.bottom + 8 : r.top - 8) : 0;
+  return createPortal(
+    <AnimatePresence>
+      {pin && cell && (
+        <motion.div
+          key={`${r?.left}-${r?.top}`}
+          data-heatmap-card
+          role="dialog"
+          aria-label={cell.title}
+          initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.94, y: below ? -4 : 4 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.12 } }}
+          transition={{ type: "spring", bounce: 0, duration: 0.3 }}
+          className="fixed z-[80] rounded-2xl bg-white p-4 text-[13px] shadow-[0_16px_40px_rgba(20,26,58,0.16)] ring-1 ring-black/5"
+          style={{ left, top, width: W, translateY: below ? 0 : "-100%", transformOrigin: below ? "top center" : "bottom center" }}
+        >
+          <div className="flex items-start gap-3">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px]" style={{ background: cell.color, color: cell.ink }}>
+              {cell.icon}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold leading-snug text-ink">{cell.title}</p>
+              {cell.detail?.[0] && <p className="text-[12px] text-muted">{cell.detail[0]}</p>}
+            </div>
+            <button type="button" aria-label="Close" onClick={onClose} className="-mr-1 -mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-fill text-muted hover:text-ink">
+              <span className="text-[15px] leading-none">×</span>
+            </button>
+          </div>
+          {cell.facts && cell.facts.length > 0 && (
+            <ul className="mt-3 divide-y divide-fill border-t border-fill">
+              {cell.facts.map((f) => (
+                <li key={f.label} className="flex items-center justify-between gap-3 py-2">
+                  <span className="text-muted">{f.label}</span>
+                  <span className={cn("text-right font-medium tabular-nums", f.tone === "ok" ? "text-ok" : f.tone === "warn" ? "text-[#8a5600]" : f.tone === "danger" ? "text-danger" : "text-ink")}>{f.value}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </motion.div>
+      )}
+    </AnimatePresence>,
+    document.body,
   );
 }
 

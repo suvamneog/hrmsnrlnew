@@ -25,7 +25,7 @@ import { inr } from "@/lib/format";
 import { settingOn } from "@/lib/payroll";
 import { useCrewScope } from "@/lib/crew-scope";
 import { useCurrentUser, useHrms } from "@/lib/store";
-import { format, parseISO } from "date-fns";
+import { differenceInMinutes, format, parseISO } from "date-fns";
 import { SHIFT_STYLE, ShiftIcon, ShiftKey } from "@/lib/shift-style";
 import Link from "next/link";
 import { useMemo } from "react";
@@ -92,6 +92,8 @@ export function RosterCharts() {
   const shifts = useHrms((s) => s.shifts);
   const swaps = useHrms((s) => s.swaps);
   const settings = useHrms((s) => s.settings);
+  const punches = useHrms((s) => s.punches);
+  const leaveReqs = useHrms((s) => s.leaveRequests);
   const minRest = settingOn(settings, "min.rest", DEMO_TODAY, undefined, 11);
   const people = useMemo(
     () => employees.filter((e) => e.crew && (me?.crew ? e.crew === me.crew || e.managerId === me.id || e.id === me.id : true)).slice(0, 10),
@@ -112,6 +114,35 @@ export function RosterCharts() {
     }
   });
   void swapN;
+
+  // What the tapped day says: the check-in and check-out (or why there is none), rest and any swap.
+  const cellFacts = (pid: string, date: string, c: { code: string; rest?: number; swap?: boolean }, sh?: { start?: string; end?: string }) => {
+    const facts: { label: string; value: string; tone?: "ok" | "warn" | "danger" }[] = [];
+    const t = (iso: string) => format(parseISO(iso), "h:mm a");
+    const onLeave = leaveReqs.some((l) => l.employeeId === pid && l.status === "approved" && l.from <= date && l.to >= date);
+    if (c.code === "OFF") facts.push({ label: "Status", value: "Weekly day off" });
+    else if (onLeave) facts.push({ label: "Status", value: "On approved leave" });
+    else if (date > DEMO_TODAY) facts.push({ label: "Status", value: "Rostered, still to come" });
+    else {
+      const mine = punches.filter((p) => p.employeeId === pid).sort((a, b) => a.time.localeCompare(b.time));
+      const inn = mine.find((p) => p.kind === "in" && p.time.startsWith(date));
+      const out = inn && mine.find((p) => p.kind === "out" && p.time > inn.time && differenceInMinutes(parseISO(p.time), parseISO(inn.time)) < 16 * 60);
+      if (!inn) facts.push({ label: "Checked in", value: "No check-in", tone: "danger" });
+      else {
+        const late = sh?.start ? differenceInMinutes(parseISO(inn.time), parseISO(`${date}T${sh.start}:00+05:30`)) : 0;
+        facts.push({ label: "Checked in", value: late > 5 ? `${t(inn.time)}, ${late} min late` : t(inn.time), tone: late > 5 ? "warn" : "ok" });
+        facts.push({ label: "Checked out", value: out ? t(out.time) : "Still inside" });
+        if (out) {
+          const m = differenceInMinutes(parseISO(out.time), parseISO(inn.time));
+          facts.push({ label: "Worked", value: `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, "0")}m` });
+        }
+      }
+    }
+    if (c.rest !== undefined) facts.push({ label: "Rest before", value: `${c.rest.toFixed(1)} h, under ${minRest} h`, tone: "danger" });
+    if (c.swap) facts.push({ label: "Swap", value: "Requested", tone: "warn" });
+    return facts;
+  };
+
   return (
     <div className="mb-6">
       <ChartCard
@@ -144,6 +175,7 @@ export function RosterCharts() {
                 ...(c.rest !== undefined ? [`Only ${c.rest.toFixed(1)} h rest`] : []),
                 ...(c.swap ? ["Shift swap requested"] : []),
               ],
+              facts: cellFacts(row, col, c, sh),
             };
           }}
         />
