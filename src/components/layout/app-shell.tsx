@@ -2,6 +2,7 @@
 
 import { AccountChip } from "./account-chip";
 import { LanguageSwitch } from "@/components/i18n/language-switch";
+import { GlassTabBar } from "./glass-tab-bar";
 import { Guard } from "./guard";
 import { SectionTabs } from "./section-tabs";
 import { Sidebar } from "./sidebar";
@@ -11,7 +12,6 @@ import { useHrms } from "@/lib/store";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Link from "next/link";
-import { NavIcon } from "@/components/icons";
 import { cn } from "@/lib/cn";
 import type { NavItem } from "@/lib/nav";
 
@@ -104,28 +104,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="sticky top-0 z-30 bg-bg">
           <Topbar />
         </div>
-        <main className="flex-1 px-4 pb-24 md:px-7 lg:pb-8">
+        <main className="flex-1 px-4 pb-28 md:px-7 lg:pb-8">
           <SectionTabs />
           <Guard>{children}</Guard>
         </main>
-        <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-line bg-white/95 px-2 py-2 backdrop-blur lg:hidden">
-          {ESS_TABS.filter((item) => routeAllowed(item.href, role)).map((item) => {
-            const active = path === item.href || path.startsWith(`${item.href}/`);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "grid place-items-center gap-0.5 rounded-xl px-3 py-1 text-[10px]",
-                  active ? "text-brand" : "text-muted",
-                )}
-              >
-                <NavIcon name={item.icon} size={22} />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
+        <GlassTabBar items={ESS_TABS.filter((item) => routeAllowed(item.href, role))} path={path} />
       </div>
     </div>
   );
