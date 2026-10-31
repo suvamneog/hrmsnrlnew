@@ -62,19 +62,19 @@ export function TimeCharts() {
       <ChartCard
         title={`NRL staff present each day, by shift, last ${byShift.length} days`}
         value={last ? `${total(last)} present today` : undefined}
-        note={low ? `Lowest turnout was ${low.day}, with ${total(low)} present. Check that day for missing punches.` : undefined}
+        note={low ? `Lowest turnout was ${low.day}, with ${total(low)} present. Check who did not come in that day.` : undefined}
         series={series}
       >
         <Bars data={byShift} x="day" series={series} unit="People present" xUnit="Day" />
       </ChartCard>
       <ChartCard
-        title="Your punches against your roster, last 14 days"
+        title="When you came in and left, against your shift, last 14 days"
         value={flags ? `${flags} days need attention` : "Every day on time"}
-        note={flags ? `Regularise ${flagged.map((t) => t.label).slice(0, 4).join(", ")}${flags > 4 ? " and others" : ""}.` : "Every punch matched your rostered shift."}
+        note={flags ? `Regularise ${flagged.map((t) => t.label).slice(0, 4).join(", ")}${flags > 4 ? " and others" : ""}.` : "You came in and left on time for every shift."}
         series={[
-          { key: "ok", label: "Punch, on time", color: C.blue },
+          { key: "ok", label: "On time", color: C.blue },
           { key: "late", label: "Late or early", color: C.amber },
-          { key: "missing", label: "Missing punch", color: C.red },
+          { key: "missing", label: "No check-in", color: C.red },
           { key: "shift", label: "Rostered shift (dashed box)", color: C.slate },
         ]}
       >

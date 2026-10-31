@@ -932,7 +932,7 @@ export function Timeline({
               )}
               {r.flag === "missing" && !r.punch && (
                 <span className="absolute inset-y-0 left-2 flex items-center text-[10px] font-semibold text-[#e5484d]">
-                  missing punch
+                  no check-in
                 </span>
               )}
             </div>

@@ -53,7 +53,7 @@ export default function MdPage() {
         items={[
           { label: "On roll", value: census.onRoll, hint: "Demo sample. NRL publishes 1,120." },
           { label: "Inside the plant now", value: insideNow(events, passes).size, hint: "Contract workers on gate passes" },
-          { label: "Present today", value: `${present} of ${today.length}`, hint: "Staff on the biometric roster" },
+          { label: "Present today", value: `${present} of ${today.length}`, hint: "NRL staff who check in at the gate" },
           { label: "Certificates expired", value: expired, tone: expired ? "danger" : "ok", hint: "Holders are blocked at the gate" },
         ]}
       />

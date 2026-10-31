@@ -58,7 +58,7 @@ export function PunchCard() {
           variant={closed ? "secondary" : inside ? "danger" : "mint"}
           onClick={() => {
             const res = clockPunch();
-            if (!res.ok) toast.error(res.reason ?? "Could not punch");
+            if (!res.ok) toast.error(res.reason ?? "Could not record your check-in");
             else toast.success(res.kind === "in" ? "Checked in" : "Checked out");
           }}
         >

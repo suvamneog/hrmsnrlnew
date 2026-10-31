@@ -827,7 +827,7 @@ export const useHrms = create<HrmsState>()(
         const id = s.currentUserId;
         if (!id) return { ok: false, reason: "Not signed in" };
         const { inn, out, inside } = openPair(punchesOn(s.punches, id));
-        if (inn && out && !inside) return { ok: false, reason: "Day already closed. Regularise if you need another pair." };
+        if (inn && out && !inside) return { ok: false, reason: "You have already checked in and out today. Ask for a correction if that is wrong." };
         const kind: Punch["kind"] = inside ? "out" : "in";
         const now = new Date();
         const hh = String(now.getHours()).padStart(2, "0");

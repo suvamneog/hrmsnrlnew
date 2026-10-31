@@ -24,7 +24,7 @@ const ISSUE = {
   ok: { label: "In", tone: "ok" },
 } as const;
 
-type Pending = { id: string; kind: "Leave" | "Swap" | "Regularisation"; who: string; what: string };
+type Pending = { id: string; kind: "Leave" | "Shift swap" | "Attendance correction"; who: string; what: string };
 
 export default function ShiftDeskPage() {
   const me = useCurrentUser();
@@ -70,8 +70,8 @@ export default function ShiftDeskPage() {
   const name = (id: string) => employees.find((e) => e.id === id)?.preferredName ?? id;
   const pending: Pending[] = [
     ...leave.filter((l) => l.status === "pending" && ids.has(l.employeeId)).map((l) => ({ id: `lv:${l.id}`, kind: "Leave" as const, who: name(l.employeeId), what: `${formatDay(l.from)} to ${formatDay(l.to)}, ${l.days} days` })),
-    ...swaps.filter((s) => s.status === "pending" && ids.has(s.fromId)).map((s) => ({ id: `sw:${s.id}`, kind: "Swap" as const, who: name(s.fromId), what: `With ${name(s.toId)} on ${formatDay(s.date)}` })),
-    ...regs.filter((r) => r.status === "pending" && ids.has(r.employeeId)).map((r) => ({ id: `rg:${r.id}`, kind: "Regularisation" as const, who: name(r.employeeId), what: `${formatDay(r.date)}, ${r.reason}` })),
+    ...swaps.filter((s) => s.status === "pending" && ids.has(s.fromId)).map((s) => ({ id: `sw:${s.id}`, kind: "Shift swap" as const, who: name(s.fromId), what: `With ${name(s.toId)} on ${formatDay(s.date)}` })),
+    ...regs.filter((r) => r.status === "pending" && ids.has(r.employeeId)).map((r) => ({ id: `rg:${r.id}`, kind: "Attendance correction" as const, who: name(r.employeeId), what: `${formatDay(r.date)}, ${r.reason}` })),
   ];
 
   function decideAll(status: "approved" | "rejected") {
@@ -152,7 +152,7 @@ export default function ShiftDeskPage() {
       <Grid2>
         <Panel
           title="Approve in bulk"
-          note="Leave, swaps and regularisations waiting on you."
+          note="Leave, shift swaps and attendance corrections waiting on you."
           action={
             pending.length > 0 && (
               <button

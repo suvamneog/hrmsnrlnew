@@ -146,13 +146,13 @@ export default function SelfPage() {
 
       <Card className="p-5">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-semibold">Recent punches</h2>
+          <h2 className="font-semibold">Recent check-ins</h2>
           <Link href="/time" className="text-sm font-semibold text-brand">
             Attendance
           </Link>
         </div>
         {punches.length === 0 ? (
-          <p className="py-4 text-sm text-muted">No biometric punches on this record.</p>
+          <p className="py-4 text-sm text-muted">No check-ins recorded yet.</p>
         ) : (
           <ul className="space-y-2">
             {punches

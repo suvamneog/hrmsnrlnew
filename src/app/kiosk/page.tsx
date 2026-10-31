@@ -24,11 +24,11 @@ const STATUS: Record<string, string> = {
   leave: "On leave",
   weekly_off: "Weekly off",
   holiday: "Holiday",
-  missing_punch: "Missing punch",
+  missing_punch: "No check-in",
   od: "On duty",
 };
 
-const HELP = ["Pay or allowance query", "Leave balance looks wrong", "Missing punch", "Quarter repair", "Medical referral"];
+const HELP = ["Pay or allowance query", "Leave balance looks wrong", "No check-in", "Quarter repair", "Medical referral"];
 
 /* A shared touch screen at the plant gate or canteen for staff without a phone or desk.
    Sign in with employee number and birth year; it signs out by itself after a minute idle. */

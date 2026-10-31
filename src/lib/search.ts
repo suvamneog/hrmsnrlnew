@@ -54,7 +54,7 @@ export function commandHits(args: {
     hits.push({ href: "/claims", label: "File a claim", meta: "Claims" });
   }
   if (can("/time") && /punch|attendance|clock|check.?in|regular/.test(s)) {
-    hits.push({ href: "/time", label: "Attendance & regularisation", meta: "Time" });
+    hits.push({ href: "/time", label: "Attendance and corrections", meta: "Time" });
   }
   if (can("/approvals") && /inbox|approv|waiting/.test(s)) {
     hits.push({ href: "/approvals", label: "Approvals inbox", meta: "Inbox" });

@@ -61,7 +61,7 @@ export function useToday(): TodayItem[] {
         if (role === "finance_approver") return c.amount >= 25000;
         return claimApproverRole(c.amount).includes(role) && decide(c.employeeId);
       }).length;
-    add(approvals, { id: "approvals", label: `${n(approvals, "approval")} waiting`, detail: "Leave, swaps, regularisations and claims", href: "/approvals", tone: "brand" });
+    add(approvals, { id: "approvals", label: `${n(approvals, "approval")} waiting`, detail: "Leave, shift swaps, attendance corrections and claims", href: "/approvals", tone: "brand" });
 
     const myCases = desk.cases.filter((c) => c.raisedBy === me.id && c.status !== "resolved");
     const run = hrms.payrollRuns[0];
@@ -79,8 +79,8 @@ export function useToday(): TodayItem[] {
       const t = (iso?: string) => iso?.slice(11, 16);
       add(true, {
         id: "punch",
-        label: p.inside ? `In since ${t(p.inn?.time)}` : p.out ? `Day closed, in ${t(p.inn?.time)} out ${t(p.out?.time)}` : "Not punched in today",
-        detail: p.inside || p.out ? "Biometric punch at the gate reader" : "Punch at any gate reader, or regularise if the reader was down",
+        label: p.inside ? `In since ${t(p.inn?.time)}` : p.out ? `Day closed, in ${t(p.inn?.time)} out ${t(p.out?.time)}` : "Not checked in today",
+        detail: p.inside || p.out ? "Recorded at the gate" : "Check in at any gate. If the gate machine was down, ask for a correction.",
         href: "/time",
         tone: p.inside || p.out ? "muted" : "warn",
       });

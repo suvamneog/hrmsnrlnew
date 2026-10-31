@@ -157,7 +157,7 @@ export default function PayrollPage() {
           ? "Check the pay register below, then move the run on."
           : run.lockedAttendance
             ? "Attendance is locked. Compute the run next."
-            : "Lock attendance first: it freezes this month's punches, leave and overtime so pay is computed on final figures."}
+            : "Lock attendance first: it freezes this month's attendance, leave and overtime so pay is computed on final figures."}
       </p>
 
       <div className="mb-5 grid gap-3 sm:grid-cols-3">

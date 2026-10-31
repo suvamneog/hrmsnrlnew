@@ -342,7 +342,7 @@ export function computeRun(args: {
 }
 
 export const PAYROLL_STAGES: { id: import("./types").PayrollStage; label: string; hint: string }[] = [
-  { id: "attendance_lock", label: "Attendance lock", hint: "Close punches and leave for the month." },
+  { id: "attendance_lock", label: "Attendance lock", hint: "Finalise this month's attendance and leave." },
   { id: "inputs", label: "Inputs", hint: "Arrears, claims, recoveries, one-time payments." },
   { id: "compute", label: "Compute", hint: "Run the dated rules engine for both cadres." },
   { id: "validate", label: "Validate", hint: "Block on DPE caps, wage share, bank, negative net." },

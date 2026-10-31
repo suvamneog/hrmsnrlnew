@@ -1180,7 +1180,7 @@ export const SWAPS: SwapRequest[] = [
 ];
 
 export const REGS: Regularisation[] = [
-  { id: "rg-1", employeeId: "e-ranjit", date: "2026-10-24", reason: "Biometric reader offline at CDU west gate", inTime: "06:08", outTime: "14:12", status: "pending" },
+  { id: "rg-1", employeeId: "e-ranjit", date: "2026-10-24", reason: "Gate machine was down at CDU west gate", inTime: "06:08", outTime: "14:12", status: "pending" },
 ];
 
 function rosterForMonth(): RosterEntry[] {

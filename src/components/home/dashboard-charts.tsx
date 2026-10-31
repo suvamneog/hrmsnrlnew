@@ -35,11 +35,11 @@ export function DashboardCharts({ force, only }: { force?: boolean; only?: HomeC
         className={only ? undefined : "xl:col-span-2"}
         title={`NRL staff attendance, last ${mix.length} days`}
         value={last ? `${last.present + last.late} in today` : "—"}
-        note={!last ? "Staff on the biometric roster." : last.late + last.absent ? `${last.late} late and ${last.absent} missing a punch today. Follow up before payroll locks.` : "Everyone rostered today punched in on time."}
+        note={!last ? "NRL staff who check in at the gate." : last.late + last.absent ? `${last.late} came in late and ${last.absent} have not come in today. Speak to them before this month's attendance is locked for pay.` : "Everyone on today's roster came in on time."}
         series={[
           { key: "present", label: "On time", color: C.green },
           { key: "late", label: "Late", color: C.amber },
-          { key: "absent", label: "Missing punch", color: C.red },
+          { key: "absent", label: "No check-in", color: C.red },
           { key: "leave", label: "On leave", color: C.sky },
         ]}
       >
@@ -49,7 +49,7 @@ export function DashboardCharts({ force, only }: { force?: boolean; only?: HomeC
           series={[
             { key: "present", label: "On time", color: C.green },
             { key: "late", label: "Late", color: C.amber },
-            { key: "absent", label: "Missing punch", color: C.red },
+            { key: "absent", label: "No check-in", color: C.red },
             { key: "leave", label: "On leave", color: C.sky },
           ]}
           unit="People"

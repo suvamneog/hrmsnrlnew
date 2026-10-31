@@ -151,7 +151,7 @@ export function punchTimeline(employeeId: string, roster: RosterEntry[], shifts:
       detail: [
         r?.shiftId === "OFF" ? "Weekly off" : `${sh?.label ?? "No roster"}${sh?.start ? ` ${sh.start}–${sh.end}` : ""}`,
         `In ${fmt(inn)}, Out ${fmt(out)}`,
-        flag === "late" ? `Late by ${f.lateMinutes} min` : flag === "early" ? `Left ${f.earlyMinutes} min early` : flag === "missing" ? "Missing punch" : "On time",
+        flag === "late" ? `Late by ${f.lateMinutes} min` : flag === "early" ? `Left ${f.earlyMinutes} min early` : flag === "missing" ? "No check-in" : "On time",
       ],
     };
   });

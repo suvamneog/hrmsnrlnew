@@ -10,7 +10,7 @@ const ACTIONS = [
   { href: "/payslips", label: "Payslip", Icon: FileText, bg: "bg-brand-soft", ink: "text-brand" },
   { href: "/claims", label: "Claim", Icon: Receipt, bg: "bg-warn-soft", ink: "text-warn" },
   { href: "/tax", label: "Tax", Icon: Calculator, bg: "bg-[#fdeef4]", ink: "text-[#d4537e]" },
-  { href: "/time", label: "Regularise", Icon: ClockCounterClockwise, bg: "bg-brand-soft", ink: "text-brand" },
+  { href: "/time", label: "Fix attendance", Icon: ClockCounterClockwise, bg: "bg-brand-soft", ink: "text-brand" },
 ] as const;
 
 export function QuickActions() {

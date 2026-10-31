@@ -31,7 +31,7 @@ const LEGEND = [
   ["weekly_off", "Weekly off"],
   ["holiday", "Holiday"],
   ["leave", "Leave"],
-  ["missing_punch", "Missing punch"],
+  ["missing_punch", "No check-in"],
 ] as const;
 
 export default function TimePage() {
@@ -137,7 +137,7 @@ export default function TimePage() {
 
   return (
     <div>
-      <PageHeader title="Attendance" subtitle="Biometric punches, matched to your roster" />
+      <PageHeader title="Attendance" subtitle="When you came in and left, against your shift" />
       <div className="mb-5 grid gap-5 *:min-w-0 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,1fr)]">
         <InView>
           <HeroCard
@@ -165,7 +165,7 @@ export default function TimePage() {
                 <div className="min-w-[160px]">
                   <Fact label="Hours worked" value={month.hours.toFixed(1)} />
                   <Fact label="Late arrivals" value={month.late} tone={month.late ? "warn" : "ok"} />
-                  <Fact label="Missing punches" value={month.missing} tone={month.missing ? "danger" : "ok"} />
+                  <Fact label="Days with no check-in" value={month.missing} tone={month.missing ? "danger" : "ok"} />
                   <Fact label="Overtime" value={`${month.ot.toFixed(1)} h`} />
                 </div>
               </div>
@@ -235,10 +235,10 @@ export default function TimePage() {
                     </p>
                   </div>
                 </div>
-                {inn?.readerId && <p className="mt-3 text-xs text-muted">Reader {inn.readerId}{row?.shiftId ? `, shift ${row.shiftId}` : ""}</p>}
+                {inn?.readerId && <p className="mt-3 text-xs text-muted">Recorded at gate machine {inn.readerId}{row?.shiftId ? `, ${shifts.find((s) => s.id === row.shiftId)?.label ?? row.shiftId} shift` : ""}</p>}
               </Card>
               <Card className="p-5">
-                <h2 className="mb-3 font-semibold">Regularise a punch</h2>
+                <h2 className="mb-3 font-semibold">Correct a missed check-in</h2>
                 <form
                   className="grid gap-3"
                   onSubmit={(e) => {
