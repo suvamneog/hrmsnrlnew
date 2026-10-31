@@ -20,7 +20,9 @@ export function SectionTabs() {
     <nav aria-label={section.label} className="-mx-4 mb-5 overflow-x-auto px-4 [scrollbar-width:none] md:mx-0 md:px-0">
       <div className="inline-flex min-w-max rounded-full bg-fill p-1">
         {section.pages.map((p) => {
-          const on = path === p.href || path.startsWith(`${p.href}/`);
+          // The most specific page wins, so /gate/handover does not also light Pass check.
+          const best = section.pages.filter((x) => path === x.href || path.startsWith(`${x.href}/`)).sort((a, b) => b.href.length - a.href.length)[0];
+          const on = best?.href === p.href;
           return (
             <Link
               key={p.href}

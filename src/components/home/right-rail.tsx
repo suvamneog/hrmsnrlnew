@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, AvatarStack } from "@/components/ui/avatar";
+import { AvatarStack } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { routeAllowed } from "@/lib/access";
 import { DEMO_TODAY } from "@/lib/demo";
@@ -74,10 +74,11 @@ export function HomeRightRail() {
 
   const teamIds = new Set(employees.filter((e) => e.managerId === me.id).map((e) => e.id));
   const leaveInbox = leaves.filter((l) => l.status === "pending" && (l.approverId === me.id || teamIds.has(l.employeeId)));
-  const leaveRows = (leaveInbox.length ? leaveInbox : leaves.filter((l) => l.employeeId === me.id && l.status === "pending")).slice(
-    0,
-    3,
-  );
+  // Your own leave still to come; requests waiting on you are in the Inbox and the Today list.
+  const leaveRows = leaves
+    .filter((l) => l.employeeId === me.id && (l.status === "pending" || l.status === "approved") && l.to >= DEMO_TODAY)
+    .sort((a, b) => a.from.localeCompare(b.from))
+    .slice(0, 3);
 
   const myRoster = roster.find((r) => r.employeeId === me.id && r.date === selected);
   const shift = shifts.find((s) => s.id === (myRoster?.shiftId ?? (me.crew ? undefined : "G")));
@@ -295,29 +296,28 @@ export function HomeRightRail() {
       {role !== "contractor_supervisor" && (
       <Card className="p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-semibold">Leave requests</h2>
-          <Link href={leaveInbox.length ? "/approvals" : "/leave"} className="text-xs font-semibold text-brand">
-            View all
+          <h2 className="font-semibold">Your leave</h2>
+          <Link href="/leave" className="text-xs font-semibold text-brand">
+            Apply
           </Link>
         </div>
         {leaveRows.length === 0 ? (
-          <p className="py-3 text-sm text-muted">No leave waiting.</p>
+          <p className="py-3 text-sm text-muted">No leave booked.</p>
         ) : (
           <ul className="space-y-3">
-            {leaveRows.map((l) => {
-              const who = employees.find((e) => e.id === l.employeeId);
-              return (
-                <li key={l.id}>
-                  <Link href={leaveInbox.length ? "/approvals" : "/leave"} className="flex items-center gap-3">
-                    <Avatar name={who?.name ?? ""} size={36} />
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold">{who?.name}</p>
-                      <p className="text-[12px] text-muted">{rangeLabel(l.from, l.to)}</p>
-                    </div>
-                  </Link>
-                </li>
-              );
-            })}
+            {leaveRows.map((l) => (
+              <li key={l.id}>
+                <Link href="/leave" className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold">{types.find((t) => t.id === l.typeId)?.name ?? "Leave"}</p>
+                    <p className="text-[12px] text-muted">{rangeLabel(l.from, l.to)}</p>
+                  </div>
+                  <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${l.status === "approved" ? "bg-ok-soft text-ok" : "bg-warn-soft text-[#8a5600]"}`}>
+                    {l.status === "approved" ? "Approved" : "Waiting"}
+                  </span>
+                </Link>
+              </li>
+            ))}
           </ul>
         )}
       </Card>

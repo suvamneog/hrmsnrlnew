@@ -1,6 +1,6 @@
 "use client";
 
-import { HeadcountCharts, ReservationCharts } from "@/components/charts/page-charts";
+import { ReservationCharts } from "@/components/charts/page-charts";
 
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -90,7 +90,6 @@ export default function ReportsPage() {
         </Card>
       </div>
       <div className="mt-5 grid gap-5 *:min-w-0 xl:grid-cols-2">
-        <HeadcountCharts />
         <ReservationCharts />
       </div>
       <Card className="mt-5 p-5">

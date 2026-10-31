@@ -6,7 +6,7 @@ export function isOnRoll(role: Role | null) {
 }
 
 // Gate staff are NRL employees too: their desk plus their own payslips, leave and cases.
-export const GATE_PAGES = ["/gate", "/visitors", "/self", "/payslips", "/leave", "/cases"];
+export const GATE_PAGES = ["/gate", "/gate/handover", "/visitors", "/self", "/payslips", "/leave", "/cases"];
 
 export function landingFor(role: Role | null) {
   if (role === "gate_security") return "/gate";

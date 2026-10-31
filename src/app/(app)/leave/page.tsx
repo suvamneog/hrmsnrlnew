@@ -16,6 +16,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Field, Input, Select, Textarea } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { DEMO_TODAY } from "@/lib/demo";
 import { formatDay } from "@/lib/format";
 import { countLeaveDays, eachDate } from "@/lib/leave";
 import { requestTone } from "@/lib/status";
@@ -206,6 +207,22 @@ export default function LeavePage() {
                 <p className="text-2xl font-semibold">{b.balance}</p>
               </Card>
             ))}
+          {/* Plant holidays still to come at this person's location, so leave can be planned around them. */}
+          <Card className="p-4">
+            <p className="mb-2 text-sm font-semibold">Plant holidays</p>
+            <ul className="divide-y divide-fill">
+              {holidays
+                .filter((h) => h.date >= DEMO_TODAY && (!h.locationId || h.locationId === me.locationId))
+                .sort((a, b) => a.date.localeCompare(b.date))
+                .slice(0, 6)
+                .map((h) => (
+                  <li key={h.date + h.name} className="flex items-center justify-between gap-3 py-2 text-sm">
+                    <span className="min-w-0 truncate text-ink">{h.name}</span>
+                    <span className="shrink-0 tabular-nums text-muted">{formatDay(h.date)}</span>
+                  </li>
+                ))}
+            </ul>
+          </Card>
           <p className="text-xs text-muted">Approver: {employees.find((e) => e.id === me.managerId)?.name ?? "HR"}</p>
           {role === "hr_admin" && (
             <InView>

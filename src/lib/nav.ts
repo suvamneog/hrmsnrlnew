@@ -10,6 +10,8 @@ export const ON_ROLL: Role[] = [
   "safety_officer",
   "recruiter",
   "auditor",
+  // The MD is on the roll too: own payslip, leave, tax and profile, from the Me menu.
+  "md",
 ];
 
 const STAFF: Role[] = [...ON_ROLL, "contractor_supervisor"];
@@ -85,7 +87,7 @@ export const NAV: NavItem[] = [
     href: "/shift",
     label: "Shift desk",
     icon: "warning",
-    roles: ["line_manager", "hr_admin", "safety_officer"],
+    roles: ["line_manager", "hr_admin"],
   },
   { href: "/time", label: "Attendance", icon: "clock", roles: ESS },
   {
@@ -265,6 +267,7 @@ export const SECTIONS: {
     pages: [
       { href: "/gate", label: "Pass check" },
       { href: "/visitors", label: "Visitors and vehicles" },
+      { href: "/gate/handover", label: "Handover" },
     ],
   },
   {
@@ -360,6 +363,7 @@ const MENU: Record<Role, MenuItem[]> = {
   ],
   safety_officer: [
     item("/home", "Home", "house"),
+    item("/approvals", "Inbox", "check"),
     item("/safety", "Certificates", "shield"),
     item("/permits", "Permits and incidents", "fire"),
     item("/gate", "Gate", "gate", "gate"),
@@ -393,6 +397,7 @@ const MENU: Record<Role, MenuItem[]> = {
     item("/organisation", "Organisation", "tree"),
     item("/finance", "Pay cost", "coins"),
     item("/reports", "Reports", "chart"),
+    ME,
   ],
 };
 

@@ -9,11 +9,14 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input, Select } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/cn";
 import { DEMO_TODAY } from "@/lib/demo";
 import { useDesk } from "@/lib/desk";
 import { SHIFT_CHANGE, crewInside, lapseImpact, overtimeByDay, shiftExceptions } from "@/lib/desk-analytics";
 import { formatDay } from "@/lib/format";
 import { useCurrentUser, useHrms } from "@/lib/store";
+import { addDays, format, parseISO } from "date-fns";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -24,8 +27,6 @@ const ISSUE = {
   ok: { label: "In", tone: "ok" },
 } as const;
 
-type Pending = { id: string; kind: "Leave" | "Shift swap" | "Attendance correction"; who: string; what: string };
-
 export default function ShiftDeskPage() {
   const me = useCurrentUser();
   const role = useHrms((s) => s.actingRole);
@@ -35,16 +36,10 @@ export default function ShiftDeskPage() {
   const attendance = useHrms((s) => s.attendance);
   const punches = useHrms((s) => s.punches);
   const leave = useHrms((s) => s.leaveRequests);
-  const swaps = useHrms((s) => s.swaps);
-  const regs = useHrms((s) => s.regularisations);
   const certs = useHrms((s) => s.certificates);
   const settings = useHrms((s) => s.settings);
-  const decideLeave = useHrms((s) => s.decideLeave);
-  const decideSwap = useHrms((s) => s.decideSwap);
-  const decideReg = useHrms((s) => s.decideRegularisation);
   const delegation = useDesk((s) => s.delegation);
   const delegate = useDesk((s) => s.delegate);
-  const [picked, setPicked] = useState<Set<string>>(new Set());
   const [to, setTo] = useState("");
   const [until, setUntil] = useState("2026-11-07");
 
@@ -68,23 +63,18 @@ export default function ShiftDeskPage() {
   if (!me) return null;
 
   const name = (id: string) => employees.find((e) => e.id === id)?.preferredName ?? id;
-  const pending: Pending[] = [
-    ...leave.filter((l) => l.status === "pending" && ids.has(l.employeeId)).map((l) => ({ id: `lv:${l.id}`, kind: "Leave" as const, who: name(l.employeeId), what: `${formatDay(l.from)} to ${formatDay(l.to)}, ${l.days} days` })),
-    ...swaps.filter((s) => s.status === "pending" && ids.has(s.fromId)).map((s) => ({ id: `sw:${s.id}`, kind: "Shift swap" as const, who: name(s.fromId), what: `With ${name(s.toId)} on ${formatDay(s.date)}` })),
-    ...regs.filter((r) => r.status === "pending" && ids.has(r.employeeId)).map((r) => ({ id: `rg:${r.id}`, kind: "Attendance correction" as const, who: name(r.employeeId), what: `${formatDay(r.date)}, ${r.reason}` })),
-  ];
 
-  function decideAll(status: "approved" | "rejected") {
-    for (const key of picked) {
-      const [kind, id] = key.split(":");
-      if (kind === "lv") decideLeave(id, status);
-      if (kind === "sw") decideSwap(id, status);
-      if (kind === "rg") decideReg(id, status);
-    }
-    toast.success(`${picked.size} ${status === "approved" ? "approved" : "rejected"}`);
-    setPicked(new Set());
-  }
 
+
+  const week = Array.from({ length: 7 }, (_, i) => format(addDays(parseISO(DEMO_TODAY), i), "yyyy-MM-dd")).map((date) => ({
+    date,
+    away: team.flatMap((e): { name: string; why: "Leave" | "Waiting" | "Off" }[] => {
+      const l = leave.find((x) => x.employeeId === e.id && (x.status === "approved" || x.status === "pending") && x.from <= date && x.to >= date);
+      if (l) return [{ name: e.preferredName, why: l.status === "approved" ? ("Leave" as const) : ("Waiting" as const) }];
+      const off = roster.find((r) => r.employeeId === e.id && r.date === date)?.shiftId === "OFF";
+      return off ? [{ name: e.preferredName, why: "Off" as const }] : [];
+    }),
+  }));
   const count = (k: keyof typeof ISSUE) => rows.filter((r) => r.issue === k).length;
   const colleagues = employees.filter((e) => e.id !== me.id && e.cadre === "executive" && !e.id.startsWith("g-")).slice(0, 10);
   const otHours = ot.reduce((n, r) => n + r.hours, 0);
@@ -150,55 +140,44 @@ export default function ShiftDeskPage() {
       </Panel>
 
       <Grid2>
+        {/* Who is away over the next week, so leave can be judged against cover. Approvals live in the Inbox. */}
         <Panel
-          title="Approve in bulk"
-          note="Leave, shift swaps and attendance corrections waiting on you."
+          title="Who is off, next 7 days"
+          note="Leave (approved or waiting) and weekly offs in your team. Approve requests in the Inbox."
           action={
-            pending.length > 0 && (
-              <button
-                type="button"
-                className="text-[13px] font-semibold text-brand"
-                onClick={() => setPicked(picked.size === pending.length ? new Set() : new Set(pending.map((p) => p.id)))}
-              >
-                {picked.size === pending.length ? "Clear" : "Select all"}
-              </button>
-            )
+            <Link href="/approvals" className="text-[13px] font-semibold text-brand">
+              Open Inbox
+            </Link>
           }
         >
-          <Rows
-            items={pending}
-            empty="Nothing waiting. Your team's requests are all decided."
-            render={(p) => (
-              <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-3">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 accent-[var(--brand)]"
-                  checked={picked.has(p.id)}
-                  onChange={() => {
-                    const next = new Set(picked);
-                    if (next.has(p.id)) next.delete(p.id);
-                    else next.add(p.id);
-                    setPicked(next);
-                  }}
-                />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium text-ink">{p.who}</span>
-                  <span className="block truncate text-[12px] text-muted">{p.what}</span>
+          <ul className="divide-y divide-fill">
+            {week.map((d) => (
+              <li key={d.date} className="flex items-start gap-3 py-2.5">
+                <span className={cn("w-16 shrink-0 text-[13px] font-semibold", d.date === DEMO_TODAY ? "text-brand" : "text-ink")}>
+                  {d.date === DEMO_TODAY ? "Today" : format(parseISO(d.date), "EEE d")}
                 </span>
-                <Pill>{p.kind}</Pill>
-              </label>
-            )}
-          />
-          {pending.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Button disabled={!picked.size} onClick={() => decideAll("approved")}>
-                Approve {picked.size || ""}
-              </Button>
-              <Button variant="secondary" disabled={!picked.size} onClick={() => decideAll("rejected")}>
-                Reject
-              </Button>
-            </div>
-          )}
+                <span className="flex min-w-0 flex-1 flex-wrap gap-1.5">
+                  {d.away.length === 0 ? (
+                    <span className="text-[13px] text-muted">Everyone in</span>
+                  ) : (
+                    d.away.map((x) => (
+                      <span
+                        key={x.name}
+                        className={cn(
+                          "rounded-full px-2.5 py-0.5 text-[12px] font-medium",
+                          x.why === "Leave" ? "bg-brand-soft text-brand" : x.why === "Waiting" ? "bg-warn-soft text-[#8a5600]" : "bg-fill text-muted",
+                        )}
+                      >
+                        {x.name}
+                        <span className="opacity-70"> · {x.why === "Waiting" ? "leave waiting" : x.why === "Leave" ? "leave" : "day off"}</span>
+                      </span>
+                    ))
+                  )}
+                </span>
+                {d.away.length > 0 && <span className="shrink-0 text-[12px] tabular-nums text-muted">{d.away.length} of {team.length}</span>}
+              </li>
+            ))}
+          </ul>
         </Panel>
 
         <ChartCard

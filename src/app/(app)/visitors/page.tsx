@@ -3,10 +3,10 @@
 import { Field, Grid2, Panel, Pill, Rows, Stats } from "@/components/desk/kit";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import { Input, Select, Textarea } from "@/components/ui/input";
+import { Input, Select } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GATES, type Vehicle, useDesk } from "@/lib/desk";
-import { formatClock, formatStamp } from "@/lib/format";
+import { formatClock } from "@/lib/format";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -22,14 +22,12 @@ export default function VisitorsPage() {
   const [gate, setGate] = useState("all");
   const [v, setV] = useState({ name: "", org: "", hostId: "", purpose: "", idLast4: "" });
   const [veh, setVeh] = useState({ reg: "", kind: "material" as Vehicle["kind"], material: "", challan: "" });
-  const [note, setNote] = useState("");
   if (!me) return null;
 
   const at = gate === "all" ? GATES[1] : gate;
   const onGate = <T extends { gate: string }>(list: T[]) => (gate === "all" ? list : list.filter((x) => x.gate === gate));
   const visitors = onGate(desk.visitors);
   const vehicles = onGate(desk.vehicles);
-  const handovers = onGate(desk.handovers);
   const host = (id: string) => employees.find((e) => e.id === id)?.name ?? id;
   const hosts = employees.filter((e) => !e.id.startsWith("g-")).slice(0, 30);
   const guard = role === "gate_security";
@@ -38,7 +36,7 @@ export default function VisitorsPage() {
     <div className={guard ? "mx-auto max-w-6xl space-y-6 px-4 pb-10" : "space-y-6"}>
       <PageHeader
         title="Visitors and vehicles"
-        subtitle="Visitor passes, tankers and material, and the handover between gate shifts."
+        subtitle="Visitor passes, tankers and material at each gate. Shift handover has its own tab."
         actions={
           <Select value={gate} onChange={(e) => setGate(e.target.value)} className="h-10 w-auto" aria-label="Gate">
             <option value="all">All gates</option>
@@ -61,7 +59,6 @@ export default function VisitorsPage() {
         <TabsList>
           <TabsTrigger value="visitors">Visitors</TabsTrigger>
           <TabsTrigger value="vehicles">Vehicles and material</TabsTrigger>
-          <TabsTrigger value="handover">Shift handover</TabsTrigger>
         </TabsList>
 
         <TabsContent value="visitors">
@@ -210,44 +207,6 @@ export default function VisitorsPage() {
           </Grid2>
         </TabsContent>
 
-        <TabsContent value="handover">
-          <Grid2 className="xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-            <Panel title="Handover notes" note="What the next shift needs to know.">
-              <Rows
-                items={handovers}
-                empty="No handover notes at this gate."
-                render={(h) => (
-                  <div className="min-w-0">
-                    <p className="text-[13px] text-muted">
-                      {h.gate}, {host(h.by)}, {formatStamp(h.at)}
-                    </p>
-                    <p className="mt-1 text-sm text-ink">{h.note}</p>
-                  </div>
-                )}
-              />
-            </Panel>
-            <Panel title="Write handover">
-              <form
-                className="grid gap-4"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (note.trim().length < 10) return toast.error("Write what the next shift needs to know.");
-                  const hour = new Date().getHours();
-                  desk.addHandover({ gate: at, by: me.id, shift: hour < 14 ? "M" : hour < 22 ? "A" : "N", note: note.trim() });
-                  setNote("");
-                  toast.success("Handover saved");
-                }}
-              >
-                <Field label={`Note for ${at}`}>
-                  <Textarea rows={5} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Blocked passes, faults, visitors still inside" />
-                </Field>
-                <div>
-                  <Button type="submit">Save handover</Button>
-                </div>
-              </form>
-            </Panel>
-          </Grid2>
-        </TabsContent>
       </Tabs>
     </div>
   );

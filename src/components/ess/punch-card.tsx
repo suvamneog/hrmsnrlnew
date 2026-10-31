@@ -28,7 +28,7 @@ export function PunchCard() {
     <Card className="p-5 sm:p-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">Attendance</h2>
+          <h2 className="text-lg font-semibold tracking-tight">Today</h2>
           <p className="mt-0.5 text-sm text-muted">
             {formatWeekday(DEMO_TODAY)}, {shift?.shiftId === "OFF" ? "Weekly off" : shiftLabel}
           </p>

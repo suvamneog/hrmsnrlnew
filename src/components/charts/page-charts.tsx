@@ -47,6 +47,9 @@ export function TimeCharts() {
   const roster = useHrms((s) => s.roster);
   const shifts = useHrms((s) => s.shifts);
   const punches = useHrms((s) => s.punches);
+  const role = useHrms((s) => s.actingRole);
+  // Plant-wide turnout is for people who manage attendance; everyone else sees only their own days.
+  const plant = role === "hr_admin" || role === "line_manager" || role === "auditor";
   const byShift = useMemo(() => attendanceByShift(attendance), [attendance]);
   const timeline = useMemo(() => (me ? punchTimeline(me.id, roster, shifts, punches, attendance) : []), [me, roster, shifts, punches, attendance]);
   if (!me) return null;
@@ -59,6 +62,7 @@ export function TimeCharts() {
   const last = byShift.at(-1);
   return (
     <Grid>
+      {plant && (
       <ChartCard
         title={`NRL staff present each day, by shift, last ${byShift.length} days`}
         value={last ? `${total(last)} present today` : undefined}
@@ -67,6 +71,7 @@ export function TimeCharts() {
       >
         <Bars data={byShift} x="day" series={series} unit="People present" xUnit="Day" />
       </ChartCard>
+      )}
       <ChartCard
         title="When you came in and left, against your shift, last 14 days"
         value={flags ? `${flags} days need attention` : "Every day on time"}

@@ -1,7 +1,7 @@
 "use client";
 
 import { format, parseISO } from "date-fns";
-import { PayrollCharts, RecruitmentCharts, SafetyCharts } from "@/components/charts/page-charts";
+import { PayrollCharts, RecruitmentCharts } from "@/components/charts/page-charts";
 import {
   DashboardCharts,
   type HomeChart,
@@ -130,13 +130,11 @@ export default function HomePage() {
   const chart: HomeChart | null =
     role === "hr_admin" || role === "auditor" || role === "payroll_officer"
       ? "attendance"
-      : role === "line_manager"
-        ? "crews"
-        : role === "contract_labour_cell" ||
-            role === "safety_officer" ||
-            role === "contractor_supervisor"
-          ? "gate"
-          : null;
+      : role === "contract_labour_cell" || role === "contractor_supervisor"
+        ? "gate"
+        : null;
+  // Line managers see short crews in Today and on the Shift desk; safety sees expired certificates
+  // in Today and on Safety, so their Home carries no second copy of either chart.
 
   return (
     <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_280px]">
@@ -163,7 +161,6 @@ export default function HomePage() {
         {/* Roles whose day is not about attendance get the chart from their own desk. */}
         {role === "finance_approver" && <PayrollCharts />}
         {role === "recruiter" && <RecruitmentCharts />}
-        {role === "safety_officer" && <SafetyCharts />}
       </div>
       {/* Calendar, leave requests and quick links, beside the day's work. */}
       <HomeRightRail />

@@ -19,6 +19,7 @@ const GATE_DESK = GATE_PAGES;
 const GATE_TABS = [
   { href: "/gate", label: "Pass check" },
   { href: "/visitors", label: "Visitors and vehicles" },
+  { href: "/gate/handover", label: "Handover" },
   { href: "/self", label: "Me" },
 ];
 
@@ -75,7 +76,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 href={t.href}
                 className={cn(
                   "rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors sm:px-4",
-                  path === t.href || (t.href === "/self" && !["/gate", "/visitors"].includes(path))
+                  path === t.href || (t.href === "/self" && !["/gate", "/visitors", "/gate/handover"].includes(path))
                     ? "bg-brand text-white"
                     : "text-muted hover:text-ink",
                 )}
@@ -89,8 +90,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <AccountChip />
           </div>
         </div>
-        <div className={path === "/gate" || path === "/visitors" ? "" : "mx-auto max-w-6xl px-4 pb-10"}>
-          {path !== "/gate" && path !== "/visitors" && <SectionTabs />}
+        <div className={path === "/gate" || path === "/visitors" || path === "/gate/handover" ? "" : "mx-auto max-w-6xl px-4 pb-10"}>
+          {!["/gate", "/visitors", "/gate/handover"].includes(path) && <SectionTabs />}
           <Guard>{children}</Guard>
         </div>
       </div>
