@@ -108,10 +108,10 @@ export function Bars({
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-fill">
             <motion.div
-              className="h-full rounded-full"
+              className="h-full w-full origin-left rounded-full"
               style={{ background: r.tone ?? color }}
-              initial={{ width: 0 }}
-              whileInView={{ width: `${(r.value / max) * 100}%` }}
+              initial={{ scaleX: 0 }}
+              whileInView={{ scaleX: r.value / max }}
               viewport={{ once: true }}
               transition={{ duration: 0.9, ease, delay: 0.06 * i }}
             />
@@ -194,10 +194,10 @@ export function StageTrack({ stages, current }: { stages: { id: string; label: s
         {stages.map((s, i) => (
           <div key={s.id} className="h-1.5 flex-1 overflow-hidden rounded-full bg-fill">
             <motion.div
-              className="h-full rounded-full"
+              className="h-full w-full origin-left rounded-full"
               style={{ background: i < at ? "var(--brand)" : i === at ? "#8fa0ff" : "transparent" }}
-              initial={{ width: 0 }}
-              whileInView={{ width: "100%" }}
+              initial={{ scaleX: 0 }}
+              whileInView={{ scaleX: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, ease, delay: 0.05 * i }}
             />

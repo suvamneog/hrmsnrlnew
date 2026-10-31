@@ -75,7 +75,7 @@ export function MobileNav() {
                 <motion.button
                   type="button"
                   aria-label="Close menu"
-                  className="absolute inset-0 bg-[#141a3a]/40 backdrop-blur-[2px]"
+                  className="absolute inset-0 bg-[#141a3a]/40"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}

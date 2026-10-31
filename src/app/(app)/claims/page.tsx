@@ -326,9 +326,9 @@ export default function ClaimsPage() {
                     </div>
                     <div className="mt-3 h-2 overflow-hidden rounded-full bg-fill">
                       <motion.div
-                        className="h-full rounded-full bg-ok"
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${(repaid / a.principal) * 100}%` }}
+                        className="h-full w-full origin-left rounded-full bg-ok"
+                        initial={{ scaleX: 0 }}
+                        whileInView={{ scaleX: repaid / a.principal }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
                       />

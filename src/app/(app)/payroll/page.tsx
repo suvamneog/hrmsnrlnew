@@ -11,6 +11,7 @@ import { HoldToConfirm } from "@/components/ui/hold-to-confirm";
 import { canAdvancePayroll } from "@/lib/access";
 import { downloadText, fileMime, prettySize } from "@/lib/files";
 import { inr } from "@/lib/format";
+import { easeOut } from "@/lib/motion";
 import { PAYROLL_STAGES } from "@/lib/payroll";
 import { useHrms } from "@/lib/store";
 import { motion } from "motion/react";
@@ -135,10 +136,10 @@ export default function PayrollPage() {
           <div key={s.id} className="min-w-[140px] flex-1">
             <div className="mb-2 h-1.5 overflow-hidden rounded-full bg-brand-soft">
               <motion.div
-                className="h-full bg-brand"
-                initial={{ width: 0 }}
-                animate={{ width: i < idx ? "100%" : i === idx ? "55%" : "0%" }}
-                transition={{ duration: 0.4 }}
+                className="h-full w-full origin-left bg-brand"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: i < idx ? 1 : i === idx ? 0.55 : 0 }}
+                transition={{ duration: 0.5, ease: easeOut }}
               />
             </div>
             <p className={`text-xs font-semibold ${i <= idx ? "text-ink" : "text-muted"}`}>{s.label}</p>

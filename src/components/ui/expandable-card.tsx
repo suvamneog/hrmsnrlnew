@@ -232,9 +232,9 @@ function Progress({ pct, className }: { pct: number; className?: string }) {
   return (
     <span className={cn("block h-1.5 overflow-hidden rounded-full bg-[#e9ecf2]", className)}>
       <motion.span
-        className="block h-full rounded-full bg-[#34c759]"
-        initial={{ width: 0 }}
-        animate={{ width: `${pct}%` }}
+        className="block h-full w-full origin-left rounded-full bg-[#34c759]"
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: pct / 100 }}
         transition={{ duration: 0.7, ease: easeOut }}
       />
     </span>

@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion, type UseInViewOptions } from "motion/react";
 import type { ReactNode } from "react";
+import { easeOut } from "@/lib/motion";
 
 /* The app's one reveal: a short fade when a block first scrolls into view. No rise, no blur. */
 export function InView({
@@ -25,7 +26,7 @@ export function InView({
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true, margin: "0px 0px -8% 0px", ...viewOptions }}
-      transition={{ duration: 0.3, ease: "easeOut", delay }}
+      transition={{ duration: 0.35, ease: easeOut, delay }}
     >
       {children}
     </motion.div>

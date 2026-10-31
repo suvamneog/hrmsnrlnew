@@ -275,8 +275,8 @@ export function TodayList({ items, title = "Today", empty = "Nothing due today."
                   return (
                     <motion.li
                       key={it.id}
-                      initial={reduce ? false : { opacity: 0, y: 8, filter: "blur(2px)" }}
-                      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                      initial={reduce ? false : { opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, ease: easeOut, delay: reduce ? 0 : i * 0.035 }}
                     >
                       <Link

@@ -1,17 +1,24 @@
 "use client";
 
 import { cn } from "@/lib/cn";
-import { easeOut, spring, springDrawer } from "@/lib/motion";
+import { easeOut, spring, springDrawer, springSoft } from "@/lib/motion";
 import { CaretLeft, CaretRight, X } from "@phosphor-icons/react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Dialog as D } from "radix-ui";
-import { createContext, useContext, useId, useState } from "react";
+import { createContext, useCallback, useContext, useId, useState } from "react";
 
 export type DetailPart = { key: string; label: string; color: string; value: number };
 export type DetailRow = { label: string; parts: DetailPart[] };
 
 // ChartCard shares its title so the sheet can say which chart it came from.
 export const ChartTitle = createContext("");
+
+// Tabs slide in the direction of the tab you picked, like an iOS segmented control.
+const slide = {
+  enter: (d: number) => ({ x: d * 28, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (d: number) => ({ x: d * -28, opacity: 0 }),
+};
 
 const ord = (n: number) => `${n}${["th", "st", "nd", "rd"][n % 100 > 10 && n % 100 < 14 ? 0 : n % 10 < 4 ? n % 10 : 0]}`;
 const sum = (r: DetailRow) => r.parts.reduce((n, p) => n + p.value, 0);
@@ -39,7 +46,20 @@ export function ChartDetail({
 }) {
   const title = useContext(ChartTitle);
   const reduce = useReducedMotion();
-  const [tab, setTab] = useState<"parts" | "compare">("parts");
+  const [tab, setTabState] = useState<"parts" | "compare">("parts");
+  const [dir, setDir] = useState(1);
+  const setTab = (t: "parts" | "compare") => {
+    setDir(t === "compare" ? 1 : -1);
+    setTabState(t);
+  };
+  // Height of the current tab, measured, so the panel can spring between tab heights.
+  const [contentH, setContentH] = useState<number | null>(null);
+  const measure = useCallback((el: HTMLDivElement | null) => {
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setContentH(e.contentRect.height));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   const pill = useId();
   const open = index !== null && !!rows[index];
   const row = open ? rows[index] : null;
@@ -58,7 +78,7 @@ export function ChartDetail({
           <D.Portal forceMount>
             <D.Overlay asChild forceMount>
               <motion.div
-                className="fixed inset-0 z-[70] bg-[#141a3a]/30 backdrop-blur-[6px]"
+                className="fixed inset-0 z-[70] bg-[#141a3a]/35 sm:backdrop-blur-[6px]"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -72,7 +92,7 @@ export function ChartDetail({
               className="fixed inset-0 z-[71] flex items-end justify-center outline-none sm:items-center sm:p-6"
             >
               <motion.div
-                className="flex max-h-[88dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[22px] bg-white/95 shadow-[0_24px_64px_rgba(20,26,58,0.18)] ring-1 ring-black/5 backdrop-blur-xl sm:rounded-[22px]"
+                className="flex max-h-[88dvh] w-full max-w-[520px] flex-col overflow-hidden rounded-t-[22px] bg-white shadow-[0_24px_64px_rgba(20,26,58,0.18)] ring-1 ring-black/5 will-change-transform sm:rounded-[22px]"
                 initial={reduce ? { opacity: 0 } : { opacity: 0, y: 40, scale: 0.97 }}
                 animate={reduce ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
                 exit={reduce ? { opacity: 0 } : { opacity: 0, y: 24, scale: 0.98, transition: { duration: 0.18, ease: easeOut } }}
@@ -89,9 +109,9 @@ export function ChartDetail({
                     <AnimatePresence mode="popLayout" initial={false}>
                       <motion.div
                         key={index}
-                        initial={{ opacity: 0, y: 6, filter: "blur(2px)" }}
-                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                        exit={{ opacity: 0, y: -6, filter: "blur(2px)" }}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
                         transition={{ duration: 0.2, ease: easeOut }}
                       >
                         <D.Title className="mt-1 text-[22px] font-semibold tracking-[-0.02em] text-ink">{row.label}</D.Title>
@@ -141,13 +161,20 @@ export function ChartDetail({
                 </div>
 
                 <div className="min-h-0 flex-1 overflow-y-auto px-6 pt-4 pb-[max(24px,env(safe-area-inset-bottom))]">
-                  <AnimatePresence mode="wait" initial={false}>
+                  {/* The panel grows or shrinks to the new tab on a spring while the tabs slide past each
+                      other, so nothing jumps. Only transform, opacity and this one height animate. */}
+                  <motion.div animate={{ height: contentH ?? "auto" }} transition={reduce ? { duration: 0 } : springSoft} className="relative">
+                  <div ref={measure}>
+                  <AnimatePresence mode="popLayout" initial={false} custom={dir}>
                     <motion.div
                       key={`${tab}-${index}`}
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -4 }}
-                      transition={{ duration: 0.18, ease: easeOut }}
+                      custom={dir}
+                      variants={slide}
+                      initial={reduce ? false : "enter"}
+                      animate="center"
+                      exit="exit"
+                      transition={{ x: springSoft, opacity: { duration: 0.2, ease: easeOut } }}
+                      className="will-change-transform"
                     >
                       {tab === "parts" ? (
                         <ul className="divide-y divide-fill">
@@ -169,10 +196,10 @@ export function ChartDetail({
                                 {row.parts.length > 1 && (
                                   <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-fill">
                                     <motion.div
-                                      className="h-full rounded-full"
+                                      className="h-full w-full origin-left rounded-full"
                                       style={{ background: p.color }}
-                                      initial={{ width: 0 }}
-                                      animate={{ width: `${share}%` }}
+                                      initial={{ scaleX: 0 }}
+                                      animate={{ scaleX: share / 100 }}
                                       transition={{ duration: 0.5, ease: easeOut, delay: i * 0.04 }}
                                     />
                                   </div>
@@ -214,10 +241,10 @@ export function ChartDetail({
                                   <span className={cn("w-24 shrink-0 truncate", i === index ? "font-semibold text-ink" : "text-muted")}>{r.label}</span>
                                   <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-fill">
                                     <motion.span
-                                      className="block h-full rounded-full"
+                                      className="block h-full w-full origin-left rounded-full"
                                       style={{ background: i === index ? "#3d5afe" : "#c7c7cc" }}
-                                      initial={{ width: 0 }}
-                                      animate={{ width: `${(totals[i] / max) * 100}%` }}
+                                      initial={{ scaleX: 0 }}
+                                      animate={{ scaleX: totals[i] / max }}
                                       transition={{ duration: 0.5, ease: easeOut, delay: i * 0.015 }}
                                     />
                                   </span>
@@ -230,6 +257,8 @@ export function ChartDetail({
                       )}
                     </motion.div>
                   </AnimatePresence>
+                  </div>
+                  </motion.div>
                 </div>
               </motion.div>
             </D.Content>
