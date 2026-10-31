@@ -1075,8 +1075,8 @@ export const SETTINGS: PolicySetting[] = [
   { id: "s19", key: "licence.q-v-02", label: "Licence fee Type V/02", value: 4200, unit: "INR", validFrom: "2024-04-01", approvedBy: "e-bhaskar", source: "Township policy" },
   { id: "s20", key: "licence.q-iv-08", label: "Licence fee Type IV/08", value: 2800, unit: "INR", validFrom: "2024-04-01", approvedBy: "e-bhaskar", source: "Township policy" },
   { id: "s21", key: "licence.q-iv-21", label: "Licence fee Type IV/21", value: 2800, unit: "INR", validFrom: "2024-04-01", approvedBy: "e-bhaskar", source: "Township policy" },
-  { id: "s22", key: "da.ida.sap", label: "SAP HR IDA (Q2, not yet patched)", cadre: "executive", value: 46.2, unit: "%", validFrom: "2026-07-01", approvedBy: "e-bhaskar", source: "SAP HR still on previous quarter" },
-  { id: "s23", key: "da.ida.sap", label: "SAP workmen DA", cadre: "workman", value: 41.2, unit: "%", validFrom: "2025-01-01", approvedBy: "e-bhaskar", source: "SAP HR" },
+  { id: "s22", key: "da.ida.sap", label: "SAP S/4HANA IDA (Q2, not yet patched)", cadre: "executive", value: 46.2, unit: "%", validFrom: "2026-07-01", approvedBy: "e-bhaskar", source: "SAP S/4HANA still on previous quarter" },
+  { id: "s23", key: "da.ida.sap", label: "SAP workmen DA", cadre: "workman", value: 41.2, unit: "%", validFrom: "2025-01-01", approvedBy: "e-bhaskar", source: "SAP S/4HANA" },
   { id: "s24", key: "wage.W2", label: "Workmen basic W2", cadre: "workman", value: 28600, unit: "INR", validFrom: "2024-01-01", approvedBy: "e-bhaskar", source: "Wage settlement 2024" },
   { id: "s25", key: "wage.W3", label: "Workmen basic W3", cadre: "workman", value: 34100, unit: "INR", validFrom: "2024-01-01", approvedBy: "e-bhaskar", source: "Wage settlement 2024" },
   { id: "s26", key: "wage.W4", label: "Workmen basic W4", cadre: "workman", value: 37200, unit: "INR", validFrom: "2024-01-01", approvedBy: "e-bhaskar", source: "Wage settlement 2024" },
@@ -1122,7 +1122,7 @@ const POLICY_HISTORY: Record<string, PolicyVersion[]> = {
     { value: 8, validFrom: "2019-01-01", validTo: "2025-11-20", approvedBy: "e-bhaskar", source: "Standing order, pending OSH confirmation" },
   ],
   s22: [
-    { value: 43.8, validFrom: "2026-04-01", validTo: "2026-06-30", approvedBy: "e-bhaskar", source: "SAP HR, Q1 2026 still on box" },
+    { value: 43.8, validFrom: "2026-04-01", validTo: "2026-06-30", approvedBy: "e-bhaskar", source: "SAP S/4HANA, Q1 2026 still on box" },
   ],
   s29: [
     { value: 88, validFrom: "2025-04-01", validTo: "2026-03-31", approvedBy: "e-bhaskar", source: "DPE MoU 2025-26" },
@@ -1487,7 +1487,7 @@ export const INITIAL_RUN: PayrollRun = {
   startedAt: "2026-10-26T10:15:00+05:30",
   lockedAttendance: false,
   results: [],
-  notes: "Parallel run against SAP HR is on. Differences will show after compute.",
+  notes: "Parallel run against SAP S/4HANA is on. Differences will show after compute.",
 };
 
 export const TAX: TaxDeclaration[] = [

@@ -54,12 +54,36 @@ const MARKS: Record<NrlInterfaceId, React.ReactNode> = {
       <path d="M30 14c3 2 4.5 5 4.5 8s-1.5 6-4.5 8M28 18c1.6 1 2.4 2.5 2.4 4s-.8 3-2.4 4" stroke="#3d5afe" strokeWidth="2" fill="none" strokeLinecap="round" />
     </g>
   ),
+  // Payroll bank is not published, so a plain bank mark rather than any bank's logo.
   sbi: (
     <g>
-      <rect width="44" height="44" fill="#fff" />
-      <circle cx="22" cy="22" r="13" fill="#22409a" />
-      <circle cx="22" cy="21" r="4" fill="#fff" />
-      <rect x="20.5" y="23" width="3" height="12" fill="#fff" />
+      <rect width="44" height="44" fill="#eef1ff" />
+      <path d="M22 10 9 17h26z" fill="#3d5afe" />
+      <path d="M12 19v10m6.7-10v10m6.6-10v10M32 19v10" stroke="#3d5afe" strokeWidth="2.6" strokeLinecap="round" />
+      <rect x="9" y="31" width="26" height="3" rx="1" fill="#3d5afe" />
+    </g>
+  ),
+  btp: (
+    <g>
+      <rect width="44" height="44" fill="#e6f4fd" />
+      <path d="M5 13h34L25 31H5z" fill="#0070C0" />
+      <text x="15" y="25.5" textAnchor="middle" fontSize="8" fontWeight="800" fill="#fff" fontFamily="Arial, sans-serif">
+        BTP
+      </text>
+    </g>
+  ),
+  portal: (
+    <g>
+      <rect width="44" height="44" fill="#fff4ec" />
+      <circle cx="22" cy="17" r="6" fill="#e8642c" />
+      <path d="M11 34c1.5-6 6-9 11-9s9.5 3 11 9z" fill="#e8642c" />
+    </g>
+  ),
+  mbarta: (
+    <g>
+      <rect width="44" height="44" fill="#fff8e1" />
+      <path d="M11 19h6l12-7v20l-12-7h-6z" fill="#e0a43d" />
+      <path d="M17 25l2 8h4l-2-8" fill="#e0a43d" />
     </g>
   ),
   epfo: (

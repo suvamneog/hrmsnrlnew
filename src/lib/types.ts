@@ -161,7 +161,7 @@ export interface PolicySetting {
   versions?: PolicyVersion[];
 }
 
-export type NrlInterfaceId = "sap_hr" | "aarohan" | "eureka" | "saral" | "sbi" | "epfo" | "traces" | "ad" | "smtp" | "sms";
+export type NrlInterfaceId = "sap_hr" | "btp" | "portal" | "mbarta" | "aarohan" | "eureka" | "saral" | "sbi" | "epfo" | "traces" | "ad" | "smtp" | "sms";
 
 export type NrlInterfaceGroup = "record" | "field" | "statutory" | "identity";
 

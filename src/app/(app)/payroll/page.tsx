@@ -175,7 +175,7 @@ export default function PayrollPage() {
           <p className="text-2xl font-semibold">{sapDiff}</p>
           {run.totals?.ms != null && <p className="mt-1 text-[12px] text-muted">Computed in {run.totals.ms} ms</p>}
           <Link href="/interfaces" className="mt-2 inline-block text-xs font-semibold text-brand">
-            SAP HR interface
+            SAP S/4HANA interface
           </Link>
         </Card>
       </div>

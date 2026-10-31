@@ -28,7 +28,7 @@ export function BankAck({ run }: { run: PayrollRun }) {
 
   return (
     <Panel
-      title="SBI acknowledgement"
+      title="Bank acknowledgement"
       note={released ? `${sent.toLocaleString("en-IN")} salaries sent in the bank file.` : "The bank file goes out after Finance approves the run."}
     >
       {ack ? (

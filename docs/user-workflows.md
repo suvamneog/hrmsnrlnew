@@ -52,7 +52,7 @@ Lands on Home with net pay by pay part.
 
 1. **Inbox:** claims of ₹25,000 and over (press and hold to approve), and bank account changes.
 2. **Payroll:** approve the run at the finance step.
-3. **Bank and files:** SBI salary file and the SBI acknowledgement.
+3. **Bank and files:** salary bank file and the bank acknowledgement.
 
 ## 6. Contract Labour Cell (for example meenakshi.devi)
 

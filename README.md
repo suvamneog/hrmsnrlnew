@@ -30,7 +30,7 @@ The walkthrough is in [docs/demo-script.md](docs/demo-script.md). How each role 
 
 ## What the prototype does
 
-- Payroll from attendance lock to bank file, with SAP HR reconciliation and statutory files (SBI, EPFO ECR, NPS, 24Q, PT).
+- Payroll from attendance lock to bank file, with reconciliation against SAP S/4HANA 2020 and statutory files (salary bank file, EPFO ECR, NPS, 24Q, PT).
 - Rules engine with versioned, maker-checker policy values.
 - Gate pass checks that block on police, medical, induction, licence or certificate; visitor and vehicle passes on three gates.
 - Shift desk for changeover exceptions, bulk approval, delegation, overtime and certificate-lapse impact on next week's roster.
@@ -53,7 +53,8 @@ The on-roll headcount of 1,588 is a generated sample. NRL publishes 1,120 on rol
 - Backend, database and shared multi-user state. Data lives in each browser.
 - NRL Active Directory SSO and real MFA; server-side permissions.
 - Tamper-proof, India-hosted, encrypted audit storage; backup; VAPT.
-- Live SAP, Saral Pravesh readers, SBI salary file, EPFO ECR and TRACES submission. Files download; nothing is submitted.
+- Live connections to SAP S/4HANA 2020, SAP BTP, AAROHAN (IBM BAW), the Employee Portal, m.Barta and Saral Pravesh, and EPFO ECR and TRACES submission. Files download; nothing is submitted. Eureka and m.Barta stay unchanged.
+- Facts not in NRL's public documents, to confirm in Phase 0: the payroll product, the payroll bank (the demo uses SBI's CMP file format), the gate hardware vendor, the Employee Portal's technology, and whether HRMS replaces or feeds the Employee Portal. Source: [docs/nrl-current-systems.pdf](docs/nrl-current-systems.pdf).
 - A parallel payroll run against the current system, and month-on-month variance (only October 2026 exists).
 - Hindi and Assamese wording is machine-drafted in `src/lib/i18n` and needs a native reviewer. Labels, sentences with numbers, dates and day names are translated; records stay as entered (people, companies, places, job titles, trades, policy and order names, IDs and file names).
 - Offline changes stay on the device; with no backend there is nothing to sync them to yet.

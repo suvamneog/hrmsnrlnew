@@ -109,7 +109,7 @@ export default function InterfacesPage() {
 
               {row.id === "sap_hr" && canHr && (
                 <div className="mt-4 border-t border-line pt-4">
-                  <p className="mb-2 text-sm font-semibold">SAP HR reconciliation</p>
+                  <p className="mb-2 text-sm font-semibold">SAP S/4HANA reconciliation</p>
                   <p className="mb-3 text-xs text-muted">CSV columns EMPNO, NAME, GRADE, BASIC, UNIT. Import replaces matching employee numbers.</p>
                   <FileDownloadList className="mb-3">
                     <FileDownload

@@ -29,7 +29,7 @@ export default function PayslipLinePage() {
               <tr className="text-left text-xs text-muted">
                 <th className="py-2">Component</th>
                 <th className="py-2 text-right">NRL People</th>
-                <th className="py-2 text-right">SAP HR</th>
+                <th className="py-2 text-right">SAP S/4HANA</th>
               </tr>
             </thead>
             <tbody>

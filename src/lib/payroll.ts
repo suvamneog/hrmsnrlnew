@@ -347,6 +347,6 @@ export const PAYROLL_STAGES: { id: import("./types").PayrollStage; label: string
   { id: "compute", label: "Compute", hint: "Run the dated rules engine for both cadres." },
   { id: "validate", label: "Validate", hint: "Block on DPE caps, wage share, bank, negative net." },
   { id: "finance_approval", label: "Finance approval", hint: "A different person must release the bank file." },
-  { id: "bank_file", label: "Bank file", hint: "SBI salary upload, EPFO ECR, NPS, PT." },
+  { id: "bank_file", label: "Bank file", hint: "Salary bank file, EPFO ECR, NPS, PT." },
   { id: "publish", label: "Publish", hint: "Payslips to employees. Parallel SAP report stays on file." },
 ];

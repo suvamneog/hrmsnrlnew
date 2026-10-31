@@ -128,7 +128,7 @@ export function useToday(): TodayItem[] {
         compute: { who: "payroll_officer", what: "Validate the computed run", day: 26 },
         validate: { who: "payroll_officer", what: "Clear blockers and send to Finance", day: 27 },
         finance_approval: { who: "finance_approver", what: "Approve the run", day: 28 },
-        bank_file: { who: "finance_approver", what: "Release the SBI salary file", day: 29 },
+        bank_file: { who: "finance_approver", what: "Release the salary bank file", day: 29 },
         publish: { who: "payroll_officer", what: "Publish payslips", day: 30 },
       };
       const step = run ? NEXT[run.stage] : undefined;

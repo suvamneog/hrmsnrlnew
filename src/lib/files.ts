@@ -309,7 +309,7 @@ export function sapFiFile(month: string, results: PayResult[]): StatutoryFile {
     { key: "40", gl: "510220", amount: npsEr, cc: "HR01", text: `NPS employer ${month}` },
     { key: "40", gl: "510230", amount: grat, cc: "HR01", text: `Gratuity provision ${month}` },
     { key: "40", gl: "510240", amount: prms, cc: "HR01", text: `PRMS ${month}` },
-    { key: "50", gl: "160010", amount: net, cc: "", text: "SBI CMP salary payable" },
+    { key: "50", gl: "160010", amount: net, cc: "", text: "Salary payable, bank file" },
     { key: "50", gl: "166101", amount: round2(pf + pfEr), cc: "", text: "EPF payable" },
     { key: "50", gl: "166102", amount: round2(nps + npsEr), cc: "", text: "NPS payable" },
     { key: "50", gl: "166103", amount: pt, cc: "", text: "Professional tax payable" },
