@@ -403,6 +403,10 @@ export const SWEEP: Record<string, [string, string]> = {
   "No check-in recorded": ["कोई चेक-इन दर्ज नहीं", "কোনো চেক-ইন লিপিবদ্ধ নাই"],
   "Not started": ["शुरू नहीं हुई", "আৰম্ভ হোৱা নাই"],
   Everyone: ["सभी", "সকলো"],
+  "Reporting line": ["रिपोर्टिंग क्रम", "ৰিপৰ্টিং ক্ৰম"],
+  "Reports to you": ["आपको रिपोर्ट करते हैं", "আপোনাক ৰিপৰ্ট কৰে"],
+  "Direct reports": ["सीधे अधीनस्थ", "প্ৰত্যক্ষ অধীনস্থ"],
+  "No reporting manager on record. HR approves requests.": ["कोई रिपोर्टिंग प्रबंधक दर्ज नहीं। अनुरोध HR स्वीकृत करता है।", "কোনো ৰিপৰ্টিং পৰিচালক লিপিবদ্ধ নাই। অনুৰোধ HRএ অনুমোদন কৰে।"],
   // Walkthrough fixes
   "Who is off, next 7 days": ["अगले 7 दिन कौन छुट्टी पर", "পৰৱৰ্তী 7 দিন কোন ছুটিত"],
   "Leave (approved or waiting) and weekly offs in your team. Approve requests in the Inbox.": ["आपकी टीम में छुट्टी (स्वीकृत या प्रतीक्षा में) और साप्ताहिक अवकाश। अनुरोध इनबॉक्स में स्वीकृत करें।", "আপোনাৰ দলৰ ছুটি (অনুমোদিত বা অপেক্ষাত) আৰু সাপ্তাহিক বন্ধ। অনুৰোধ ইনবক্সত অনুমোদন কৰক।"],

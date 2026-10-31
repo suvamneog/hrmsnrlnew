@@ -1,5 +1,6 @@
 "use client";
 
+import { Mark } from "@/components/brand/wordmark";
 import { LanguageSwitch } from "@/components/i18n/language-switch";
 import { DEMO_TODAY } from "@/lib/demo";
 import { useDesk } from "@/lib/desk";
@@ -70,7 +71,7 @@ export default function KioskPage() {
     <div className="min-h-[100dvh] bg-fill text-ink">
       <header className="flex flex-wrap items-center justify-between gap-4 px-6 py-5 md:px-10">
         <div className="flex items-center gap-3">
-          <span className="grid h-12 w-12 place-items-center rounded-xl bg-brand text-lg font-bold text-white">N</span>
+          <Mark size={48} className="rounded-xl" />
           <div>
             <p className="text-lg font-semibold leading-tight">NRL People</p>
             <p className="text-sm text-muted">Kiosk</p>

@@ -129,6 +129,8 @@ const PATTERNS: { re: RegExp; to: (m: RegExpMatchArray, l: Locale) => string }[]
   { re: /^(.+), (Mon|Tue|Wed|Thu|Fri|Sat|Sun) (\d+ \w+)$/, to: (m, l) => `${m[1]}, ${dw(`${m[2]} ${m[3]}`, l)}` },
   { re: /^Note for (.+)$/, to: (m, l) => (l === "hi" ? `${m[1]} के लिए नोट` : `${m[1]}ৰ বাবে টোকা`) },
   { re: /^HRA now \((\d+)% of basic\)$/, to: (m, l) => (l === "hi" ? `अभी HRA (मूल वेतन का ${m[1]}%)` : `এতিয়াৰ HRA (মূল দৰমহাৰ ${m[1]}%)`) },
+  { re: /^(Your|.+'s) leave, swaps and small claims go to (.+)\.$/, to: (m, l) => (l === "hi" ? `${m[1] === "Your" ? "आपकी" : m[1].replace(/'s$/, " की")} छुट्टी, अदला-बदली और छोटे दावे ${m[2]} को जाते हैं।` : `${m[1] === "Your" ? "আপোনাৰ" : m[1].replace(/'s$/, "ৰ")} ছুটি, সলনি আৰু সৰু দাবী ${m[2]}লৈ যায়।`) },
+  { re: /^(Reports to you|Direct reports) \((\d+)\)$/, to: (m, l) => `${DICT[m[1]]?.[col(l)] ?? m[1]} (${m[2]})` },
   { re: /^Tick all (\d+)$/, to: (m, l) => (l === "hi" ? `सभी ${m[1]} चुनें` : `সকলো ${m[1]} বাছক`) },
 ];
 

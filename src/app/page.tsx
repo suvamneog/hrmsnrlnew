@@ -1,5 +1,6 @@
 "use client";
 
+import { NrlLogo } from "@/components/brand/wordmark";
 import { landingFor } from "@/lib/access";
 import { LanguageSwitch } from "@/components/i18n/language-switch";
 import Link from "next/link";
@@ -76,19 +77,7 @@ export default function LoginPage() {
         <div className="mx-auto flex min-h-[100dvh] w-full max-w-[520px] flex-col md:min-h-0 md:overflow-hidden md:rounded-xl md:shadow-[0_24px_24px_rgba(20,30,90,0.25)]">
           <div className="relative rounded-b-[24px] bg-white px-4 pt-5 pb-2 md:rounded-b-[24px] md:px-6 md:pt-6">
             <div className="flex justify-end">
-              <span className="flex items-center gap-2 text-[#3d5afe]">
-                <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden>
-                  <g fill="currentColor" transform="rotate(-38 16 16)">
-                    <rect x="3" y="4" width="5" height="24" rx="2.5" />
-                    <rect x="10" y="4" width="5" height="24" rx="2.5" />
-                    <rect x="17" y="4" width="5" height="24" rx="2.5" />
-                    <rect x="24" y="4" width="5" height="24" rx="2.5" />
-                  </g>
-                </svg>
-                <span className="text-[20px] font-semibold tracking-tight">
-                  NRL People
-                </span>
-              </span>
+              <NrlLogo height={36} />
             </div>
             <Image
               src="/login-scene.jpg"
@@ -273,23 +262,7 @@ export default function LoginPage() {
         <div className="min-h-[100dvh] min-w-0 flex-1 pt-1">
           <div className="relative h-full overflow-hidden rounded-l-[20px] bg-white md:rounded-l-[28px]">
             <div className="absolute right-3 top-4 z-10 flex items-center gap-2.5 rounded-full bg-white/80 px-2.5 py-1.5 backdrop-blur md:right-8 md:top-7 md:px-4 md:py-2">
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 32 32"
-                aria-hidden
-                className="md:h-7 md:w-7"
-              >
-                <g fill="#3d5afe" transform="rotate(-38 16 16)">
-                  <rect x="3" y="4" width="5" height="24" rx="2.5" />
-                  <rect x="10" y="4" width="5" height="24" rx="2.5" />
-                  <rect x="17" y="4" width="5" height="24" rx="2.5" />
-                  <rect x="24" y="4" width="5" height="24" rx="2.5" />
-                </g>
-              </svg>
-              <span className="hidden text-[22px] font-normal tracking-tight text-[#1b2140] sm:inline">
-                NRL <b className="font-bold">People</b>
-              </span>
+              <NrlLogo height={48} className="md:h-14 md:w-auto" />
             </div>
             {/* The whole scene shows at every width, anchored to the bottom like the desktop view. */}
             <Image

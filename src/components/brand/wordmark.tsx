@@ -1,16 +1,26 @@
 import { cn } from "@/lib/cn";
+import Image from "next/image";
 
-/* The NRL People mark: four tilted bars, the same drawing as the login screen and app icon. */
+/* NRL's official emblem (from nrl.co.in), cropped to a square tile; the same image makes the app icon. */
 export function Mark({ size = 28, className }: { size?: number; className?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden className={className}>
-      <g fill="currentColor" transform="rotate(-38 16 16)">
-        <rect x="3" y="4" width="5" height="24" rx="2.5" />
-        <rect x="10" y="4" width="5" height="24" rx="2.5" />
-        <rect x="17" y="4" width="5" height="24" rx="2.5" />
-        <rect x="24" y="4" width="5" height="24" rx="2.5" />
-      </g>
-    </svg>
+    <span className={cn("relative block shrink-0 overflow-hidden rounded-lg bg-[#1d2a5c]", className)} style={{ width: size, height: size }}>
+      <Image src="/brand/nrl-og-logo.png" alt="" fill sizes={`${size}px`} className="object-cover" />
+    </span>
+  );
+}
+
+/* The full official logo with the company name, for white surfaces such as the login card. */
+export function NrlLogo({ height = 40, className }: { height?: number; className?: string }) {
+  return (
+    <Image
+      src="/brand/nrl-logo.jpg"
+      alt="Numaligarh Refinery Limited, a Government of India enterprise"
+      width={Math.round((height * 257) / 74)}
+      height={height}
+      className={className}
+      priority
+    />
   );
 }
 

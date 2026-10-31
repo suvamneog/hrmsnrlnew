@@ -1,6 +1,7 @@
 "use client";
 
 import { QuickActions } from "@/components/ess/quick-actions";
+import { ReportingLine } from "@/components/people/reporting-line";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -53,6 +54,8 @@ export default function SelfPage() {
           <QuickActions />
         </div>
       </Card>
+
+      <ReportingLine person={me} self />
 
       {routeAllowed("/payslips", role) && (
       <Card className="p-5">

@@ -1,6 +1,7 @@
 "use client";
 
 import { PageHeader } from "@/components/layout/page-header";
+import { ReportingLine } from "@/components/people/reporting-line";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -61,6 +62,7 @@ export default function PersonPage() {
           {e.crew && <p className="mt-2 text-sm">Crew {e.crew}</p>}
         </Card>
         <div className="grid gap-4">
+          <ReportingLine person={e} />
           <Card className="p-5">
             <h2 className="mb-3 font-semibold">Identity</h2>
             <dl className="grid gap-3 sm:grid-cols-2 text-sm">
