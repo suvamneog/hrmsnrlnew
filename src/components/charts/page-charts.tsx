@@ -26,20 +26,19 @@ import { settingOn } from "@/lib/payroll";
 import { useCrewScope } from "@/lib/crew-scope";
 import { useCurrentUser, useHrms } from "@/lib/store";
 import { format, parseISO } from "date-fns";
+import { SHIFT_STYLE, ShiftIcon, ShiftKey } from "@/lib/shift-style";
 import Link from "next/link";
 import { useMemo } from "react";
 
 const Grid = ({ children }: { children: React.ReactNode }) => <div className="mb-6 grid gap-5 *:min-w-0 xl:grid-cols-2">{children}</div>;
 const lakh = (n: number) => (n === 0 ? "₹0" : n >= 1e7 ? `₹${(n / 1e7).toFixed(2)} Cr` : `₹${(n / 1e5).toFixed(1)}L`);
 
-// Shifts need four colours that stay apart in a stack: two blues, ink and a mid grey.
-const SHIFT_COLOR: Record<string, string> = { M: "#3d5afe", A: "#8a9bff", N: "#1d1d1f", G: "#8e8e93", OFF: "#f2f2f0" };
-const SHIFT_SERIES = [
-  { key: "M", label: "Morning, 06:00 to 14:00", color: SHIFT_COLOR.M },
-  { key: "A", label: "Afternoon, 14:00 to 22:00", color: SHIFT_COLOR.A },
-  { key: "N", label: "Night, 22:00 to 06:00", color: SHIFT_COLOR.N },
-  { key: "G", label: "General, 09:00 to 17:30", color: SHIFT_COLOR.G },
-];
+// Shift colours follow the time of day (dawn amber, afternoon orange, night indigo) and match the roster grid.
+const SHIFT_SERIES = ["M", "A", "N", "G"].map((k) => ({
+  key: k,
+  label: `${SHIFT_STYLE[k].name}, ${SHIFT_STYLE[k].hours}`,
+  color: SHIFT_STYLE[k].bar,
+}));
 
 /* Attendance: heads present per shift each day, and my punches against my roster. */
 export function TimeCharts() {
@@ -123,8 +122,10 @@ export function RosterCharts() {
             ? `${flaggedCells.slice(0, 3).join("; ")}${flaggedCells.length > 3 ? `; ${flaggedCells.length - 3} more` : ""}. Red dot: under ${minRest} h rest. Amber dot: swap.`
             : `No swaps and no shift with under ${minRest} h rest.`
         }
-        series={[...SHIFT_SERIES.slice(0, 3), { key: "OFF", label: "Weekly off", color: "#d8dde8" }]}
       >
+        <div className="mb-4">
+          <ShiftKey />
+        </div>
         <Heatmap
           rows={people.map((p) => ({ key: p.id, label: p.preferredName }))}
           cols={grid.dates.map((d) => ({ key: d, label: d.slice(8), sub: format(parseISO(d), "EEEEE"), today: d === DEMO_TODAY }))}
@@ -133,12 +134,13 @@ export function RosterCharts() {
             const sh = shifts.find((s) => s.id === c.code);
             const who = people.find((p) => p.id === row)?.name ?? "";
             return {
-              color: c.code === "OFF" ? "#d8dde8" : SHIFT_COLOR[c.code] ?? C.slate,
-              text: c.code === "OFF" ? "" : c.code,
+              color: SHIFT_STYLE[c.code]?.bg ?? C.slate,
+              ink: SHIFT_STYLE[c.code]?.ink,
+              icon: <ShiftIcon code={c.code} />,
               mark: c.rest !== undefined ? "rest" : c.swap ? "swap" : undefined,
               title: `${who}, ${format(parseISO(col), "EEE d MMM")}`,
               detail: [
-                c.code === "OFF" ? "Weekly off" : `${sh?.label} ${sh?.start}–${sh?.end}`,
+                c.code === "OFF" ? "Day off" : `${SHIFT_STYLE[c.code]?.name ?? sh?.label} shift, ${SHIFT_STYLE[c.code]?.hours ?? `${sh?.start} to ${sh?.end}`}`,
                 ...(c.rest !== undefined ? [`Only ${c.rest.toFixed(1)} h rest`] : []),
                 ...(c.swap ? ["Shift swap requested"] : []),
               ],

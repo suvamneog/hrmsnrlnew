@@ -1,5 +1,7 @@
 "use client";
 
+import { SHIFT_STYLE, ShiftIcon } from "@/lib/shift-style";
+
 import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
 import { cn } from "@/lib/cn";
 import type { DayButtonProps } from "react-day-picker";
@@ -15,13 +17,8 @@ export const ATT_DOT: Record<string, string> = {
   od: "bg-brand",
 };
 
-export const SHIFT_TONE: Record<string, string> = {
-  M: "bg-ok-soft text-ok",
-  A: "bg-warn-soft text-warn",
-  N: "bg-brand-soft text-brand",
-  G: "bg-fill text-brand",
-  OFF: "bg-fill text-muted",
-};
+// Calendar stamps use the same shift look as the roster grid: icon on the shift's colour.
+export { SHIFT_STYLE } from "@/lib/shift-style";
 
 function StatusDayButton({
   marks,
@@ -43,7 +40,17 @@ function StatusDayButton({
       {children}
       {mark?.dot ? <span className={cn("h-1.5 w-1.5 rounded-full", mark.dot)} /> : null}
       {mark?.stamp ? (
-        <span className={cn("rounded px-1 text-[9px] font-semibold leading-4", mark.stampClass)}>{mark.stamp}</span>
+        SHIFT_STYLE[mark.stamp] ? (
+          <span
+            title={SHIFT_STYLE[mark.stamp].name}
+            className="grid h-4 min-w-4 place-items-center rounded-[5px] px-0.5 text-[9px] font-semibold"
+            style={{ background: SHIFT_STYLE[mark.stamp].bg, color: SHIFT_STYLE[mark.stamp].ink }}
+          >
+            {SHIFT_STYLE[mark.stamp].Icon ? <ShiftIcon code={mark.stamp} size={10} /> : "Off"}
+          </span>
+        ) : (
+          <span className={cn("rounded px-1 text-[9px] font-semibold leading-4", mark.stampClass)}>{mark.stamp}</span>
+        )
       ) : null}
     </CalendarDayButton>
   );

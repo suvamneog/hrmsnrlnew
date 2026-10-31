@@ -671,6 +671,9 @@ export function Heatmap({
   ) => {
     color: string;
     text?: string;
+    // A picture in place of (or beside) the text, drawn in `ink`.
+    icon?: ReactNode;
+    ink?: string;
     title: string;
     detail?: string[];
     mark?: "swap" | "rest";
@@ -742,11 +745,10 @@ export function Heatmap({
                     style={{ background: v.color }}
                   >
                     <span
-                      className={
-                        ["#eef1f6", "#f2f2f0", "#d8dde8"].includes(v.color) ? "text-muted" : "text-white/95"
-                      }
+                      className={cn("grid place-items-center", !v.ink && (["#eef1f6", "#f2f2f0", "#d8dde8"].includes(v.color) ? "text-muted" : "text-white/95"))}
+                      style={v.ink ? { color: v.ink } : undefined}
                     >
-                      {v.text}
+                      {v.icon ?? v.text}
                     </span>
                     {v.mark && (
                       <span

@@ -2,7 +2,8 @@
 
 import { RosterCharts } from "@/components/charts/page-charts";
 
-import { SHIFT_TONE, StatusMonth } from "@/components/calendar/status-month";
+import { StatusMonth } from "@/components/calendar/status-month";
+import { SHIFT_STYLE, ShiftIcon, ShiftKey } from "@/lib/shift-style";
 import { PageHeader } from "@/components/layout/page-header";
 import { AnimatedGroup } from "@/components/motion/animated-group";
 import { InView } from "@/components/motion/in-view";
@@ -53,7 +54,7 @@ export default function RosterPage() {
     if (!me) return map;
     for (const r of roster) {
       if (r.employeeId !== me.id) continue;
-      map.set(r.date, { stamp: r.shiftId, stampClass: SHIFT_TONE[r.shiftId] ?? "bg-subtle text-muted" });
+      map.set(r.date, { stamp: r.shiftId, stampClass: "bg-subtle text-muted" });
     }
     return map;
   }, [roster, me]);
@@ -67,14 +68,6 @@ export default function RosterPage() {
   }));
   const minRest = settingOn(settings, "min.rest", DEMO_TODAY, undefined, 11);
   const pendingSwaps = swaps.filter((x) => x.status === "pending" && (x.fromId === me.id || x.approverId === me.id)).length;
-  const color: Record<string, string> = {
-    // Same colours as the roster grid: Morning blue, Afternoon light blue, Night black, General grey.
-    M: "bg-[#3d5afe] text-white",
-    A: "bg-[#8a9bff] text-white",
-    N: "bg-[#1d1d1f] text-white",
-    G: "bg-[#8e8e93] text-white",
-    OFF: "bg-fill text-muted",
-  };
 
   return (
     <div>
@@ -99,7 +92,10 @@ export default function RosterPage() {
         <div className="mb-4 flex flex-wrap gap-2">
           {shifts.filter((s) => s.code !== "OFF").map((s) => (
             <label key={s.id} className="flex items-center gap-2 rounded-lg bg-white px-3 py-1.5 text-xs">
-              {s.code}
+              <span className="grid h-5 w-5 place-items-center rounded-[6px]" style={{ background: SHIFT_STYLE[s.code]?.bg, color: SHIFT_STYLE[s.code]?.ink }}>
+                <ShiftIcon code={s.code} size={11} />
+              </span>
+              {SHIFT_STYLE[s.code]?.name ?? s.code}
               <input
                 className="w-14 rounded-md border border-line px-1"
                 defaultValue={s.start}
@@ -126,9 +122,9 @@ export default function RosterPage() {
                 rows={shifts
                   .filter((x) => x.code !== "OFF" && x.code !== "G")
                   .map((x) => ({
-                    label: `${x.label}, ${x.start}–${x.end}`,
+                    label: `${SHIFT_STYLE[x.code]?.name ?? x.label}, ${SHIFT_STYLE[x.code]?.hours ?? ""}`,
                     value: grid.filter((g) => g.cells[days.indexOf(DEMO_TODAY)] === x.id).length,
-                    tone: x.code === "M" ? "#0f9f6e" : x.code === "A" ? "#e07a3d" : "#5b5bd6",
+                    tone: SHIFT_STYLE[x.code]?.bar,
                   }))}
               />
               <p className="mt-3 text-[12px] text-muted">
@@ -145,20 +141,19 @@ export default function RosterPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.04 * i, duration: 0.4 }}
-                    className={`flex flex-col items-center rounded-xl px-1 py-2.5 ${color[d.code] ?? "bg-subtle text-muted"}`}
+                    className="flex flex-col items-center gap-0.5 rounded-xl px-1 py-2.5"
+                    style={{ background: SHIFT_STYLE[d.code]?.bg ?? "#f2f2f0", color: SHIFT_STYLE[d.code]?.ink ?? "#8e8e93" }}
+                    title={SHIFT_STYLE[d.code] ? `${SHIFT_STYLE[d.code].name}${SHIFT_STYLE[d.code].hours ? `, ${SHIFT_STYLE[d.code].hours}` : ""}` : undefined}
                   >
                     <span className="text-[10px] font-semibold opacity-70">{format(parseISO(d.date), "EEE")}</span>
                     <span className="text-[15px] font-semibold tabular-nums">{d.date.slice(8)}</span>
-                    <span className="mt-1 text-[11px] font-bold">{d.code}</span>
+                    <span className="mt-0.5 h-4"><ShiftIcon code={d.code} size={15} /></span>
+                    <span className="max-w-full truncate text-[9px] font-semibold">{SHIFT_STYLE[d.code]?.name.replace("Afternoon", "Aft.").replace("Day off", "Off") ?? d.code}</span>
                   </motion.div>
                 ))}
               </div>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {shifts.filter((x) => x.code !== "OFF").map((x) => (
-                  <span key={x.id} className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold ${color[x.code]}`}>
-                    {x.code} {x.start}–{x.end}
-                  </span>
-                ))}
+              <div className="mt-4">
+                <ShiftKey codes={["M", "A", "N", "G", "OFF"]} />
               </div>
             </div>
           </div>
@@ -168,7 +163,10 @@ export default function RosterPage() {
       <AnimatedGroup preset="slide" className="mt-4 grid gap-4 lg:grid-cols-[1fr_1.1fr]">
         <InView>
         <Card className="p-4">
-          <h2 className="mb-3 font-semibold">My shifts</h2>
+          <h2 className="mb-2 font-semibold">My shifts</h2>
+          <div className="mb-3">
+            <ShiftKey codes={["M", "A", "N", "OFF"]} />
+          </div>
           <StatusMonth selected={date} onSelect={setDate} marks={marks} month={parseISO("2026-10-01")} />
         </Card>
         </InView>
